@@ -8,7 +8,6 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
-
     portada = models.ImageField(upload_to='productos/portadas/', null=True, blank=True)
 
     categoria = models.ForeignKey(
@@ -19,7 +18,7 @@ class Producto(models.Model):
         blank=True
     )
 
-    creado = models.DateTimeField(default=timezone.now)    
+    creado = models.DateTimeField(default=timezone.now)
     actualizado = models.DateTimeField(auto_now=True)
 
     class Meta:

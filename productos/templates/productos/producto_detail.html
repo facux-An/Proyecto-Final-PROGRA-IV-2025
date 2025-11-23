@@ -4,7 +4,7 @@
 {% block producto_content %}
 <div class="row">
     <!-- Imagen principal -->
-    <div class="col-md-5">
+    <div class="col-md-5 mb-3">
         {% if producto.portada %}
             <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
         {% else %}
@@ -17,8 +17,16 @@
         <h2 class="fw-bold">{{ producto.nombre }}</h2>
         {% if producto.categoria %}
             <p class="text-muted">📂 {{ producto.categoria.nombre }}</p>
+        {% else %}
+            <p class="text-muted">Sin categoría</p>
         {% endif %}
-        <p>{{ producto.descripcion }}</p>
+
+        {% if producto.descripcion %}
+            <p>{{ producto.descripcion }}</p>
+        {% else %}
+            <p class="text-muted">Sin descripción</p>
+        {% endif %}
+
         <h4 class="text-success fw-bold">${{ producto.precio|floatformat:2 }}</h4>
 
         {% if producto.stock > 0 %}
