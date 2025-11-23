@@ -8,6 +8,7 @@ from categorias.models import Categoria
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.urls import get_resolver
+
 def home(request):
     productos_qs = Producto.objects.select_related('categoria').order_by('id')
     paginator = Paginator(productos_qs, 10)
