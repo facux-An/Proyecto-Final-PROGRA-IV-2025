@@ -1,0 +1,14 @@
+{% extends 'ventas/base_ventas.html' %}
+{% block title %}Eliminar pedido{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Confirmar eliminación</h2>
+
+<p>¿Estás seguro de que querés eliminar el pedido de <strong>{{ object.producto }}</strong> para <strong>{{ object.usuario }}</strong>?</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+  <a href="{% url 'ventas:lista' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

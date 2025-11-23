@@ -1,0 +1,26 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Mi perfil{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 500px;">
+    <div class="card-header bg-dark text-white">
+        <h4>👤 Perfil de usuario</h4>
+    </div>
+    <div class="card-body">
+        <p><strong>Nombre de usuario:</strong> {{ usuario.username }}</p>
+        <p><strong>Email:</strong> {{ usuario.email }}</p>
+        <p><strong>Nombre completo:</strong> {{ usuario.get_full_name }}</p>
+        <p><strong>Grupos:</strong> 
+            {% for grupo in usuario.groups.all %}
+                <span class="badge bg-info text-dark">{{ grupo.name }}</span>
+            {% empty %}
+                <span class="text-muted">Sin grupo asignado</span>
+            {% endfor %}
+        </p>
+    </div>
+    <div class="card-footer text-center">
+        <a href="{% url 'home' %}" class="btn btn-secondary">⬅️ Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'productos/base_producto.html' %}
+{% load static %}
+
+{% block producto_content %}
+<div class="row">
+    <!-- Imagen principal -->
+    <div class="col-md-5">
+        {% if producto.portada %}
+            <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
+        {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded shadow-sm" alt="Sin imagen disponible">
+        {% endif %}
+    </div>
+
+    <!-- Información del producto -->
+    <div class="col-md-7">
+        <h2 class="fw-bold">{{ producto.nombre }}</h2>
+        {% if producto.categoria %}
+            <p class="text-muted">📂 {{ producto.categoria.nombre }}</p>
+        {% endif %}
+        <p>{{ producto.descripcion }}</p>
+        <h4 class="text-success fw-bold">${{ producto.precio|floatformat:2 }}</h4>
+
+        {% if producto.stock > 0 %}
+            <form method="post" action="{% url 'carrito:carrito_add' producto.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary shadow-sm">
+                    🛒 Agregar al carrito
+                </button>
+            </form>
+        {% else %}
+            <span class="badge bg-danger">Agotado</span>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+<!-- Productos relacionados -->
+<h3 class="mt-4">Productos relacionados</h3>
+<div class="row">
+    {% for rel in relacionados %}
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            {% if rel.portada %}
+                <img src="{{ rel.portada.url }}" class="card-img-top" alt="{{ rel.nombre }}">
+            {% else %}
+                <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen disponible">
+            {% endif %}
+            <div class="card-body text-center">
+                <h6 class="card-title fw-bold">{{ rel.nombre }}</h6>
+                <p class="text-muted fw-semibold">${{ rel.precio|floatformat:2 }}</p>
+                <a href="{% url 'productos:producto_detail' rel.id %}" class="btn btn-sm btn-outline-primary">
+                    🔍 Ver detalle
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No hay productos relacionados.</p>
+    {% endfor %}
+</div>
+{% endblock %}

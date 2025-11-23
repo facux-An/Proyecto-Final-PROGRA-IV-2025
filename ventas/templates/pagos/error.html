@@ -1,0 +1,15 @@
+{% extends 'ventas/base_ventas.html' %}
+{% block title %}Error en el pago{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-body text-center">
+    <h2 class="mb-4 text-danger fw-bold">❌ Error en el pago</h2>
+    <p class="fs-5">No se pudo completar tu compra. Podés intentar nuevamente o elegir otro método.</p>
+
+    <a href="{% url 'pagos:metodo' %}" class="btn btn-outline-danger btn-lg mt-4 w-100 w-md-auto">
+      🔁 Volver a elegir método
+    </a>
+  </div>
+</div>
+{% endblock %}

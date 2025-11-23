@@ -1,0 +1,36 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Editar Pedido{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-header bg-warning text-dark">
+    <h4 class="mb-0">✏️ Editar Pedido #{{ form.instance.pk }}</h4>
+  </div>
+
+  <div class="card-body">
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_producto" class="form-label">Producto</label>
+        {{ form.producto }}
+      </div>
+      <div class="mb-3">
+        <label for="id_usuario" class="form-label">Usuario</label>
+        {{ form.usuario }}
+      </div>
+      <div class="mb-3">
+        <label for="id_estado" class="form-label">Estado</label>
+        {{ form.estado }}
+      </div>
+
+      <div class="mt-4 d-flex justify-content-between">
+        <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-warning">
+          💾 Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,9 +1,0 @@
-{% extends 'libros/base_libros.html' %}
-{% block content %}
-<h2>¿Estás seguro que deseas borrar "{{ object.titulo }}"?</h2>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Sí, borrar</button>
-    <a href="{% url 'libros:lista' %}" class="btn btn-secondary">Cancelar</a>
-</form>
-{% endblock %}

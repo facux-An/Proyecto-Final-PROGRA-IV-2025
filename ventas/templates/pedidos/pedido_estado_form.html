@@ -1,0 +1,45 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Actualizar Estado del Pedido{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-header bg-info text-dark">
+    <h4 class="mb-0">📌 Actualizar Estado del Pedido #{{ form.instance.pk }}</h4>
+  </div>
+
+  <div class="card-body">
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="id_estado" class="form-label fw-bold">Estado</label>
+        {{ form.estado }}
+
+        {% if form.instance.estado %}
+          <div class="mt-2">
+            {% if form.instance.estado == 'pendiente' %}
+              <span class="badge bg-warning text-dark">Pendiente</span>
+            {% elif form.instance.estado == 'enviado' %}
+              <span class="badge bg-primary">Enviado</span>
+            {% elif form.instance.estado == 'entregado' %}
+              <span class="badge bg-success">Entregado</span>
+            {% else %}
+              <span class="badge bg-secondary">Desconocido</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mt-4 d-flex justify-content-between">
+        <a href="/ventas/panel/" class="btn btn-secondary">
+          ⬅️ Cancelar
+        </a>
+        <button type="submit" class="btn btn-info text-dark fw-bold">
+          💾 Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Editar estado{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">🔄 Editar estado del pedido</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      
+      <!-- Renderizado de campos con Bootstrap -->
+      <div class="mb-3">
+        {{ form.as_p }}
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">
+          💾 Guardar cambios
+        </button>
+        <a href="{% url 'ventas:panel_pedidos' %}" class="btn btn-secondary">
+          ⬅️ Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Script opcional para validación Bootstrap -->
+<script>
+  (function () {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+{% endblock %}

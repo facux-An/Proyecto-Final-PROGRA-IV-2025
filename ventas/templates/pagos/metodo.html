@@ -1,0 +1,57 @@
+{% extends 'ventas/base_ventas.html' %}
+{% load static %}
+{% block title %}Método de pago{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-primary fw-bold">💳 Elegí tu método de pago</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <p class="mb-3 fs-5">Total a pagar: <strong class="text-success">${{ total }}</strong></p>
+
+    <form id="form-metodo-pago" method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="metodo" class="form-label fw-semibold">Método:</label>
+        <select id="metodo" name="metodo" class="form-select" required>
+          <option value="">Seleccionar...</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="mercadopago">MercadoPago</option>
+        </select>
+      </div>
+
+      <!-- Botón para métodos normales -->
+      <button type="submit" id="btn-continuar" class="btn btn-success w-100">
+        ✅ Continuar
+      </button>
+
+      <!-- Botón para Mercado Pago (solo visible si se selecciona) -->
+      <button type="submit" id="btn-mercadopago" class="btn btn-primary w-100 d-none mt-2">
+        💳 Pagar con Mercado Pago
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const metodoSelect = document.getElementById("metodo");
+    const btnContinuar = document.getElementById("btn-continuar");
+    const btnMercadoPago = document.getElementById("btn-mercadopago");
+
+    metodoSelect.addEventListener("change", function () {
+      const metodo = this.value.toLowerCase();
+      if (metodo === "mercadopago") {
+        btnContinuar.classList.add("d-none");
+        btnMercadoPago.classList.remove("d-none");
+      } else {
+        btnContinuar.classList.remove("d-none");
+        btnMercadoPago.classList.add("d-none");
+      }
+    });
+  });
+</script>
+{% endblock %}

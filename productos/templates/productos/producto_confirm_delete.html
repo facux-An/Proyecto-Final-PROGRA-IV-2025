@@ -1,0 +1,32 @@
+{% extends 'productos/base_producto.html' %}
+{% load static %}
+
+{% block producto_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">⚠️ Confirmar eliminación de producto</h4>
+    </div>
+    <div class="card-body">
+        <p>¿Estás seguro de que querés eliminar este producto?</p>
+        <ul class="list-group mb-3">
+            <li class="list-group-item"><strong>ID:</strong> {{ producto.id }}</li>
+            <li class="list-group-item"><strong>Nombre:</strong> {{ producto.nombre }}</li>
+            <li class="list-group-item"><strong>Categoría:</strong> {{ producto.categoria.nombre }}</li>
+            <li class="list-group-item"><strong>Precio:</strong> ${{ producto.precio|floatformat:2 }}</li>
+            <li class="list-group-item"><strong>Stock:</strong> {{ producto.stock }}</li>
+        </ul>
+        <p class="text-muted">Esta acción no se puede deshacer.</p>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+        <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                🗑️ Sí, eliminar
+            </button>
+        </form>
+        <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary">
+            ⬅️ Cancelar
+        </a>
+    </div>
+</div>
+{% endblock %}

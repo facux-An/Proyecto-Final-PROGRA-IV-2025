@@ -1,0 +1,31 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Historial del Pedido{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-header bg-primary text-white">
+    <h4 class="mb-0">🔍 Historial del pedido #{{ view.kwargs.pk }}</h4>
+  </div>
+
+  <div class="card-body">
+    {% if historial %}
+      <ul class="list-group">
+        {% for h in historial %}
+          <li class="list-group-item">
+            <strong>{{ h.fecha_cambio|date:"d/m/Y H:i" }}</strong> —
+            Estado: {{ h.estado_anterior }} → {{ h.estado_nuevo }}
+            <span class="text-muted">(por {{ h.usuario.username }})</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted">🚫 No hay historial registrado para este pedido.</p>
+    {% endif %}
+  </div>
+
+  <div class="card-footer text-end">
+    <a href="{% url 'pedidos:list' %}" class="btn btn-secondary">⬅️ Volver a mis pedidos</a>
+  </div>
+</div>
+{% endblock %}

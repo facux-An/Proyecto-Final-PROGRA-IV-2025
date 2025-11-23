@@ -1,0 +1,61 @@
+/* ===== Cuadraditos de métricas ===== */
+.card .card-body h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card .card-body h4 {
+  font-size: 1.6rem;
+  margin-top: 0.3rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover .card-body h4 {
+  transform: scale(1.1);
+}
+
+/* ===== Tabla de pedidos ===== */
+.table thead th {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* ===== Badges ===== */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+  border-radius: 0.4rem;
+}
+
+/* ===== Botones ===== */
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* ===== Paginación ===== */
+.pagination .page-link {
+  border-radius: 0.4rem;
+  font-weight: 500;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}

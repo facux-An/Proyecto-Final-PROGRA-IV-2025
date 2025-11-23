@@ -1,0 +1,55 @@
+{% extends 'productos/base_producto.html' %}
+{% load static %}
+
+{% block producto_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">
+            {% if form.instance.pk %}
+                ✏️ Editar Producto #{{ form.instance.pk }}
+            {% else %}
+                ➕ Nuevo Producto
+            {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+            </div>
+            <div class="mb-3">
+                {{ form.descripcion.label_tag }}
+                {{ form.descripcion }}
+            </div>
+            <div class="mb-3">
+                {{ form.categoria.label_tag }}
+                {{ form.categoria }}
+            </div>
+            <div class="mb-3">
+                {{ form.precio.label_tag }}
+                {{ form.precio }}
+            </div>
+            <div class="mb-3">
+                {{ form.stock.label_tag }}
+                {{ form.stock }}
+            </div>
+            <div class="mb-3">
+                {{ form.portada.label_tag }}
+                {{ form.portada }}
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">
+                    {% if form.instance.pk %}💾 Actualizar{% else %}✅ Guardar{% endif %}
+                </button>
+                <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary">
+                    ⬅️ Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'ventas/base_ventas.html' %}
+{% block title %}Confirmación de pago{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-body text-center">
+    <h2 class="mb-4 text-success fw-bold">✅ Confirmación de pago</h2>
+
+    <p class="fs-5">Tu compra fue registrada con el método:</p>
+    <p class="fs-4 fw-bold text-primary">{{ metodo }}</p>
+
+    <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-outline-primary btn-lg mt-4 w-100 w-md-auto">
+      📊 Ir al panel de pedidos
+    </a>
+  </div>
+</div>
+{% endblock %}

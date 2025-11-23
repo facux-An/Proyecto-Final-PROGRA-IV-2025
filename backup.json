@@ -1,0 +1,853 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-11-15T21:45:04.108Z",
+    "user": 4,
+    "content_type": 3,
+    "object_id": "1",
+    "object_repr": "Dueños",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2025-11-15T21:46:59.694Z",
+    "user": 4,
+    "content_type": 3,
+    "object_id": "2",
+    "object_repr": "Clientes",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2025-11-16T16:23:38.098Z",
+    "user": 4,
+    "content_type": 4,
+    "object_id": "5",
+    "object_repr": "cafundo",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Staff status\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2025-11-17T11:00:35.102Z",
+    "user": 4,
+    "content_type": 4,
+    "object_id": "5",
+    "object_repr": "cafundo",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"User permissions\"]}}]"
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "Dueños",
+    "permissions": [
+      33,
+      34,
+      35,
+      36,
+      25,
+      26,
+      27,
+      28
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 2,
+  "fields": {
+    "name": "Clientes",
+    "permissions": [
+      36,
+      28
+    ]
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$I2YhWH0nBJIz1eoZ25kLif$yxygHUqxhiGvErgyyWsvgB0GjQqvDySpcDGnT2Xy35E=",
+    "last_login": "2025-11-13T19:08:08.292Z",
+    "is_superuser": false,
+    "username": "facu",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-13T19:07:55.011Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$8WbvkAHlkK0AuoOQ0qtfPy$U3zV2O+myNQvhC0/C7haGcDlNepevBJYhLli3L/7cck=",
+    "last_login": "2025-11-14T12:42:55.299Z",
+    "is_superuser": false,
+    "username": "fandrada",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-14T12:42:48.153Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$HNBZyxu7714RrebwpGYHH4$ofyqU3ygi665gnvJHbMCwRTh2aU9kmR4kMYJVYKWI7A=",
+    "last_login": "2025-11-15T18:39:15.023Z",
+    "is_superuser": false,
+    "username": "fiumbaa",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-15T18:39:05.090Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$9XdG03STtD6G6Vcd2FySVC$tI6PbSWuPaN2Dno+AMMzedEXtFL6HsqnV9KCcJQPQ5I=",
+    "last_login": "2025-11-17T10:58:58.613Z",
+    "is_superuser": true,
+    "username": "fandra",
+    "first_name": "",
+    "last_name": "",
+    "email": "fandrada153@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-15T21:36:48.336Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$aCh89GJxcCHrbtPWMcq165$TgxE5kBEExAzHhUyuu/3uw7vPWxi+yZ5GEzD5ZK+adQ=",
+    "last_login": "2025-11-17T11:01:17.490Z",
+    "is_superuser": false,
+    "username": "cafundo",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-15T22:09:49Z",
+    "groups": [
+      2
+    ],
+    "user_permissions": [
+      25
+    ]
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$BVfjD6dhrIxuuQxoh2WZe9$+gVLIGsTB5VpB9sO1eNHt7I7jZSieDy/+vby06hstik=",
+    "last_login": "2025-11-17T10:53:28.571Z",
+    "is_superuser": false,
+    "username": "kakita123",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-16T20:25:07.142Z",
+    "groups": [
+      2
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "1an45qg5okbahzzk2mkehk5c4lixr9mx",
+  "fields": {
+    "session_data": ".eJxVjDEOwyAQBP9CHaEDzAEp0_sNCA4ITiIsGbuK8vfYkouk2WJndt_Mh22tfut58VNiV6bZ5beLgZ65HSA9QrvPnOa2LlPkh8JP2vk4p_y6ne7fQQ297mtCkwQogjgo56AIBQh60CIpG1FlEjbKYsmGXAIaknoPFIBaGnTWsc8XwXs2vQ:1vKwyz:QL1fkDTktX-Jlvkjcvq8gdUwFXg5rPZ0GSLy1feNm9U",
+    "expire_date": "2025-12-01T11:01:17.498Z"
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 1,
+  "fields": {
+    "nombre": "facu en la villa con hello kity",
+    "precio": "231.00",
+    "stock": 122,
+    "portada": "productos/Gemini_Generated_Image_ah3ckbah3ckbah3c.png",
+    "categoria": null
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 2,
+  "fields": {
+    "nombre": "zapanco",
+    "precio": "123.00",
+    "stock": 109,
+    "portada": "productos/498638185_122203573898089721_1926161688602596017_n.jpg",
+    "categoria": null
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 3,
+  "fields": {
+    "nombre": "chinguenwencha",
+    "precio": "12333.00",
+    "stock": 1,
+    "portada": "productos/IMG_20250514_170309.jpg",
+    "categoria": null
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 4,
+  "fields": {
+    "nombre": "kakiya",
+    "precio": "33333.00",
+    "stock": 119,
+    "portada": "productos/2025-02-05-17-50-39-056.jpg",
+    "categoria": null
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 5,
+  "fields": {
+    "nombre": "tu mama me ama",
+    "precio": "123123.00",
+    "stock": 6,
+    "portada": "productos/488573815_122149512920487393_8036922453756597267_n.jpg",
+    "categoria": null
+  }
+},
+{
+  "model": "productos.producto",
+  "pk": 6,
+  "fields": {
+    "nombre": "naranjapi",
+    "precio": "5500.00",
+    "stock": 154,
+    "portada": "productos/495184189_1334762411361159_8646306738890980468_n.jpg",
+    "categoria": null
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 3,
+  "fields": {
+    "producto": 2,
+    "usuario": 2,
+    "fecha_pedido": "2025-11-14",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "cancelado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 4,
+  "fields": {
+    "producto": 2,
+    "usuario": 2,
+    "fecha_pedido": "2025-11-14",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 5,
+  "fields": {
+    "producto": 3,
+    "usuario": 2,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 6,
+  "fields": {
+    "producto": 2,
+    "usuario": 2,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": "2025-12-12",
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 7,
+  "fields": {
+    "producto": 3,
+    "usuario": 3,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": "2026-12-01",
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 10,
+  "fields": {
+    "producto": 4,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 11,
+  "fields": {
+    "producto": 6,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 12,
+  "fields": {
+    "producto": 3,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 13,
+  "fields": {
+    "producto": 1,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 14,
+  "fields": {
+    "producto": 2,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 15,
+  "fields": {
+    "producto": 4,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 16,
+  "fields": {
+    "producto": 5,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 17,
+  "fields": {
+    "producto": 1,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 18,
+  "fields": {
+    "producto": 3,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 19,
+  "fields": {
+    "producto": 4,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 20,
+  "fields": {
+    "producto": 5,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "0.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 21,
+  "fields": {
+    "producto": 3,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 22,
+  "fields": {
+    "producto": 3,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 23,
+  "fields": {
+    "producto": 2,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 24,
+  "fields": {
+    "producto": 3,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 25,
+  "fields": {
+    "producto": 5,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-15",
+    "fecha_entrega": null,
+    "precio_unitario": "123123.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 26,
+  "fields": {
+    "producto": 2,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 27,
+  "fields": {
+    "producto": 4,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "33333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 28,
+  "fields": {
+    "producto": 1,
+    "usuario": 4,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": "2026-01-03",
+    "precio_unitario": "231.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 29,
+  "fields": {
+    "producto": 2,
+    "usuario": 4,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": "2026-12-03",
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "enviado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 30,
+  "fields": {
+    "producto": 5,
+    "usuario": 4,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123123.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 31,
+  "fields": {
+    "producto": 3,
+    "usuario": 4,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": "2026-12-12",
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pagado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 32,
+  "fields": {
+    "producto": 1,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "231.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 33,
+  "fields": {
+    "producto": 1,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "231.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 34,
+  "fields": {
+    "producto": 2,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 35,
+  "fields": {
+    "producto": 2,
+    "usuario": 5,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "entregado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 36,
+  "fields": {
+    "producto": 1,
+    "usuario": 4,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "231.00",
+    "cantidad": 1,
+    "estado": "enviado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 37,
+  "fields": {
+    "producto": 2,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "enviado"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 38,
+  "fields": {
+    "producto": 3,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 39,
+  "fields": {
+    "producto": 2,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 40,
+  "fields": {
+    "producto": 5,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123123.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 41,
+  "fields": {
+    "producto": 3,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "12333.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 42,
+  "fields": {
+    "producto": 1,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "231.00",
+    "cantidad": 3,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.pedido",
+  "pk": 43,
+  "fields": {
+    "producto": 2,
+    "usuario": 6,
+    "fecha_pedido": "2025-11-16",
+    "fecha_entrega": null,
+    "precio_unitario": "123.00",
+    "cantidad": 1,
+    "estado": "pendiente"
+  }
+},
+{
+  "model": "ventas.carrito",
+  "pk": 1,
+  "fields": {
+    "usuario": 5
+  }
+},
+{
+  "model": "ventas.carrito",
+  "pk": 2,
+  "fields": {
+    "usuario": 6
+  }
+},
+{
+  "model": "ventas.historialpedido",
+  "pk": 1,
+  "fields": {
+    "pedido": 26,
+    "estado_anterior": "entregado",
+    "estado_nuevo": "entregado",
+    "usuario": 5,
+    "fecha_cambio": "2025-11-16T20:14:13.490Z"
+  }
+},
+{
+  "model": "ventas.historialpedido",
+  "pk": 2,
+  "fields": {
+    "pedido": 37,
+    "estado_anterior": "enviado",
+    "estado_nuevo": "enviado",
+    "usuario": 5,
+    "fecha_cambio": "2025-11-16T20:32:17.963Z"
+  }
+},
+{
+  "model": "categorias.categoria",
+  "pk": 1,
+  "fields": {
+    "nombre": "fafaf",
+    "fecha_creacion": "2025-11-13T00:00:00Z"
+  }
+},
+{
+  "model": "categorias.categoria",
+  "pk": 2,
+  "fields": {
+    "nombre": "falpopa",
+    "fecha_creacion": "2025-11-13T00:00:00Z"
+  }
+},
+{
+  "model": "categorias.categoria",
+  "pk": 3,
+  "fields": {
+    "nombre": "la gorda que canta",
+    "fecha_creacion": "2025-11-15T00:00:00Z"
+  }
+},
+{
+  "model": "categorias.categoria",
+  "pk": 4,
+  "fields": {
+    "nombre": "felipe",
+    "fecha_creacion": "2025-11-17T10:54:20.528Z"
+  }
+},
+{
+  "model": "categorias.categoria",
+  "pk": 5,
+  "fields": {
+    "nombre": "ronaldinho",
+    "fecha_creacion": "2025-11-17T11:51:21.356Z"
+  }
+}
+]

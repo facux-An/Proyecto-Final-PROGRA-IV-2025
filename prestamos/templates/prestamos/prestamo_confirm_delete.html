@@ -1,9 +1,0 @@
-{% extends 'prestamos/base_prestamos.html' %}
-{% block content %}
-<h2>¿Estás seguro que deseas borrar el préstamo de "{{ object.libro }}"?</h2>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Sí, borrar</button>
-    <a href="{% url 'prestamos:lista' %}" class="btn btn-secondary">Cancelar</a>
-</form>
-{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "ventas/base_ventas.html" %}
+{% load static %}
+
+{% block title %}Carrito{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">🛒 Tu carrito</h2>
+
+  {% if carrito.items.exists %}
+    <!-- Tabla de productos en el carrito -->
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in carrito.items.all %}
+          <tr>
+            <td>{{ item.producto.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.producto.precio|floatformat:2 }}</td>
+            <td>${{ item.subtotal|floatformat:2 }}</td>
+            <td class="text-center">
+              <form method="post" action="{% url 'carrito:carrito_remove' item.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">
+                  🗑️ Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Total y botones de acción -->
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+      <h4>Total: ${{ carrito.total|floatformat:2 }}</h4>
+
+      <div class="d-flex gap-2">
+        <!-- Botón finalizar compra -->
+        <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_checkout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-lg">
+            🧾 Finalizar compra
+          </button>
+        </form>
+
+       
+      </div>
+    </div>
+
+  {% else %}
+    <!-- Bloque fijo para carrito vacío -->
+    <div class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
+      <h4 class="text-muted">🛒 Tu carrito está vacío</h4>
+      <p class="text-secondary">Agregá productos desde el catálogo para verlos aquí.</p>
+      <a href="{% url 'productos:producto_list' %}" class="btn btn-primary btn-lg mt-3">
+        Ir al catálogo
+      </a>
+    </div>
+  {% endif %}
+{% endblock %}

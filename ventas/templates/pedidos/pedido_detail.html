@@ -1,0 +1,73 @@
+{% extends 'ventas/base_ventas.html' %}
+{% block title %}Detalle del Pedido{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <!-- Encabezado -->
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <h4 class="mb-0">📄 Pedido #{{ pedido.id }}</h4>
+    <span class="badge bg-secondary">ID interno: {{ pedido.id }}</span>
+  </div>
+
+  <div class="card-body">
+    <!-- Producto y precio -->
+    <div class="row mb-3">
+      <div class="col-12 col-md-6">
+        <p class="fw-bold mb-1">Producto:</p>
+        <p class="text-primary fw-semibold">{{ pedido.producto.nombre }}</p>
+      </div>
+      <div class="col-12 col-md-6">
+        <p class="fw-bold mb-1">Precio unitario:</p>
+        <p><span class="badge bg-success">${{ pedido.precio_unitario|floatformat:2 }}</span></p>
+      </div>
+    </div>
+
+    <!-- Estado y fecha -->
+    <div class="row mb-3">
+      <div class="col-12 col-md-6">
+        <p class="fw-bold mb-1">Estado:</p>
+        {% if pedido.estado == 'pendiente' %}
+          <span class="badge bg-warning text-dark">Pendiente</span>
+        {% elif pedido.estado == 'pagado' %}
+          <span class="badge bg-primary">Pagado</span>
+        {% elif pedido.estado == 'enviado' %}
+          <span class="badge bg-info text-dark">Enviado</span>
+        {% elif pedido.estado == 'entregado' %}
+          <span class="badge bg-success">Entregado</span>
+        {% elif pedido.estado == 'cancelado' %}
+          <span class="badge bg-danger">Cancelado</span>
+        {% else %}
+          <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span>
+        {% endif %}
+      </div>
+      <div class="col-12 col-md-6">
+        <p class="fw-bold mb-1">Fecha del pedido:</p>
+        <p><span class="badge bg-dark">{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</span></p>
+      </div>
+    </div>
+
+    <!-- Usuario -->
+    <div class="row mb-3">
+      <div class="col-12 col-md-6">
+        <p class="fw-bold mb-1">Usuario:</p>
+        <p class="text-info fw-semibold">@{{ pedido.usuario.username }}</p>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="mt-4 d-flex flex-wrap justify-content-between gap-2">
+      <!-- Volver -->
+      <a href="{% if volver_al_panel %}{% url 'panel:panel_pedidos' %}{% else %}{% url 'pedidos:list' %}{% endif %}"
+         class="btn btn-secondary w-100 w-md-auto">
+        ⬅️ {% if volver_al_panel %}Volver al panel{% else %}Volver a mis pedidos{% endif %}
+      </a>
+
+      <!-- Acciones -->
+      <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
+        <a href="{% url 'pedidos:update' pedido.id %}" class="btn btn-warning w-100 w-md-auto">✏️ Editar</a>
+        <a href="{% url 'pedidos:delete' pedido.id %}" class="btn btn-danger w-100 w-md-auto">🗑️ Eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

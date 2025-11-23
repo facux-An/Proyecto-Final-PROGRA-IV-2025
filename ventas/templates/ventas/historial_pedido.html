@@ -1,0 +1,62 @@
+{% extends 'ventas/base_ventas.html' %}
+
+{% block title %}Historial del Pedido{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg border-0">
+  <div class="card-header bg-primary text-white">
+    <h4 class="mb-0">
+      📜 Historial del Pedido 
+      {% if historial and historial.0.pedido %}
+        #{{ historial.0.pedido.id }}
+      {% else %}
+        <span class="text-muted">(sin datos)</span>
+      {% endif %}
+    </h4>
+  </div>
+
+  <div class="card-body">
+    {% if historial %}
+      <div class="timeline">
+        {% for cambio in historial %}
+          <div class="timeline-item mb-4">
+            <div class="d-flex align-items-center">
+              <!-- Badge dinámico según estado -->
+              {% if cambio.estado_nuevo == 'pendiente' %}
+                <span class="badge bg-warning text-dark me-3">Pendiente</span>
+              {% elif cambio.estado_nuevo == 'enviado' %}
+                <span class="badge bg-info text-dark me-3">Enviado</span>
+              {% elif cambio.estado_nuevo == 'entregado' %}
+                <span class="badge bg-success me-3">Entregado</span>
+              {% else %}
+                <span class="badge bg-secondary me-3">{{ cambio.estado_nuevo|capfirst }}</span>
+              {% endif %}
+
+              <div>
+                <p class="mb-1">
+                  <strong>{{ cambio.usuario.username }}</strong> cambió el estado 
+                  de <em>{{ cambio.estado_anterior|capfirst }}</em> 
+                  a <em>{{ cambio.estado_nuevo|capfirst }}</em>.
+                </p>
+                <small class="text-muted">
+                  📅 {{ cambio.fecha_cambio|date:"d/m/Y H:i" }}
+                </small>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted text-center py-4">
+        🚫 No hay cambios registrados para este pedido.
+      </p>
+    {% endif %}
+
+    <div class="mt-4 text-end">
+      <a href="{% url 'pedidos:list' %}" class="btn btn-secondary">
+        ⬅️ Volver a mis pedidos
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView,DetailView
 from django.urls import reverse_lazy
 from .models import Categoria
+from .forms import CategoriaForm
 
 class CategoriaListView(ListView):
     model = Categoria
@@ -10,17 +11,28 @@ class CategoriaListView(ListView):
 
 class CategoriaCreateView(CreateView):
     model = Categoria
-    fields = ['nombre']
+    form_class = CategoriaForm
     template_name = 'categorias/categoria_form.html'
-    success_url = reverse_lazy('categorias:lista')
+    success_url = reverse_lazy('categorias:categoria_list')
 
 class CategoriaUpdateView(UpdateView):
     model = Categoria
-    fields = ['nombre']
+    form_class = CategoriaForm
     template_name = 'categorias/categoria_form.html'
-    success_url = reverse_lazy('categorias:lista')
+    success_url = reverse_lazy('categorias:categoria_list')
 
 class CategoriaDeleteView(DeleteView):
     model = Categoria
     template_name = 'categorias/categoria_confirm_delete.html'
-    success_url = reverse_lazy('categorias:lista')
+    success_url = reverse_lazy('categorias:categoria_list') 
+
+class CategoriaDetailView(DetailView):
+    model = Categoria
+    template_name = 'categorias/categoria_detail.html'
+    context_object_name = 'categoria'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregamos los productos asociados a la categoría
+        context['productos'] = self.object.productos.all()
+        return context
