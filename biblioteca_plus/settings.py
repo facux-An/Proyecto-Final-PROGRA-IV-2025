@@ -19,7 +19,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "clave-insegura-para-dev")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['https://proyecto-final-progra-iv-2025.onrender.com']
+ALLOWED_HOSTS = ['proyecto-final-progra-iv-2025.onrender.com']
+
 
 
 
