@@ -11,9 +11,26 @@
         <ul class="list-group mb-3">
             <li class="list-group-item"><strong>ID:</strong> {{ producto.id }}</li>
             <li class="list-group-item"><strong>Nombre:</strong> {{ producto.nombre }}</li>
-            <li class="list-group-item"><strong>Categoría:</strong> {{ producto.categoria.nombre }}</li>
+            <li class="list-group-item"><strong>Categoría:</strong>
+                {% if producto.categoria %}
+                    {{ producto.categoria.nombre }}
+                {% else %}
+                    <span class="text-muted">Sin categoría</span>
+                {% endif %}
+            </li>
             <li class="list-group-item"><strong>Precio:</strong> ${{ producto.precio|floatformat:2 }}</li>
             <li class="list-group-item"><strong>Stock:</strong> {{ producto.stock }}</li>
+            <li class="list-group-item text-center">
+                {% if producto.portada and producto.portada.url %}
+                    <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}"
+                         style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
+                         class="shadow-sm">
+                {% else %}
+                    <img src="{% static 'img/no-image.png' %}" alt="Sin imagen"
+                         style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
+                         class="shadow-sm">
+                {% endif %}
+            </li>
         </ul>
         <p class="text-muted">Esta acción no se puede deshacer.</p>
     </div>

@@ -41,6 +41,15 @@
                 {{ form.portada }}
             </div>
 
+            {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
+            <div class="mb-3 text-center">
+                <p class="mb-1 text-muted">Imagen actual:</p>
+                <img src="{{ form.instance.portada.url }}" alt="{{ form.instance.nombre }}"
+                     style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
+                     class="shadow-sm">
+            </div>
+            {% endif %}
+
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-success">
                     {% if form.instance.pk %}💾 Actualizar{% else %}✅ Guardar{% endif %}

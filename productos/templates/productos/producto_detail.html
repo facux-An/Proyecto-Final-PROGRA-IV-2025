@@ -3,16 +3,14 @@
 
 {% block producto_content %}
 <div class="row">
-    <!-- Imagen principal -->
     <div class="col-md-5 mb-3">
-        {% if producto.portada %}
+        {% if producto.portada and producto.portada.url %}
             <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
         {% else %}
             <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded shadow-sm" alt="Sin imagen disponible">
         {% endif %}
     </div>
 
-    <!-- Información del producto -->
     <div class="col-md-7">
         <h2 class="fw-bold">{{ producto.nombre }}</h2>
         {% if producto.categoria %}
@@ -44,13 +42,12 @@
 
 <hr>
 
-<!-- Productos relacionados -->
 <h3 class="mt-4">Productos relacionados</h3>
 <div class="row">
     {% for rel in relacionados %}
     <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
-            {% if rel.portada %}
+            {% if rel.portada and rel.portada.url %}
                 <img src="{{ rel.portada.url }}" class="card-img-top" alt="{{ rel.nombre }}">
             {% else %}
                 <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen disponible">
