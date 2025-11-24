@@ -12,20 +12,14 @@ class ProductoAdmin(admin.ModelAdmin):
         'hay_stock',
         'creado',
         'actualizado',
-    )
-    list_filter = ('categoria', 'creado', 'actualizado')
-    search_fields = ('nombre', 'categoria__nombre')
-    ordering = ('nombre',)
-    date_hierarchy = 'creado'
-    fields = (
-        'nombre',
-        'categoria',
-        'precio',
-        'stock',
-        'disponible',
         'portada',
     )
+    list_filter = ('categoria', 'creado', 'actualizado')
+    search_fields = ('portada','nombre', 'categoria__nombre')
+    ordering = ('nombre',)
+    date_hierarchy = 'creado'
 
+    # Mostrar stock como badge en admin
     def hay_stock(self, obj):
         return "✅ Sí" if obj.stock > 0 else "❌ No"
     hay_stock.short_description = "Disponible"
