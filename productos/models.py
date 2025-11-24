@@ -8,7 +8,7 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
-    portada = models.ImageField(upload_to='productos/portadas/', null=True, blank=True)
+    portada = models.ImageField(upload_to="productos/", blank=True, null=True)
 
     categoria = models.ForeignKey(
         Categoria,
