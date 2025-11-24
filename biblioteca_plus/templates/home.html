@@ -11,9 +11,9 @@
   <div class="col-md-4 mb-4">
     <div class="card h-100 shadow-sm">
       {% if producto.portada %}
-        <img src="{{ producto.portada.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+        <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
       {% else %}
-        <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen">
+        <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded shadow-sm" alt="Sin imagen disponible">
       {% endif %}
 
       <div class="card-body">
