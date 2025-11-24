@@ -12,7 +12,7 @@ class ProductoAdmin(admin.ModelAdmin):
         'hay_stock',
         'creado',
         'actualizado',
-        'portada',
+        'imagen_portada',
     )
     list_filter = ('categoria', 'creado', 'actualizado')
     search_fields = ('portada','nombre', 'categoria__nombre')
