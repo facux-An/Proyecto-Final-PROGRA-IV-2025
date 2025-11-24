@@ -17,8 +17,15 @@ class ProductoAdmin(admin.ModelAdmin):
     search_fields = ('nombre', 'categoria__nombre')
     ordering = ('nombre',)
     date_hierarchy = 'creado'
+    fields = (
+        'nombre',
+        'categoria',
+        'precio',
+        'stock',
+        'disponible',
+        'portada',
+    )
 
-    # Mostrar stock como badge en admin
     def hay_stock(self, obj):
         return "✅ Sí" if obj.stock > 0 else "❌ No"
     hay_stock.short_description = "Disponible"
