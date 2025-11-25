@@ -9,13 +9,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
-
 from ventas.models import Pedido, HistorialPedido
 from ventas.views.helpers import registrar_historial, registrar_log
 
 
 class PedidoHistorialView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    
+    """Historial completo de un pedido (solo staff o dueño del pedido)."""
     model = HistorialPedido
     template_name = "pedidos/historial.html"
     context_object_name = "historial"
@@ -31,7 +30,7 @@ class PedidoHistorialView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def test_func(self):
         pedido = get_object_or_404(Pedido, pk=self.kwargs["pk"])
         return self.request.user.is_staff or pedido.usuario_id == self.request.user.id
-
+    
 
 class PedidoDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Pedido

@@ -10,20 +10,40 @@
         <div class="card h-100 shadow-sm">
             <div class="card-body text-center">
                 <h5 class="card-title fw-bold">{{ categoria.nombre }}</h5>
+                
                 {% if categoria.descripcion %}
                     <p class="text-muted">{{ categoria.descripcion|truncatewords:15 }}</p>
                 {% endif %}
+                
                 <span class="badge bg-primary mb-2">
                     {{ categoria.productos.count }} productos
                 </span>
-                <a href="{% url 'categorias:categoria_detail' categoria.id %}" class="btn btn-sm btn-outline-dark">
+                
+                <!-- Botón de detalle (visible para todos) -->
+                <a href="{% url 'categorias:categoria_detail' categoria.id %}" 
+                   class="btn btn-sm btn-outline-dark mb-1">
                     🔍 Ver detalle
                 </a>
+                
+                <!-- Botones de administración (solo staff) -->
+                {% if request.user.is_staff %}
+                    <a href="{% url 'categorias:categoria_update' categoria.id %}" 
+                       class="btn btn-sm btn-warning mb-1">
+                        ✏️ Editar
+                    </a>
+                    <a href="{% url 'categorias:categoria_delete' categoria.id %}" 
+                       class="btn btn-sm btn-danger mb-1">
+                        🗑️ Eliminar
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
     {% empty %}
-    <p class="text-muted">No hay categorías disponibles.</p>
+    <div class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
+        <h4 class="text-muted">🚫 No hay categorías disponibles</h4>
+        <p class="text-secondary">Agregá una nueva categoría desde el panel de administración.</p>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

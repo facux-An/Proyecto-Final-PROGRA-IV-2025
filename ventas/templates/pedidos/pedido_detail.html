@@ -63,9 +63,11 @@
       </a>
 
       <!-- Acciones -->
+      {% if request.user.is_staff %}
       <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
         <a href="{% url 'pedidos:update' pedido.id %}" class="btn btn-warning w-100 w-md-auto">✏️ Editar</a>
         <a href="{% url 'pedidos:delete' pedido.id %}" class="btn btn-danger w-100 w-md-auto">🗑️ Eliminar</a>
+      {% endif %}
       </div>
     </div>
   </div>
