@@ -1,5 +1,8 @@
 # Entorno virtual
 venv/
+*.venv/
+ENV/
+env/
 
 # Archivos de Python
 __pycache__/
@@ -7,15 +10,21 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Base de datos
+# Base de datos local
 db.sqlite3
 
-# Archivos multimedia
+# Archivos multimedia (subidos por usuarios)
 media/
 
 # Variables de entorno
 .env
 .env.local
+.env.production
+.env.test
+
+# Archivos estáticos generados
+staticfiles/
+static/
 
 # Archivos del sistema
 .DS_Store
@@ -23,3 +32,13 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Compilados / cache
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# IDE / editor
+.vscode/
+.idea/
