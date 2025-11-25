@@ -5,8 +5,11 @@ from django.contrib import messages
 from categorias.models import Categoria
 from .models import Producto
 from .forms import ProductoForm
-
-
+from categorias.models import Categoria
+from .models import Producto
+from .forms import ProductoForm, ProductoPortadaForm
+from django.shortcuts import get_object_or_404, redirect, render
+import traceback
 class ProductoListView(ListView):
     model = Producto
     template_name = 'productos/producto_list.html'
@@ -96,3 +99,24 @@ class ProductoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
         messages.warning(self.request, "🗑️ Producto eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
 
+def subir_portada(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    if request.method == "POST":
+        form = ProductoPortadaForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                img = form.cleaned_data["portada"]
+                producto.portada = img
+                producto.save()
+                messages.success(request, "✅ Portada actualizada correctamente.")
+                print("[Upload] Portada subida OK:", producto.portada.url if producto.portada else "(sin url)")
+                return redirect("productos:producto_detail", pk=producto.id)
+            except Exception as e:
+                print("[Upload] Error al guardar portada:", str(e))
+                traceback.print_exc()
+                messages.error(request, "❌ No se pudo subir la imagen. Intentalo de nuevo.")
+        else:
+            messages.error(request, "❌ Imagen inválida: " + "; ".join([str(err) for err in form.errors.get("portada", [])]))
+    else:
+        form = ProductoPortadaForm()
+    return render(request, "productos/subir_portada.html", {"form": form, "producto": producto})

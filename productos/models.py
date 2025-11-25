@@ -8,7 +8,7 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
-    portada = models.ImageField(upload_to="productos/", blank=True, null=True)
+    portada = models.ImageField(upload_to="productos/portadas/",blank=True,null=True)
 
     categoria = models.ForeignKey(
         Categoria,
@@ -34,3 +34,5 @@ class Producto(models.Model):
 
     def get_absolute_url(self):
         return reverse('productos:producto_detail', args=[self.pk])
+def portada_upload_path(instance, filename):
+    return f"productos/{instance.id}/{filename}"

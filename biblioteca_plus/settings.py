@@ -23,7 +23,10 @@ ALLOWED_HOSTS = os.getenv(
 
 CSRF_TRUSTED_ORIGINS = [
     "https://proyecto-final-progra-iv-2025.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
+
 
 # -----------------------------------------------------------------------------
 # Apps
@@ -144,3 +147,24 @@ MESSAGE_TAGS = {
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
 MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY", "")
 SITE_URL = os.getenv("SITE_URL", "https://proyecto-final-progra-iv-2025.onrender.com")
+
+# -----------------------------------------------------------------------------
+# Cloudinary (activación segura con flag)
+# -----------------------------------------------------------------------------
+CLOUDINARY_ENABLED = os.getenv("CLOUDINARY_ENABLED", "False").strip().lower() == "true"
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL", "")
+CLOUDINARY_FOLDER = os.getenv("CLOUDINARY_FOLDER", "biblioteca_plus")
+
+if CLOUDINARY_ENABLED and CLOUDINARY_URL:
+    # Storage por defecto: Cloudinary
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    # Static sigue con Whitenoise; media se sube a Cloudinary
+    MEDIA_URL = "/media/"  # (no se usa para servir desde Cloudinary, pero mantiene compatibilidad)
+    print(f"[Cloudinary] Activado. Carpeta: {CLOUDINARY_FOLDER}")
+else:
+    # Fallback a disco local
+    from django.core.files.storage import FileSystemStorage
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+    print("[Cloudinary] Desactivado. Usando FileSystemStorage local.")

@@ -1,0 +1,20 @@
+
+<h2>Subir portada</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.portada }}
+  <button type="submit">Subir</button>
+</form>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if producto.portada %}
+  <p>Imagen actual:</p>
+  <img src="{{ producto.portada.url }}" alt="Portada" style="max-width: 300px;">
+{% endif %}
