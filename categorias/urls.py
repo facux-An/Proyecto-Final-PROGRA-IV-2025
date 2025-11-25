@@ -15,5 +15,5 @@ urlpatterns = [
     path('<int:pk>/', CategoriaDetailView.as_view(), name='categoria_detail'),
     path('crear/', CategoriaCreateView.as_view(), name='categoria_create'),
     path('editar/<int:pk>/', CategoriaUpdateView.as_view(), name='categoria_update'),
-    path('borrar/<int:pk>/', CategoriaDeleteView.as_view(), name='categoria_delete'),
+    path("<int:pk>/eliminar/", CategoriaDeleteView.as_view(), name="categoria_delete"),
 ]

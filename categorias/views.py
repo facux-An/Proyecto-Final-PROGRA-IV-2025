@@ -2,6 +2,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView,De
 from django.urls import reverse_lazy
 from .models import Categoria
 from .forms import CategoriaForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 class CategoriaListView(ListView):
     model = Categoria
@@ -21,10 +22,14 @@ class CategoriaUpdateView(UpdateView):
     template_name = 'categorias/categoria_form.html'
     success_url = reverse_lazy('categorias:categoria_list')
 
-class CategoriaDeleteView(DeleteView):
+class CategoriaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Categoria
     template_name = 'categorias/categoria_confirm_delete.html'
-    success_url = reverse_lazy('categorias:categoria_list') 
+    success_url = reverse_lazy('categorias:categoria_list')
+
+    def test_func(self):
+        # Solo staff puede eliminar categorías
+        return self.request.user.is_staff
 
 class CategoriaDetailView(DetailView):
     model = Categoria
