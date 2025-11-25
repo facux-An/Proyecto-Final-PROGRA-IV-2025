@@ -14,18 +14,27 @@ class ProductoForm(forms.ModelForm):
             'portada': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
         
-class ProductoPortadaForm(forms.Form):
-    portada = forms.ImageField(required=True)
+class ProductoPortadaForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ["portada"]
 
     def clean_portada(self):
-        file = self.cleaned_data["portada"]
-        # Tamaño
-        max_size = int(os.getenv("MAX_UPLOAD_SIZE", "5242880"))  # 5MB
+        file = self.cleaned_data.get("portada")
+
+        if not file:
+            raise forms.ValidationError("Debes subir una imagen.")
+
+        # ✅ Validar tamaño máximo
+        max_size = int(os.getenv("MAX_UPLOAD_SIZE", "5242880"))  # 5 MB por defecto
         if file.size > max_size:
             raise forms.ValidationError("La imagen supera el tamaño máximo permitido (5 MB).")
-        # Formatos
+
+        # ✅ Validar formatos permitidos
         allowed = os.getenv("ALLOWED_IMAGE_FORMATS", "jpg,jpeg,png,webp").split(",")
         content_type = file.content_type.lower()
-        if not any(content_type.endswith(fmt) or f"image/{fmt}" in content_type for fmt in allowed):
+
+        if not any(content_type == f"image/{fmt}" for fmt in allowed):
             raise forms.ValidationError("Formato no permitido. Usa JPG, JPEG, PNG o WEBP.")
+
         return file

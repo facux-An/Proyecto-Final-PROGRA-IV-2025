@@ -4,6 +4,15 @@
 {% block content %}
 <h2 class="mb-4">📂 Categorías</h2>
 
+<!-- Botón agregar categoría (solo staff) -->
+{% if request.user.is_staff %}
+<div class="mb-3">
+    <a href="{% url 'categorias:categoria_create' %}" class="btn btn-primary">
+        ➕ Agregar categoría
+    </a>
+</div>
+{% endif %}
+
 <div class="row">
     {% for categoria in categorias %}
     <div class="col-md-4 mb-3">
@@ -19,13 +28,13 @@
                     {{ categoria.productos.count }} productos
                 </span>
                 
-                <!-- Botón de detalle (visible para todos) -->
+                <!-- Botón detalle -->
                 <a href="{% url 'categorias:categoria_detail' categoria.id %}" 
                    class="btn btn-sm btn-outline-dark mb-1">
                     🔍 Ver detalle
                 </a>
                 
-                <!-- Botones de administración (solo staff) -->
+                <!-- Botones administración (solo staff) -->
                 {% if request.user.is_staff %}
                     <a href="{% url 'categorias:categoria_update' categoria.id %}" 
                        class="btn btn-sm btn-warning mb-1">
@@ -42,7 +51,9 @@
     {% empty %}
     <div class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
         <h4 class="text-muted">🚫 No hay categorías disponibles</h4>
-        <p class="text-secondary">Agregá una nueva categoría desde el panel de administración.</p>
+        {% if request.user.is_staff %}
+        <p class="text-secondary">Agregá una nueva categoría desde el botón de arriba.</p>
+        {% endif %}
     </div>
     {% endfor %}
 </div>

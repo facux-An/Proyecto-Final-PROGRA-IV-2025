@@ -1,6 +1,7 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView, UpdateView
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse_lazy
 
 from ventas.models import Pedido
 
@@ -56,3 +57,29 @@ class PanelPedidosView(ListView):
             'estados': estados,
         })
         return context
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class PedidoDeleteView(DeleteView):
+    """
+    Eliminar un pedido desde el panel (solo staff).
+    """
+    model = Pedido
+    template_name = 'pedidos/pedido_confirm_delete.html'
+    success_url = reverse_lazy('panel:panel_pedidos')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class PedidoEntregarView(UpdateView):
+    """
+    Confirmar entrega de un pedido desde el panel (solo staff).
+    """
+    model = Pedido
+    fields = []  # no mostramos formulario
+    template_name = 'pedidos/pedido_entregar.html'
+    success_url = reverse_lazy('panel:panel_pedidos')
+
+    def form_valid(self, form):
+        self.object.estado = 'entregado'
+        self.object.save()
+        return super().form_valid(form)

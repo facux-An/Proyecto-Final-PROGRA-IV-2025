@@ -5,7 +5,13 @@ load_dotenv()
 from pathlib import Path
 import dj_database_url
 from django.contrib.messages import constants as messages
-
+import cloudinary
+cloudinary.config(
+    cloud_name="dsaqqwbdn",
+    api_key="967594418321858",
+    api_secret="jBjqm0rWf0e_Pup4aOtaVDtZB0o",
+    secure=True
+)
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +51,8 @@ INSTALLED_APPS = [
     "ventas",
     "categorias",
     "usuarios",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 # -----------------------------------------------------------------------------

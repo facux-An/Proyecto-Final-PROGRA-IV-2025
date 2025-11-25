@@ -1,8 +1,10 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView,DetailView
 from django.urls import reverse_lazy
 from .models import Categoria
+from django.utils.decorators import method_decorator
 from .forms import CategoriaForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.admin.views.decorators import staff_member_required
 
 class CategoriaListView(ListView):
     model = Categoria
@@ -10,6 +12,7 @@ class CategoriaListView(ListView):
     context_object_name = 'categorias'
     paginate_by = 5
 
+@method_decorator(staff_member_required, name='dispatch')
 class CategoriaCreateView(CreateView):
     model = Categoria
     form_class = CategoriaForm

@@ -102,6 +102,20 @@
           <td class="text-center">
             <a href="{% url 'pedidos:detail' pedido.id %}" class="btn btn-outline-info btn-sm">📄 Detalle</a>
             <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-outline-primary btn-sm ms-1">📜 Seguimiento</a>
+
+            {% if request.user.is_staff %}
+              <!-- Botón entregar -->
+              <form action="{% url 'panel:pedido_entregar' pedido.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm ms-1">✅ Entregar</button>
+              </form>
+
+              <!-- Botón eliminar -->
+              <form action="{% url 'panel:pedido_delete' pedido.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm ms-1">🗑️ Eliminar</button>
+              </form>
+            {% endif %}
           </td>
         </tr>
         {% empty %}
