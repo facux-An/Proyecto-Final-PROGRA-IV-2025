@@ -2,16 +2,23 @@
 {% block title %}Confirmación de pago{% endblock %}
 
 {% block content %}
-<div class="card shadow-lg border-0">
-  <div class="card-body text-center">
-    <h2 class="mb-4 text-success fw-bold">✅ Confirmación de pago</h2>
+<div class="container py-5">
+  <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeIn">
+    <div class="card-body text-center">
+      <div class="mb-4">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+        <h2 class="mt-2 text-success fw-bold">¡Pago confirmado!</h2>
+      </div>
 
-    <p class="fs-5">Tu compra fue registrada con el método:</p>
-    <p class="fs-4 fw-bold text-primary">{{ metodo }}</p>
+      <p class="fs-5 text-muted">Tu compra fue registrada correctamente con el siguiente método de pago:</p>
+      <p class="fs-4 fw-bold text-primary">{{ metodo }}</p>
 
-    <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-outline-primary btn-lg mt-4 w-100 w-md-auto">
-      📊 Ir al panel de pedidos
-    </a>
+      <hr class="my-4">
+
+      <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg px-4">
+        🏠 Volver al inicio
+      </a>
+    </div>
   </div>
 </div>
 {% endblock %}

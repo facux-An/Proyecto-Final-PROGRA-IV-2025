@@ -2,6 +2,7 @@ from django.urls import path, include
 from ventas.views import pagos
 
 urlpatterns = [
+    path("ventas/pagos/", include("ventas.urls_pagos")),
     # Carrito de compras
     path('carrito/', include(('ventas.urls_carrito', 'carrito'), namespace='carrito')),
 

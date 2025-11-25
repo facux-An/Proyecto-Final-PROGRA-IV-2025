@@ -1,5 +1,7 @@
 # biblioteca_plus/settings.py
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from pathlib import Path
 import dj_database_url
 from django.contrib.messages import constants as messages
@@ -10,19 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -----------------------------------------------------------------------------
 # Core settings
 # -----------------------------------------------------------------------------
-# Secret key
 SECRET_KEY = os.getenv("SECRET_KEY", "clave-insegura-para-dev")
 
-# Debug (usa "True"/"False" en variables de entorno)
 DEBUG = os.getenv("DEBUG", "False").strip().lower() == "true"
 
-# Allowed hosts (incluye tu dominio de Render y localhost)
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "proyecto-final-progra-iv-2025.onrender.com,localhost,127.0.0.1"
+    "proyecto-final-progra-iv-2025.onrender.com"
 ).split(",")
 
-# Opcional: protege CSRF en entorno productivo para tu dominio de Render
 CSRF_TRUSTED_ORIGINS = [
     "https://proyecto-final-progra-iv-2025.onrender.com",
 ]
@@ -39,25 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Apps del proyecto (asegúrate de no duplicarlas)
+    # Apps del proyecto
     "productos.apps.ProductosConfig",
     "ventas",
     "categorias",
     "usuarios",
-    'cloudinary',
-    'cloudinary_storage',
 ]
-
-# Archivos multimedia (imágenes de productos)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-
-
-
-
-
-
-
 
 # -----------------------------------------------------------------------------
 # Middleware
@@ -85,7 +70,6 @@ WSGI_APPLICATION = "biblioteca_plus.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # Tu carpeta de templates principal
         "DIRS": [BASE_DIR / "biblioteca_plus" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -93,7 +77,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Context processor del carrito (tu app ventas)
                 "ventas.context_processors.carrito_count",
             ],
         },
@@ -105,7 +88,6 @@ TEMPLATES = [
 # -----------------------------------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
 
-# Parseo principal (no forzar ssl de forma incondicional)
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
@@ -113,9 +95,7 @@ DATABASES = {
     )
 }
 
-# Solo aplicar SSL si es Postgres (evita el error 'sslmode' con SQLite)
 if DATABASE_URL.startswith(("postgres://", "postgresql://")):
-    # Algunas plataformas requieren esta opción explícita
     DATABASES["default"].setdefault("OPTIONS", {})
     DATABASES["default"]["OPTIONS"]["sslmode"] = "require"
 
@@ -134,7 +114,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# WhiteNoise: compresión y manifest para cache busting en producción
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
@@ -162,5 +141,6 @@ MESSAGE_TAGS = {
 # -----------------------------------------------------------------------------
 # Integraciones externas
 # -----------------------------------------------------------------------------
-# Mercado Pago
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
+MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY", "")
+SITE_URL = os.getenv("SITE_URL", "https://proyecto-final-progra-iv-2025.onrender.com")
