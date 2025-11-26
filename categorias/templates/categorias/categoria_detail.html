@@ -1,40 +1,99 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
 
-{% block content %}
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">📂 Categoría: {{ categoria.nombre }}</h4>
-    </div>
-    <div class="card-body">
-        {% if categoria.descripcion %}
-            <p class="text-muted">{{ categoria.descripcion }}</p>
-        {% endif %}
-        <p><strong>Fecha de creación:</strong> {{ categoria.fecha_creacion|date:"d/m/Y" }}</p>
-    </div>
-</div>
+{% block title %}Detalle de Categoría · Tienda Plus{% endblock %}
 
-<h5 class="mb-3">Productos en esta categoría</h5>
-<div class="row">
-    {% for producto in productos %}
-    <div class="col-md-4 mb-3">
-        <div class="card h-100 shadow-sm">
-            {% if producto.portada %}
-                <img src="{{ producto.portada.url }}" class="card-img-top" alt="{{ producto.nombre }}">
-            {% else %}
-                <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen">
-            {% endif %}
-            <div class="card-body text-center">
-                <h6 class="card-title fw-bold">{{ producto.nombre }}</h6>
-                <p class="text-muted">${{ producto.precio|floatformat:2 }}</p>
-                <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-sm btn-outline-primary">
-                    🔍 Ver detalle
-                </a>
-            </div>
+{% block content %}
+<style>
+  .categoria-hero {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .categoria-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  }
+  .producto-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    transition: transform .15s ease, box-shadow .15s ease;
+    background: #fff;
+  }
+  .producto-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(0,0,0,.15);
+  }
+  .producto-img {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    max-height: 220px;
+    object-fit: cover;
+  }
+  .badge-soft {
+    border-radius: .5rem;
+    font-size: .85rem;
+    padding: .35em .65em;
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="categoria-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-folder-fill me-2"></i>Categoría: {{ categoria.nombre }}</h1>
+    <p class="mb-0 opacity-75">Explorá los productos asociados a esta categoría.</p>
+  </div>
+
+  <!-- Tarjeta de categoría -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-8 col-lg-7">
+      <div class="card categoria-card">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="bi bi-folder-fill me-2"></i>
+          <h4 class="mb-0">Información de la categoría</h4>
         </div>
+        <div class="card-body p-4">
+          {% if categoria.descripcion %}
+            <p class="text-muted mb-3"><i class="bi bi-info-circle me-1"></i>{{ categoria.descripcion }}</p>
+          {% endif %}
+          <p class="mb-0"><strong><i class="bi bi-calendar-event me-1"></i>Fecha de creación:</strong> {{ categoria.fecha_creacion|date:"d/m/Y" }}</p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Productos -->
+  <h5 class="mb-3"><i class="bi bi-box-seam me-2"></i>Productos en esta categoría</h5>
+  <div class="row">
+    {% for producto in productos %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card producto-card h-100">
+          {% if producto.portada %}
+            <img src="{{ producto.portada.url }}" class="producto-img img-fluid shadow-sm" alt="{{ producto.nombre }}">
+          {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid shadow-sm" alt="Sin imagen">
+          {% endif %}
+          <div class="card-body text-center">
+            <h6 class="card-title fw-bold mb-1">{{ producto.nombre }}</h6>
+            <p class="text-muted mb-2"><i class="bi bi-currency-dollar me-1"></i>{{ producto.precio|floatformat:2 }}</p>
+            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-sm btn-outline-primary btn-icon">
+              <i class="bi bi-search me-1"></i>Ver detalle
+            </a>
+          </div>
+        </div>
+      </div>
     {% empty %}
-    <p class="text-muted">No hay productos en esta categoría.</p>
+      <div class="col-12 text-center text-muted py-5">
+        <div class="display-6 mb-3">📭</div>
+        <h5>No hay productos en esta categoría</h5>
+        <p>Pronto agregaremos nuevos artículos.</p>
+      </div>
     {% endfor %}
+  </div>
+
 </div>
 {% endblock %}

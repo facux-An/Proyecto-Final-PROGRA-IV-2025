@@ -1,49 +1,94 @@
 {% extends 'productos/base_producto.html' %}
 {% load static %}
 
+{% block title %}Eliminar Producto · Tienda Plus{% endblock %}
+
 {% block producto_content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-danger text-white">
-        <h4 class="mb-0">⚠️ Confirmar eliminación de producto</h4>
-    </div>
-    <div class="card-body">
-        <p>¿Estás seguro de que querés eliminar este producto?</p>
-        <ul class="list-group mb-3">
-            <li class="list-group-item"><strong>ID:</strong> {{ producto.id }}</li>
-            <li class="list-group-item"><strong>Nombre:</strong> {{ producto.nombre }}</li>
-            <li class="list-group-item"><strong>Categoría:</strong>
-                {% if producto.categoria %}
-                    {{ producto.categoria.nombre }}
-                {% else %}
-                    <span class="text-muted">Sin categoría</span>
-                {% endif %}
+<style>
+  .delete-hero {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .delete-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  }
+  .delete-icon {
+    font-size: 2.5rem;
+  }
+  .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  .producto-img {
+    width: 140px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: .75rem;
+    box-shadow: 0 6px 12px rgba(0,0,0,.08);
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="delete-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-exclamation-octagon-fill me-2"></i>Confirmar eliminación de producto</h1>
+    <p class="mb-0 opacity-75">Esta acción es irreversible. Revisá bien antes de continuar.</p>
+  </div>
+
+  <!-- Tarjeta de confirmación -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card delete-card border-danger">
+        <div class="card-header bg-danger text-white d-flex align-items-center">
+          <i class="bi bi-trash-fill delete-icon me-2"></i>
+          <h4 class="mb-0">Eliminar producto</h4>
+        </div>
+        <div class="card-body p-4">
+          <p class="mb-3 fs-5">¿Estás seguro de que querés eliminar este producto?</p>
+          <ul class="list-group mb-4">
+            <li class="list-group-item"><strong><i class="bi bi-hash me-1"></i>ID:</strong> {{ producto.id }}</li>
+            <li class="list-group-item"><strong><i class="bi bi-box-seam me-1"></i>Nombre:</strong> {{ producto.nombre }}</li>
+            <li class="list-group-item"><strong><i class="bi bi-folder-fill me-1"></i>Categoría:</strong>
+              {% if producto.categoria %}
+                {{ producto.categoria.nombre }}
+              {% else %}
+                <span class="text-muted">Sin categoría</span>
+              {% endif %}
             </li>
-            <li class="list-group-item"><strong>Precio:</strong> ${{ producto.precio|floatformat:2 }}</li>
-            <li class="list-group-item"><strong>Stock:</strong> {{ producto.stock }}</li>
+            <li class="list-group-item"><strong><i class="bi bi-currency-dollar me-1"></i>Precio:</strong> ${{ producto.precio|floatformat:2 }}</li>
+            <li class="list-group-item"><strong><i class="bi bi-stack me-1"></i>Stock:</strong> {{ producto.stock }}</li>
             <li class="list-group-item text-center">
-                {% if producto.portada and producto.portada.url %}
-                    <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}"
-                         style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
-                         class="shadow-sm">
-                {% else %}
-                    <img src="{% static 'img/no-image.png' %}" alt="Sin imagen"
-                         style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
-                         class="shadow-sm">
-                {% endif %}
+              {% if producto.portada and producto.portada.url %}
+                <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="producto-img">
+              {% else %}
+                <img src="{% static 'img/no-image.png' %}" alt="Sin imagen" class="producto-img">
+              {% endif %}
             </li>
-        </ul>
-        <p class="text-muted">Esta acción no se puede deshacer.</p>
-    </div>
-    <div class="card-footer d-flex justify-content-between">
-        <form method="post" class="d-inline">
+          </ul>
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>Los pedidos o registros asociados podrían verse afectados.</div>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+          <form method="post" class="d-inline">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">
-                🗑️ Sí, eliminar
+            <button type="submit" class="btn btn-danger btn-lg btn-icon">
+              <i class="bi bi-trash-fill me-1"></i> Sí, eliminar
             </button>
-        </form>
-        <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary">
-            ⬅️ Cancelar
-        </a>
+          </form>
+          <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary btn-lg btn-icon">
+            <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
+          </a>
+        </div>
+      </div>
     </div>
+  </div>
+
 </div>
 {% endblock %}

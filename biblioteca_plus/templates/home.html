@@ -1,78 +1,135 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Inicio · Biblioteca Plus{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">📚 Catálogo de productos</h2>
+<style>
+  .home-hero {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .producto-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    transition: transform .15s ease, box-shadow .15s ease;
+    background: #fff;
+  }
+  .producto-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(0,0,0,.15);
+  }
+  .producto-img {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    max-height: 220px;
+    object-fit: cover;
+  }
+  .badge-soft {
+    border-radius: .5rem;
+    font-size: .85rem;
+    padding: .35em .65em;
+  }
+  .pagination .page-link {
+    border-radius: .5rem;
+    margin: 0 .25rem;
+  }
+</style>
 
-<div class="row">
-  {% for producto in productos %}
-  <div class="col-md-4 mb-4">
-    <div class="card h-100 shadow-sm">
-      {% if producto.portada %}
-        <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
-      {% else %}
-        <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded shadow-sm" alt="Sin imagen disponible">
-      {% endif %}
+<div class="container py-4">
 
-      <div class="card-body">
-        <h5 class="card-title">
-          <a href="{% url 'productos:producto_detail' producto.id %}">
-            {{ producto.nombre }}
-          </a>
-        </h5>
-        <p class="card-text text-muted">{{ producto.categoria.nombre }}</p>
-        <p class="card-text">{{ producto.descripcion|truncatechars:80 }}</p>
-        <p class="card-text"><strong>${{ producto.precio|floatformat:2 }}</strong></p>
-
-        {% if producto.stock == 0 %}
-          <span class="badge bg-danger">Agotado</span>
-        {% elif producto.stock < 5 %}
-          <span class="badge bg-warning text-dark">Stock bajo ({{ producto.stock }})</span>
-        {% else %}
-          <span class="badge bg-success">Disponible ({{ producto.stock }})</span>
-        {% endif %}
-      </div>
-
-      <div class="card-footer text-center">
-        {% if producto.stock > 0 %}
-          <form method="post" action="{% url 'carrito:carrito_add' producto.id %}" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-primary">
-              🛒 Agregar al carrito
-            </button>
-          </form>
-        {% else %}
-          <button class="btn btn-sm btn-secondary" disabled>No disponible</button>
-        {% endif %}
-      </div>
-    </div>
+  <!-- Hero superior -->
+  <div class="home-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-book-half me-2"></i>Catálogo de productos</h1>
+    <p class="mb-0 opacity-75">Explorá nuestra selección de libros y artículos destacados.</p>
   </div>
-  {% empty %}
-  <div class="col-12 text-center text-muted">
-    <p>No hay productos disponibles.</p>
+
+  <!-- Grid de productos -->
+  <div class="row">
+    {% for producto in productos %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card producto-card h-100">
+          {% if producto.portada %}
+            <img src="{{ producto.portada.url }}" class="producto-img img-fluid shadow-sm" alt="{{ producto.nombre }}">
+          {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid shadow-sm" alt="Sin imagen disponible">
+          {% endif %}
+
+          <div class="card-body">
+            <h5 class="card-title mb-1">
+              <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark fw-semibold">
+                {{ producto.nombre }}
+              </a>
+            </h5>
+            <p class="card-text text-muted mb-2">
+              <i class="bi bi-tag-fill me-1"></i>{{ producto.categoria.nombre }}
+            </p>
+            <p class="card-text mb-2">{{ producto.descripcion|truncatechars:80 }}</p>
+            <p class="card-text fw-bold text-primary mb-3">
+              <i class="bi bi-currency-dollar me-1"></i>{{ producto.precio|floatformat:2 }}
+            </p>
+
+            {% if producto.stock == 0 %}
+              <span class="badge bg-danger badge-soft"><i class="bi bi-x-circle me-1"></i>Agotado</span>
+            {% elif producto.stock < 5 %}
+              <span class="badge bg-warning text-dark badge-soft"><i class="bi bi-exclamation-triangle me-1"></i>Stock bajo ({{ producto.stock }})</span>
+            {% else %}
+              <span class="badge bg-success badge-soft"><i class="bi bi-check-circle me-1"></i>Disponible ({{ producto.stock }})</span>
+            {% endif %}
+          </div>
+
+          <div class="card-footer text-center bg-light border-0">
+            {% if producto.stock > 0 %}
+              <form method="post" action="{% url 'carrito:carrito_add' producto.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-primary btn-icon">
+                  <i class="bi bi-cart-plus me-1"></i>Agregar al carrito
+                </button>
+              </form>
+            {% else %}
+              <button class="btn btn-sm btn-secondary" disabled>
+                <i class="bi bi-ban me-1"></i>No disponible
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center text-muted py-5">
+        <div class="display-6 mb-3">📭</div>
+        <h5>No hay productos disponibles</h5>
+        <p>Pronto agregaremos nuevos títulos y artículos.</p>
+      </div>
+    {% endfor %}
   </div>
-  {% endfor %}
+
+  <!-- Paginación -->
+  {% if productos.has_other_pages %}
+    <nav aria-label="Paginación de productos">
+      <ul class="pagination justify-content-center mt-4">
+        {% if productos.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ productos.previous_page_number }}">
+              <i class="bi bi-arrow-left me-1"></i>Anterior
+            </a>
+          </li>
+        {% endif %}
+        <li class="page-item active" aria-current="page">
+          <span class="page-link">{{ productos.number }}</span>
+        </li>
+        {% if productos.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ productos.next_page_number }}">
+              Siguiente<i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
 </div>
-
-{% if productos.has_other_pages %}
-<nav aria-label="Paginación de productos">
-  <ul class="pagination justify-content-center">
-    {% if productos.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ productos.previous_page_number }}">Anterior</a>
-      </li>
-    {% endif %}
-    <li class="page-item active" aria-current="page">
-      <span class="page-link">{{ productos.number }}</span>
-    </li>
-    {% if productos.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ productos.next_page_number }}">Siguiente</a>
-      </li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
 {% endblock %}

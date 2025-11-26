@@ -1,68 +1,128 @@
 {% extends 'productos/base_producto.html' %}
 {% load static %}
 
-{% block producto_content %}
-<div class="row">
-    <div class="col-md-5 mb-3">
-        {% if producto.portada and producto.portada.url %}
-            <img src="{{ producto.portada.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
-        {% else %}
-            <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded shadow-sm" alt="Sin imagen disponible">
-        {% endif %}
-    </div>
+{% block title %}Detalle de Producto · Tienda Plus{% endblock %}
 
-    <div class="col-md-7">
-        <h2 class="fw-bold">{{ producto.nombre }}</h2>
-        {% if producto.categoria %}
-            <p class="text-muted">📂 {{ producto.categoria.nombre }}</p>
+{% block producto_content %}
+<style>
+  .producto-hero {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .producto-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    background: #fff;
+  }
+  .producto-img {
+    border-radius: 1rem;
+    max-height: 320px;
+    object-fit: cover;
+    box-shadow: 0 8px 16px rgba(0,0,0,.12);
+  }
+  .badge-soft {
+    border-radius: .5rem;
+    font-size: .85rem;
+    padding: .35em .65em;
+  }
+  .rel-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.08);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .rel-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(0,0,0,.12);
+  }
+  .rel-img {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    max-height: 180px;
+    object-fit: cover;
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="producto-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-box-seam me-2"></i>Detalle de producto</h1>
+    <p class="mb-0 opacity-75">Explorá la información completa y agregalo a tu carrito si está disponible.</p>
+  </div>
+
+  <!-- Tarjeta de producto -->
+  <div class="card producto-card mb-4">
+    <div class="row g-0">
+      <div class="col-md-5 p-3">
+        {% if producto.portada and producto.portada.url %}
+          <img src="{{ producto.portada.url }}" class="producto-img img-fluid" alt="{{ producto.nombre }}">
         {% else %}
-            <p class="text-muted">Sin categoría</p>
+          <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid" alt="Sin imagen disponible">
+        {% endif %}
+      </div>
+      <div class="col-md-7 p-4">
+        <h2 class="fw-bold mb-2">{{ producto.nombre }}</h2>
+        {% if producto.categoria %}
+          <p class="text-muted mb-2"><i class="bi bi-folder-fill me-1"></i>{{ producto.categoria.nombre }}</p>
+        {% else %}
+          <p class="text-muted mb-2">Sin categoría</p>
         {% endif %}
 
         {% if producto.descripcion %}
-            <p>{{ producto.descripcion }}</p>
+          <p class="mb-3">{{ producto.descripcion }}</p>
         {% else %}
-            <p class="text-muted">Sin descripción</p>
+          <p class="text-muted mb-3">Sin descripción</p>
         {% endif %}
 
-        <h4 class="text-success fw-bold">${{ producto.precio|floatformat:2 }}</h4>
+        <h4 class="text-success fw-bold mb-3"><i class="bi bi-currency-dollar me-1"></i>{{ producto.precio|floatformat:2 }}</h4>
 
         {% if producto.stock > 0 %}
-            <form method="post" action="{% url 'carrito:carrito_add' producto.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary shadow-sm">
-                    🛒 Agregar al carrito
-                </button>
-            </form>
+          <span class="badge bg-success badge-soft mb-3"><i class="bi bi-check-circle me-1"></i>Disponible ({{ producto.stock }})</span>
+          <form method="post" action="{% url 'carrito:carrito_add' producto.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg btn-icon shadow-sm">
+              <i class="bi bi-cart-plus me-1"></i>Agregar al carrito
+            </button>
+          </form>
         {% else %}
-            <span class="badge bg-danger">Agotado</span>
+          <span class="badge bg-danger badge-soft mb-3"><i class="bi bi-x-circle me-1"></i>Agotado</span>
         {% endif %}
+      </div>
     </div>
-</div>
+  </div>
 
-<hr>
-
-<h3 class="mt-4">Productos relacionados</h3>
-<div class="row">
+  <!-- Productos relacionados -->
+  <h3 class="mt-4 mb-3"><i class="bi bi-stars me-2"></i>Productos relacionados</h3>
+  <div class="row">
     {% for rel in relacionados %}
-    <div class="col-md-3 mb-3">
-        <div class="card h-100 shadow-sm">
-            {% if rel.portada and rel.portada.url %}
-                <img src="{{ rel.portada.url }}" class="card-img-top" alt="{{ rel.nombre }}">
-            {% else %}
-                <img src="{% static 'img/no-image.png' %}" class="card-img-top" alt="Sin imagen disponible">
-            {% endif %}
-            <div class="card-body text-center">
-                <h6 class="card-title fw-bold">{{ rel.nombre }}</h6>
-                <p class="text-muted fw-semibold">${{ rel.precio|floatformat:2 }}</p>
-                <a href="{% url 'productos:producto_detail' rel.id %}" class="btn btn-sm btn-outline-primary">
-                    🔍 Ver detalle
-                </a>
-            </div>
+      <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card rel-card h-100 text-center">
+          {% if rel.portada and rel.portada.url %}
+            <img src="{{ rel.portada.url }}" class="rel-img img-fluid" alt="{{ rel.nombre }}">
+          {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="rel-img img-fluid" alt="Sin imagen disponible">
+          {% endif %}
+          <div class="card-body">
+            <h6 class="card-title fw-bold mb-1">{{ rel.nombre }}</h6>
+            <p class="text-muted fw-semibold mb-2"><i class="bi bi-currency-dollar me-1"></i>{{ rel.precio|floatformat:2 }}</p>
+            <a href="{% url 'productos:producto_detail' rel.id %}" class="btn btn-sm btn-outline-primary btn-icon">
+              <i class="bi bi-search me-1"></i>Ver detalle
+            </a>
+          </div>
         </div>
-    </div>
+      </div>
     {% empty %}
-    <p class="text-muted">No hay productos relacionados.</p>
+      <div class="col-12 text-center text-muted py-5">
+        <div class="display-6 mb-3">📭</div>
+        <h5>No hay productos relacionados</h5>
+        <p>Pronto agregaremos más artículos similares.</p>
+      </div>
     {% endfor %}
+  </div>
+
 </div>
 {% endblock %}

@@ -1,36 +1,86 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
-{% block title %}Método de pago{% endblock %}
+
+{% block title %}Método de pago · Tienda Plus{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 text-primary fw-bold">💳 Elegí tu método de pago</h2>
+<style>
+  .metodo-hero {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .metodo-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    animation: fadeInUp .6s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .form-label { font-weight: 600; }
+  .form-select {
+    border-radius: .5rem;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+  }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+  }
+</style>
 
-<div class="card shadow-sm">
-  <div class="card-body">
-    <p class="fs-5 fw-bold">Total a pagar: $ {{ total_a_pagar|floatformat:2 }}</p>
-    <form id="form-metodo-pago" method="post">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="metodo" class="form-label fw-semibold">Método:</label>
-        <select id="metodo" name="metodo" class="form-select" required>
-          <option value="">Seleccionar...</option>
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
-          <option value="mercadopago">MercadoPago</option>
-        </select>
-      </div>
+<div class="container py-4">
 
-      <!-- Botón para métodos normales -->
-      <button type="submit" id="btn-continuar" class="btn btn-success w-100">
-        ✅ Continuar
-      </button>
-
-      <!-- Botón para Mercado Pago (solo visible si se selecciona) -->
-      <button type="submit" id="btn-mercadopago" class="btn btn-primary w-100 d-none mt-2">
-        💳 Pagar con Mercado Pago
-      </button>
-    </form>
+  <!-- Hero superior -->
+  <div class="metodo-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-credit-card-fill me-2"></i>Elegí tu método de pago</h1>
+    <p class="mb-0 opacity-75">Seleccioná la forma de pago que prefieras para completar tu compra.</p>
   </div>
+
+  <!-- Tarjeta de método de pago -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card metodo-card">
+        <div class="card-body p-4">
+          <p class="fs-5 fw-bold mb-4 text-center">
+            <i class="bi bi-cash-stack me-1"></i>Total a pagar: 
+            <span class="text-primary">${{ total_a_pagar|floatformat:2 }}</span>
+          </p>
+
+          <form id="form-metodo-pago" method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Selector de método -->
+            <div class="mb-4">
+              <label for="metodo" class="form-label"><i class="bi bi-credit-card-2-front me-1"></i>Método de pago</label>
+              <select id="metodo" name="metodo" class="form-select" required>
+                <option value="">Seleccionar...</option>
+                <option value="efectivo">💵 Efectivo</option>
+                <option value="transferencia">🏦 Transferencia</option>
+                <option value="mercadopago">💳 MercadoPago</option>
+              </select>
+            </div>
+
+            <!-- Botón para métodos normales -->
+            <button type="submit" id="btn-continuar" class="btn btn-success btn-lg w-100 btn-icon shadow-sm">
+              <i class="bi bi-check-circle-fill"></i>Continuar
+            </button>
+
+            <!-- Botón para Mercado Pago (solo visible si se selecciona) -->
+            <button type="submit" id="btn-mercadopago" class="btn btn-primary btn-lg w-100 btn-icon d-none mt-3 shadow-sm">
+              <i class="bi bi-credit-card-fill"></i>Pagar con Mercado Pago
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 

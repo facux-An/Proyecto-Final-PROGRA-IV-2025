@@ -1,20 +1,66 @@
 {% extends 'ventas/base_ventas.html' %}
-{% block title %}Pago en revisión{% endblock %}
+{% load static %}
+
+{% block title %}Pago en revisión · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="card shadow-lg border-0 rounded-4">
-    <div class="card-body text-center">
-      <i class="bi bi-hourglass-split text-warning" style="font-size: 3rem;"></i>
-      <h2 class="mt-2 text-warning fw-bold">Pago en revisión</h2>
-      <p class="fs-5 text-muted">Tu pago fue recibido y está siendo verificado por el proveedor.</p>
-      <p class="mt-3">Te notificaremos cuando se apruebe. Podés volver al inicio mientras tanto.</p>
+<style>
+  .pendiente-hero {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: #212529;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .pendiente-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    animation: fadeInUp .6s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .pendiente-icon {
+    font-size: 3.5rem;
+  }
+</style>
 
-      <div class="mt-4 d-flex justify-content-center gap-2">
-        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg px-4">🏠 Volver al inicio</a>
-        <a href="{% url 'pagos:metodo' %}" class="btn btn-secondary btn-lg px-4">🔁 Cambiar método</a>
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="pendiente-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-hourglass-split me-2"></i>Pago en revisión</h1>
+    <p class="mb-0 opacity-75">Tu pago fue recibido y está siendo verificado por el proveedor. Te notificaremos cuando se apruebe.</p>
+  </div>
+
+  <!-- Tarjeta de estado pendiente -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card pendiente-card">
+        <div class="card-body text-center p-5">
+          <div class="mb-4">
+            <i class="bi bi-hourglass-split text-warning pendiente-icon"></i>
+            <h2 class="mt-3 text-warning fw-bold">Pago en revisión</h2>
+          </div>
+
+          <p class="fs-5 text-muted">Tu pago fue recibido y está siendo verificado por el proveedor.</p>
+          <p class="mt-3">Te notificaremos cuando se apruebe. Podés volver al inicio mientras tanto.</p>
+
+          <hr class="my-4">
+
+          <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg btn-icon px-4 shadow-sm">
+              <i class="bi bi-house-door-fill me-1"></i>Volver al inicio
+            </a>
+            <a href="{% url 'pagos:metodo' %}" class="btn btn-secondary btn-lg btn-icon px-4 shadow-sm">
+              <i class="bi bi-arrow-repeat me-1"></i>Cambiar método
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 {% endblock %}

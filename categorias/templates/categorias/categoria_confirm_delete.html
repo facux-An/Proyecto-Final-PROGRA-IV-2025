@@ -1,26 +1,63 @@
 {% extends 'ventas/base_ventas.html' %}
 
-{% block title %}Eliminar Categoría{% endblock %}
+{% block title %}Eliminar Categoría · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm border-danger">
-    <div class="card-header bg-danger text-white">
-        <h4>⚠️ Confirmar eliminación</h4>
-    </div>
-    <div class="card-body">
-        <p class="mb-3">
+<style>
+  .delete-hero {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .delete-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  }
+  .delete-icon {
+    font-size: 2.5rem;
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="delete-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2"><i class="bi bi-exclamation-octagon-fill me-2"></i>Confirmar eliminación</h1>
+    <p class="mb-0 opacity-75">Esta acción es irreversible. Revisá bien antes de continuar.</p>
+  </div>
+
+  <!-- Tarjeta de confirmación -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card delete-card border-danger">
+        <div class="card-header bg-danger text-white d-flex align-items-center">
+          <i class="bi bi-trash-fill delete-icon me-2"></i>
+          <h4 class="mb-0">Eliminar categoría</h4>
+        </div>
+        <div class="card-body p-4">
+          <p class="mb-3 fs-5">
             ¿Estás seguro que deseas borrar la categoría 
-            <strong>"{{ object.nombre }}"</strong>?
-        </p>
-        <form method="post" class="d-flex gap-2">
+            <strong class="text-danger">"{{ object.nombre }}"</strong>?
+          </p>
+          <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>Los productos asociados también podrían verse afectados.</div>
+          </div>
+          <form method="post" class="d-flex gap-3 justify-content-center">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">
-                🗑️ Sí, borrar
+            <button type="submit" class="btn btn-danger btn-lg btn-icon">
+              <i class="bi bi-trash-fill me-1"></i> Sí, borrar
             </button>
-            <a href="{% url 'categorias:categoria_list' %}" class="btn btn-secondary">
-                ↩️ Cancelar
+            <a href="{% url 'categorias:categoria_list' %}" class="btn btn-secondary btn-lg btn-icon">
+              <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
             </a>
-        </form>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
+
 </div>
 {% endblock %}

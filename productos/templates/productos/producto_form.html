@@ -1,64 +1,140 @@
 {% extends 'productos/base_producto.html' %}
 {% load static %}
 
+{% block title %}Formulario de Producto · Tienda Plus{% endblock %}
+
 {% block producto_content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0">
-            {% if form.instance.pk %}
-                ✏️ Editar Producto #{{ form.instance.pk }}
-            {% else %}
-                ➕ Nuevo Producto
-            {% endif %}
-        </h4>
-    </div>
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+<style>
+  .producto-form-hero {
+    background: linear-gradient(135deg, #20c997, #0d6efd);
+    color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  }
+  .producto-form-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  }
+  .form-label { font-weight: 600; }
+  .form-control, .form-select {
+    border-radius: .5rem;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+  }
+  .preview-img {
+    width: 140px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: .75rem;
+    box-shadow: 0 6px 12px rgba(0,0,0,.08);
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Hero superior -->
+  <div class="producto-form-hero p-4 p-md-5 mb-4 text-center">
+    <h1 class="h3 mb-2">
+      {% if form.instance.pk %}
+        <i class="bi bi-pencil-square me-2"></i>Editar producto #{{ form.instance.pk }}
+      {% else %}
+        <i class="bi bi-plus-circle-fill me-2"></i>Nuevo producto
+      {% endif %}
+    </h1>
+    <p class="mb-0 opacity-75">Completá los datos para administrar tu catálogo de manera clara y atractiva.</p>
+  </div>
+
+  <!-- Tarjeta de formulario -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+      <div class="card producto-form-card">
+        <div class="card-body p-4">
+          <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            
-            <div class="mb-3">
-                {{ form.nombre.label_tag }}
-                {{ form.nombre }}
-            </div>
-            <div class="mb-3">
-                {{ form.descripcion.label_tag }}
-                {{ form.descripcion }}
-            </div>
-            <div class="mb-3">
-                {{ form.categoria.label_tag }}
-                {{ form.categoria }}
-            </div>
-            <div class="mb-3">
-                {{ form.precio.label_tag }}
-                {{ form.precio }}
-            </div>
-            <div class="mb-3">
-                {{ form.stock.label_tag }}
-                {{ form.stock }}
-            </div>
-            <div class="mb-3">
-                {{ form.portada.label_tag }}
-                {{ form.portada }}
-            </div>
 
-            {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
-            <div class="mb-3 text-center">
-                <p class="mb-1 text-muted">Imagen actual:</p>
-                <img src="{{ form.instance.portada.url }}" alt="{{ form.instance.nombre }}"
-                     style="width:120px;height:90px;object-fit:cover;border-radius:6px;"
-                     class="shadow-sm">
-            </div>
+            <!-- Errores generales -->
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ form.non_field_errors }}
+              </div>
             {% endif %}
 
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">
-                    {% if form.instance.pk %}💾 Actualizar{% else %}✅ Guardar{% endif %}
-                </button>
-                <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary">
-                    ⬅️ Cancelar
-                </a>
+            <!-- Campos -->
+            <div class="mb-3">
+              <label for="{{ form.nombre.id_for_label }}" class="form-label"><i class="bi bi-box-seam me-1"></i>Nombre</label>
+              {{ form.nombre }}
+              {% if form.nombre.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.nombre.errors|striptags }}</div>
+              {% endif %}
             </div>
-        </form>
+
+            <div class="mb-3">
+              <label for="{{ form.descripcion.id_for_label }}" class="form-label"><i class="bi bi-card-text me-1"></i>Descripción</label>
+              {{ form.descripcion }}
+              {% if form.descripcion.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.descripcion.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.categoria.id_for_label }}" class="form-label"><i class="bi bi-folder-fill me-1"></i>Categoría</label>
+              {{ form.categoria }}
+              {% if form.categoria.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.categoria.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.precio.id_for_label }}" class="form-label"><i class="bi bi-currency-dollar me-1"></i>Precio</label>
+              {{ form.precio }}
+              {% if form.precio.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.precio.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.stock.id_for_label }}" class="form-label"><i class="bi bi-stack me-1"></i>Stock</label>
+              {{ form.stock }}
+              {% if form.stock.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.stock.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.portada.id_for_label }}" class="form-label"><i class="bi bi-image-fill me-1"></i>Portada</label>
+              {{ form.portada }}
+              {% if form.portada.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.portada.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Vista previa de imagen actual -->
+            {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
+              <div class="mb-3 text-center">
+                <p class="mb-1 text-muted">Imagen actual:</p>
+                <img src="{{ form.instance.portada.url }}" alt="{{ form.instance.nombre }}" class="preview-img">
+              </div>
+            {% endif %}
+
+            <!-- Botones -->
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+              <button type="submit" class="btn btn-success btn-icon">
+                {% if form.instance.pk %}
+                  <i class="bi bi-save-fill me-1"></i>Actualizar
+                {% else %}
+                  <i class="bi bi-check-circle-fill me-1"></i>Guardar
+                {% endif %}
+              </button>
+              <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary btn-icon">
+                <i class="bi bi-arrow-left-circle me-1"></i>Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
+
 </div>
 {% endblock %}
