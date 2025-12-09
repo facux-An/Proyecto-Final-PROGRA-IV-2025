@@ -16,16 +16,27 @@
     border: 0;
     border-radius: 1rem;
     box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .categoria-form-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(0,0,0,.18);
   }
   .form-label { font-weight: 600; }
   .form-control {
     border-radius: .5rem;
     box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .form-control:focus {
+    border-color: #6610f2;
+    box-shadow: 0 0 0 .25rem rgba(102,16,242,.25);
   }
   .btn-icon {
     display: inline-flex;
     align-items: center;
     gap: .35rem;
+    font-weight: 500;
   }
 </style>
 
@@ -44,3 +55,48 @@
 
   <!-- Tarjeta de formulario -->
   <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card categoria-form-card">
+        <div class="card-body p-4">
+          <h2 class="h5 mb-4 text-center">
+            {% if form.instance.pk %}Formulario de edición{% else %}Formulario de creación{% endif %}
+          </h2>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            {% for field in form %}
+              <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <div class="text-danger small mt-1">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i>{{ field.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+              <a href="{% url 'categorias:categoria_list' %}" class="btn btn-secondary btn-icon">
+                <i class="bi bi-x-circle-fill me-1"></i>Cancelar
+              </a>
+              <button type="submit" class="btn btn-primary btn-icon">
+                <i class="bi bi-check-circle-fill me-1"></i>{% if form.instance.pk %}Guardar cambios{% else %}Guardar{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

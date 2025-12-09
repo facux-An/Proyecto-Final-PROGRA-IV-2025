@@ -1,0 +1,101 @@
+{# templates/partials/navbar.html #}
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <!-- Branding -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <i class="bi bi-shop-window me-2"></i>Tienda Plus
+    </a>
+
+    <!-- Toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegación">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Contenido -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- Links principales -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+            <i class="bi bi-house-door-fill me-1"></i>Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.namespace == 'productos' %}active{% endif %}" href="{% url 'productos:producto_list' %}">
+            <i class="bi bi-box-seam me-1"></i>Productos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.namespace == 'categorias' %}active{% endif %}" href="{% url 'categorias:categoria_list' %}">
+            <i class="bi bi-tags-fill me-1"></i>Categorías
+          </a>
+        </li>
+      </ul>
+
+      <!-- Área de usuario / acciones -->
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        {% if user.is_authenticated %}
+          <!-- Dropdown de usuario -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="usuarioDropdown"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="usuarioDropdown">
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="{% url 'usuarios:perfil' %}">
+                  <i class="bi bi-person-badge me-2"></i>Mi perfil
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="{% url 'ventas:resumen' %}">
+                  <i class="bi bi-graph-up-arrow me-2"></i>Resumen
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form action="{% url 'logout' %}" method="post" class="px-3 py-1">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Carrito con contador -->
+          <li class="nav-item ms-lg-2">
+            <a class="btn btn-light btn-sm d-flex align-items-center" href="{% url 'carrito:detail' %}">
+              <i class="bi bi-cart-fill me-1"></i>Carrito
+              {% if carrito_count %}
+                <span class="badge bg-primary ms-2">{{ carrito_count }}</span>
+              {% endif %}
+            </a>
+          </li>
+
+          {% if user.is_staff %}
+            <li class="nav-item ms-lg-2">
+              <a class="btn btn-outline-light btn-sm d-flex align-items-center" href="{% url 'admin:index' %}">
+                <i class="bi bi-speedometer2 me-1"></i>Panel
+              </a>
+            </li>
+          {% endif %}
+
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">
+              <i class="bi bi-door-open-fill me-1"></i>Iniciar sesión
+            </a>
+          </li>
+          <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+            <a class="btn btn-light btn-sm" href="{% url 'registro' %}">
+              <i class="bi bi-person-plus-fill me-1"></i>Registrarme
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
