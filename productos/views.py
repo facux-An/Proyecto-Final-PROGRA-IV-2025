@@ -16,7 +16,7 @@ class ProductoListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = Producto.objects.select_related('categoria').all()
+        queryset = Producto.objects.select_related('categoria').prefetch_related('portadas')
         categoria_id = self.request.GET.get('categoria')
         search = self.request.GET.get('search')
         min_precio = self.request.GET.get('min_precio')
