@@ -17,6 +17,7 @@ class ProductoListView(ListView):
 
     def get_queryset(self):
         queryset = Producto.objects.select_related('categoria').prefetch_related('portadas')
+
         categoria_id = self.request.GET.get('categoria')
         search = self.request.GET.get('search')
         min_precio = self.request.GET.get('min_precio')
@@ -62,11 +63,19 @@ class ProductoDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         producto = self.object  # ya viene con portadas prefetch
-        context['relacionados'] = (
-            Producto.objects.filter(categoria=producto.categoria)
-            .exclude(id=producto.id)
-            .order_by('-id')[:4]
-        ) if producto.categoria else []
+
+        if producto.categoria:
+            relacionados_qs = (
+                Producto.objects.filter(categoria=producto.categoria)
+                .exclude(id=producto.id)
+                .select_related('categoria')
+                .prefetch_related('portadas')
+                .order_by('-id')[:4]
+            )
+            context['relacionados'] = relacionados_qs
+        else:
+            context['relacionados'] = []
+
         context['portadas'] = producto.portadas.all()
         context['portadas_count'] = producto.portadas.count()
         return context

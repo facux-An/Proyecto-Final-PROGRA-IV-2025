@@ -33,6 +33,7 @@
     border-radius: 1rem;
     box-shadow: 0 10px 20px rgba(0,0,0,.08);
     transition: transform .15s ease, box-shadow .15s ease;
+    background: #fff;
   }
   .rel-card:hover {
     transform: translateY(-3px);
@@ -50,7 +51,7 @@
 
   <!-- Hero superior -->
   <div class="producto-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-box-seam me-2"></i>Detalle de producto</h1>
+    <h1 class="h3 mb-2"><i class="bi bi-box-seam me-2"></i>{{ producto.nombre }}</h1>
     <p class="mb-0 opacity-75">Explorá la información completa y agregalo a tu carrito si está disponible.</p>
   </div>
 
@@ -60,9 +61,18 @@
       <div class="col-md-5 p-3">
 
         <!-- ✅ Carrusel de portadas -->
-         <p class="text-muted">Portadas guardadas: {{ portadas_count }}</p>
-        {% if portadas %}
+        <p class="text-muted">Portadas guardadas: {{ portadas_count }}</p>
+        {% if portadas and portadas|length > 0 %}
           <div id="portadasCarousel" class="carousel slide" data-bs-ride="carousel">
+            {% if portadas|length > 1 %}
+              <div class="carousel-indicators">
+                {% for portada in portadas %}
+                  <button type="button" data-bs-target="#portadasCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                          class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}"
+                          aria-label="Imagen {{ forloop.counter }}"></button>
+                {% endfor %}
+              </div>
+            {% endif %}
             <div class="carousel-inner">
               {% for portada in portadas %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
@@ -70,19 +80,21 @@
                 </div>
               {% endfor %}
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#portadasCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#portadasCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Siguiente</span>
-            </button>
+            {% if portadas|length > 1 %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#portadasCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#portadasCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+              </button>
+            {% endif %}
           </div>
         {% elif producto.portada and producto.portada.url %}
           <img src="{{ producto.portada.url }}" class="producto-img img-fluid" alt="{{ producto.nombre }}">
         {% else %}
-          <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid" alt="Sin imagen disponible">
+          <img src="{% static 'img/default_thumb.jpg' %}" class="producto-img img-fluid" alt="Sin imagen disponible">
         {% endif %}
 
       </div>
@@ -123,11 +135,15 @@
     {% for rel in relacionados %}
       <div class="col-md-6 col-lg-3 mb-4">
         <div class="card rel-card h-100 text-center">
-          {% if rel.portada and rel.portada.url %}
-            <img src="{{ rel.portada.url }}" class="rel-img img-fluid" alt="{{ rel.nombre }}">
-          {% else %}
-            <img src="{% static 'img/no-image.png' %}" class="rel-img img-fluid" alt="Sin imagen disponible">
-          {% endif %}
+          <a href="{% url 'productos:producto_detail' rel.id %}">
+            {% if rel.portadas.all %}
+              <img src="{{ rel.portadas.first.imagen.url }}" class="rel-img img-fluid" alt="{{ rel.nombre }}">
+            {% elif rel.portada and rel.portada.url %}
+              <img src="{{ rel.portada.url }}" class="rel-img img-fluid" alt="{{ rel.nombre }}">
+            {% else %}
+              <img src="{% static 'img/default_thumb.jpg' %}" class="rel-img img-fluid" alt="Sin imagen disponible">
+            {% endif %}
+          </a>
           <div class="card-body">
             <h6 class="card-title fw-bold mb-1">{{ rel.nombre }}</h6>
             <p class="text-muted fw-semibold mb-2"><i class="bi bi-currency-dollar me-1"></i>{{ rel.precio|floatformat:2 }}</p>
