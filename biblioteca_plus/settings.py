@@ -47,10 +47,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Apps del proyecto
-    "productos.apps.ProductosConfig",
+    
     "ventas",
     "categorias",
+    "productos",
     "usuarios",
+    
+    # Cloudinary
     "cloudinary",
     "cloudinary_storage",
 ]

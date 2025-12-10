@@ -1,15 +1,14 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView,DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
 from categorias.models import Categoria
-from .models import Producto
-from .forms import ProductoForm
-from categorias.models import Categoria
-from .models import Producto
-from .forms import ProductoForm, ProductoPortadaForm
+from .models import Producto, PortadaProducto
+from .forms import ProductoForm, ProductoPortadaForm, PortadasMultiplesForm
 from django.shortcuts import get_object_or_404, redirect, render
 import traceback
+
+
 class ProductoListView(ListView):
     model = Producto
     template_name = 'productos/producto_list.html'
@@ -46,27 +45,33 @@ class ProductoListView(ListView):
         context['max_precio'] = self.request.GET.get('max_precio', '')
         context['stock_min'] = self.request.GET.get('stock_min', '')
         return context
+
+
 class ProductoDetailView(DetailView):
     model = Producto
     template_name = 'productos/producto_detail.html'
     context_object_name = 'producto'
 
+    def get_queryset(self):
+        return (
+            Producto.objects
+            .select_related('categoria')
+            .prefetch_related('portadas')
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        producto = self.get_object()
-        # productos relacionados por categoría (máximo 4)
-        if producto.categoria:
-            relacionados = (
-                Producto.objects.filter(categoria=producto.categoria)
-                .exclude(id=producto.id)
-                .order_by('-id')[:4]
-            )
-        else:
-            relacionados = []
-        context['relacionados'] = relacionados
+        producto = self.object  # ya viene con portadas prefetch
+        context['relacionados'] = (
+            Producto.objects.filter(categoria=producto.categoria)
+            .exclude(id=producto.id)
+            .order_by('-id')[:4]
+        ) if producto.categoria else []
+        context['portadas'] = producto.portadas.all()
+        context['portadas_count'] = producto.portadas.count()
         return context
 
-    
+
 class ProductoCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm
@@ -74,9 +79,19 @@ class ProductoCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     success_url = reverse_lazy('productos:producto_list')
     permission_required = 'productos.add_producto'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['portadas_form'] = PortadasMultiplesForm(self.request.POST or None, self.request.FILES or None)
+        return context
+
     def form_valid(self, form):
-        messages.success(self.request, "✅ Producto creado correctamente.")
+        self.object = form.save()
+        files = self.request.FILES.getlist("portadas")
+        for f in files[:5]:
+            PortadaProducto.objects.create(producto=self.object, imagen=f)
+        messages.success(self.request, "✅ Producto creado correctamente con portadas.")
         return super().form_valid(form)
+
 
 class ProductoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Producto
@@ -85,9 +100,19 @@ class ProductoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     success_url = reverse_lazy('productos:producto_list')
     permission_required = 'productos.change_producto'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['portadas_form'] = PortadasMultiplesForm(self.request.POST or None, self.request.FILES or None)
+        return context
+
     def form_valid(self, form):
-        messages.info(self.request, "✏️ Producto actualizado correctamente.")
+        self.object = form.save()
+        files = self.request.FILES.getlist("portadas")
+        for f in files[:5]:
+            PortadaProducto.objects.create(producto=self.object, imagen=f)
+        messages.info(self.request, "✏️ Producto actualizado correctamente. Portadas agregadas si se subieron nuevas.")
         return super().form_valid(form)
+
 
 class ProductoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Producto
@@ -98,6 +123,7 @@ class ProductoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
     def delete(self, request, *args, **kwargs):
         messages.warning(self.request, "🗑️ Producto eliminado correctamente.")
         return super().delete(request, *args, **kwargs)
+
 
 def subir_portada(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)

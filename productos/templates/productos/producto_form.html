@@ -28,6 +28,21 @@
     border-radius: .75rem;
     box-shadow: 0 6px 12px rgba(0,0,0,.08);
   }
+  .multi-upload {
+    border: 2px dashed #0d6efd;
+    border-radius: .75rem;
+    padding: 1rem;
+    text-align: center;
+    background: #f8f9fa;
+    transition: background .2s ease;
+  }
+  .multi-upload:hover {
+    background: #e9ecef;
+  }
+  .multi-upload i {
+    font-size: 2rem;
+    color: #0d6efd;
+  }
 </style>
 
 <div class="container py-4">
@@ -101,18 +116,23 @@
               {% endif %}
             </div>
 
+            <!-- ✅ Campo para múltiples portadas -->
             <div class="mb-3">
-              <label for="{{ form.portada.id_for_label }}" class="form-label"><i class="bi bi-image-fill me-1"></i>Portada</label>
-              {{ form.portada }}
-              {% if form.portada.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.portada.errors|striptags }}</div>
+              <label class="form-label"><i class="bi bi-images me-1"></i>Portadas (hasta 5)</label>
+              <div class="multi-upload">
+                <i class="bi bi-cloud-upload"></i>
+                <p class="mb-2 text-muted">Seleccioná hasta 5 imágenes</p>
+                {{ portadas_form.portadas }}
+              </div>
+              {% if portadas_form.portadas.errors %}
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ portadas_form.portadas.errors|striptags }}</div>
               {% endif %}
             </div>
 
-            <!-- Vista previa de imagen actual -->
+            <!-- Vista previa de portada única -->
             {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
               <div class="mb-3 text-center">
-                <p class="mb-1 text-muted">Imagen actual:</p>
+                <p class="mb-1 text-muted">Portada única actual:</p>
                 <img src="{{ form.instance.portada.url }}" alt="{{ form.instance.nombre }}" class="preview-img">
               </div>
             {% endif %}

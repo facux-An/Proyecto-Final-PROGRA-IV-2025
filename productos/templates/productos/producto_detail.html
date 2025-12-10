@@ -58,11 +58,33 @@
   <div class="card producto-card mb-4">
     <div class="row g-0">
       <div class="col-md-5 p-3">
-        {% if producto.portada and producto.portada.url %}
+
+        <!-- ✅ Carrusel de portadas -->
+         <p class="text-muted">Portadas guardadas: {{ portadas_count }}</p>
+        {% if portadas %}
+          <div id="portadasCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              {% for portada in portadas %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ portada.imagen.url }}" class="producto-img d-block w-100" alt="{{ producto.nombre }}">
+                </div>
+              {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#portadasCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#portadasCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Siguiente</span>
+            </button>
+          </div>
+        {% elif producto.portada and producto.portada.url %}
           <img src="{{ producto.portada.url }}" class="producto-img img-fluid" alt="{{ producto.nombre }}">
         {% else %}
           <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid" alt="Sin imagen disponible">
         {% endif %}
+
       </div>
       <div class="col-md-7 p-4">
         <h2 class="fw-bold mb-2">{{ producto.nombre }}</h2>
