@@ -1,0 +1,135 @@
+ventas/
+├── views/
+│   ├── __init__.py
+│   ├── carrito.py
+│   ├── helpers.py
+│   ├── panel.py
+│   └── pedidos.py
+├── templates/
+│   ├── pedidos/
+│   │   ├── pedido_detail.html
+│   │   ├── pedido_estado_form.html
+│   │   ├── pedido_form.html
+│   │   ├── pedido_historial.html
+│   │   ├── pedido_list.html
+│   │   └── pedido_update.html
+│   └── ventas/
+│       ├── base_ventas.html
+│       ├── carrito.html
+│       ├── editar_estado.html
+│       ├── historial_pedido.html
+│       ├── historial_usuario.html
+│       ├── panel_pedidos.html
+│       ├── ventas_confirm_delete.html
+│       ├── ventas_form.html
+│       └── ventas_list.html
+├── __init__.py
+├── admin.py
+├── apps.py
+├── context_processors.py
+├── forms.py
+├── models.py
+├── tests.py
+├── urls.py
+├── urls_carrito.py
+├── urls_panel.py
+├── urls_pedidos.py
+└── views.py
+
+
+
+
+
+
+
+🗺️ Flujo de pagos en Tienda Plus
+1. Carrito
+El usuario agrega productos.
+
+Desde el carrito → botón “Finalizar compra” → redirige a /ventas/pagos/metodo/.
+
+2. Elegir método de pago (/ventas/pagos/metodo/)
+Se muestra el total y el selector de método:
+
+Efectivo
+
+Transferencia
+
+MercadoPago
+
+Botones adaptativos:
+
+✅ Continuar (para efectivo/transferencia)
+
+💳 Pagar con Mercado Pago (si se selecciona MercadoPago)
+
+3. Procesamiento
+Efectivo / Transferencia:
+
+Se crean los pedidos.
+
+Se descuenta stock.
+
+Se vacía el carrito.
+
+Se redirige a /ventas/pagos/confirmacion/.
+
+MercadoPago:
+
+Se crea la preferencia con el SDK.
+
+Se redirige al checkout oficial de Mercado Pago.
+
+Mercado Pago devuelve al sistema con back_urls:
+
+success → /ventas/pagos/confirmacion/
+
+failure → /ventas/pagos/error/
+
+pending → /ventas/pagos/pendiente/
+
+4. Confirmación / Error / Pendiente
+Confirmación (/ventas/pagos/confirmacion/):
+
+Muestra ✅ pago aprobado.
+
+Actualiza el pedido → estado pagado, método MercadoPago.
+
+Botón: 📊 “Ir al panel de pedidos”.
+
+Error (/ventas/pagos/error/):
+
+Muestra ❌ pago fallido.
+
+Botón: 🔁 “Volver a elegir método”.
+
+Pendiente (/ventas/pagos/pendiente/):
+
+Muestra ⏳ pago en proceso.
+
+Botón: 📊 “Ir al panel de pedidos”.
+
+5. Panel de pedidos (/ventas/panel/)
+El staff ve todos los pedidos con métricas y acciones.
+
+El usuario ve sus pedidos en /ventas/pedidos/.
+
+Desde aquí se puede entrar al detalle, editar, entregar, etc.
+
+🚀 Resultado
+Flujo completo, claro y documentado.
+
+El usuario siempre termina en el panel de pedidos o puede volver a elegir método.
+
+Mercado Pago se integra de forma natural con tus vistas y templates.
+
+
+
+
+
+<img src="/media/productos/Gemini_Generated_Image_ah3ckbah3ckbah3c.png" width="80" style="border-radius:4px;">
+
+
+
+
+
