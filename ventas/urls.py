@@ -1,11 +1,11 @@
 from django.urls import path, include
 from ventas.views import pagos
 from .views import PedidoHistorialView
+from ventas.views import carrito
 
 urlpatterns = [
     # Carrito de compras
     path("carrito/", include(("ventas.urls_carrito", "carrito"), namespace="carrito")),
-
     # Pedidos (listado, detalle, estado, eliminar, entregar, historial)
     path("pedidos/", include(("ventas.urls_pedidos", "pedidos"), namespace="pedidos")),
     path("pedidos/<int:pk>/historial/", PedidoHistorialView.as_view(), name="pedido_historial"),

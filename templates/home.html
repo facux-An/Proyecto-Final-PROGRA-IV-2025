@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio · Tienda Plus{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 rounded-3 text-white shadow-lg" 
+     style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); border-radius: 1rem;">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold">Bienvenido a Tienda Plus</h1>
+        <p class="col-md-8 fs-4">La mejor selección de productos con la experiencia de compra más rápida y segura del mercado.</p>
+        <div class="mt-4">
+            <a href="{% url 'productos:producto_list' %}" class="btn btn-light btn-lg px-4 gap-3 fw-bold text-primary shadow-sm rounded-pill">
+                <i class="bi bi-shop me-2"></i>Ir al Catálogo
+            </a>
+            <a href="{% url 'categorias:categoria_list' %}" class="btn btn-outline-light btn-lg px-4 rounded-pill ms-2">
+                Ver Categorías
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch">
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 text-bg-dark rounded-4 shadow-sm" style="background: #212529;">
+            <h2 class="fw-bold">Novedades</h2>
+            <p>Descubrí los últimos ingresos en tecnología y accesorios. Mantenemos nuestro stock actualizado.</p>
+            <a href="{% url 'productos:producto_list' %}" class="btn btn-outline-light rounded-pill" type="button">Ver Novedades</a>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 bg-white border rounded-4 shadow-sm">
+            <h2 class="fw-bold text-dark">Ofertas Especiales</h2>
+            <p class="text-muted">Aprovechá nuestros descuentos por tiempo limitado en productos seleccionados.</p>
+            <a href="{% url 'productos:producto_list' %}" class="btn btn-primary rounded-pill" type="button">Ir a Ofertas</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4 text-center g-4">
+    <div class="col-md-4">
+        <div class="p-4 border rounded-4 bg-white shadow-sm h-100">
+            <i class="bi bi-truck display-4 text-primary mb-3"></i>
+            <h5 class="fw-bold">Envío Rápido</h5>
+            <p class="text-muted small mb-0">Entregas en 24/48hs a todo el país.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-4 border rounded-4 bg-white shadow-sm h-100">
+            <i class="bi bi-credit-card-2-back display-4 text-success mb-3"></i>
+            <h5 class="fw-bold">Pago Seguro</h5>
+            <p class="text-muted small mb-0">Protegemos tus datos con los más altos estándares.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-4 border rounded-4 bg-white shadow-sm h-100">
+            <i class="bi bi-headset display-4 text-warning mb-3"></i>
+            <h5 class="fw-bold">Soporte 24/7</h5>
+            <p class="text-muted small mb-0">Estamos para ayudarte en lo que necesites.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

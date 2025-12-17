@@ -1,4 +1,5 @@
 from django.urls import path
+from ventas.views import carrito
 from ventas.views.carrito import (
     ver_carrito,
     agregar_al_carrito,
@@ -24,4 +25,6 @@ urlpatterns = [
 
     # Checkout → redirige a selección de método de pago
     path("checkout/", carrito_checkout, name="carrito_checkout"),
+    
+    path('modificar/<int:item_id>/<str:accion>/', carrito.modificar_cantidad, name='carrito_modificar'),
 ]

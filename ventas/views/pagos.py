@@ -21,16 +21,13 @@ class MetodoPagoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         carrito = Carrito.objects.filter(usuario=self.request.user).first()
-
+        
+        # Calculamos el total usando el método del modelo si existe, sino con esta lógica
+        total = 0
         if carrito:
-            total = sum(
-                item.producto.precio * item.cantidad
-                for item in carrito.items.select_related("producto")
-            )
-            context["total_a_pagar"] = total
-        else:
-            context["total_a_pagar"] = 0
-
+            total = sum(item.subtotal for item in carrito.items.all()) # Usamos subtotal que ya definiste en el carrito
+        
+        context["total_a_pagar"] = total
         return context
 
     def post(self, request, *args, **kwargs):
@@ -45,115 +42,102 @@ class MetodoPagoView(TemplateView):
             messages.warning(request, "🛒 Tu carrito está vacío.")
             return redirect("carrito:carrito_detail")
 
-        # Validar stock antes de continuar
+        # Validar stock antes de cualquier proceso de pago
         for item in carrito.items.select_related("producto"):
-            producto = item.producto
-            if producto.stock < item.cantidad:
-                messages.error(request, f"❌ Stock insuficiente para {producto.nombre}.")
+            if item.producto.stock < item.cantidad:
+                messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
                 return redirect("carrito:carrito_detail")
 
-        # Si el método es MercadoPago, generar preferencia y redirigir
+        # LÓGICA MERCADO PAGO
         if metodo.lower() == "mercadopago":
-            try:
-                sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+            return self._procesar_mercadopago(request, carrito)
 
-                items = []
-                for item in carrito.items.select_related("producto"):
-                    items.append({
-                        "title": item.producto.nombre,
-                        "quantity": item.cantidad,
-                        "unit_price": float(item.producto.precio),
-                        "currency_id": "ARS",
-                    })
+        # LÓGICA OTROS MÉTODOS (Efectivo/Transferencia)
+        return self._procesar_pedido_directo(request, carrito, metodo)
 
-                preference_data = {
-                    "items": items,
-                    "back_urls": {
-                        "success": f"{settings.SITE_URL}/ventas/pagos/confirmacion/",
-                        "failure": f"{settings.SITE_URL}/ventas/pagos/error/",
-                        "pending": f"{settings.SITE_URL}/ventas/pagos/pendiente/"
-                    },
-                    "auto_return": "approved",
-                    "external_reference": str(request.user.id),
-                }
+    def _procesar_mercadopago(self, request, carrito):
+        try:
+            sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+            items_mp = []
+            for item in carrito.items.select_related("producto"):
+                items_mp.append({
+                    "title": item.producto.nombre,
+                    "quantity": item.cantidad,
+                    "unit_price": float(item.producto.precio),
+                    "currency_id": "ARS",
+                })
 
-                preference_response = sdk.preference().create(preference_data)
-                print("Respuesta completa de Mercado Pago:", preference_response)
+            preference_data = {
+                "items": items_mp,
+                "back_urls": {
+                    "success": f"{settings.SITE_URL}/ventas/pagos/confirmacion/",
+                    "failure": f"{settings.SITE_URL}/ventas/pagos/error/",
+                    "pending": f"{settings.SITE_URL}/ventas/pagos/pendiente/"
+                },
+                "auto_return": "approved",
+                "external_reference": str(request.user.id),
+            }
 
-                response = preference_response.get("response", {})
-                init_point = response.get("init_point")
+            preference_response = sdk.preference().create(preference_data)
+            init_point = preference_response.get("response", {}).get("init_point")
 
-                if not init_point:
-                    messages.error(request, f"❌ Error al generar preferencia: {response}")
-                    return redirect("carrito:carrito_detail")
-
-                messages.info(request, f"🔗 Enlace generado: {init_point}")
+            if init_point:
                 return redirect(init_point)
+            
+            messages.error(request, "❌ No se pudo conectar con Mercado Pago.")
+            return redirect("carrito:carrito_detail")
 
-            except Exception as e:
-                print("Error al crear preferencia:", str(e))
-                traceback.print_exc()
-                messages.error(request, f"❌ Error inesperado: {str(e)}")
-                return redirect("carrito:carrito_detail")
+        except Exception as e:
+            messages.error(request, f"❌ Error en la plataforma de pago: {str(e)}")
+            return redirect("carrito:carrito_detail")
 
-        # Otros métodos (efectivo, transferencia): crear pedidos directamente
-        pedidos_creados = []
+    def _procesar_pedido_directo(self, request, carrito, metodo):
         for item in carrito.items.select_related("producto"):
-            producto = item.producto
-            pedido = Pedido.objects.create(
-                producto=producto,
+            Pedido.objects.create(
+                producto=item.producto,
                 usuario=request.user,
                 cantidad=item.cantidad,
                 metodo_pago=metodo,
                 estado="pendiente",
             )
-            descontar_stock(producto, item.cantidad)
-            pedidos_creados.append(pedido)
+            descontar_stock(item.producto, item.cantidad)
 
         carrito.items.all().delete()
-
         request.session["metodo_pago"] = metodo
-        messages.success(request, f"✅ Compra registrada con éxito usando {metodo}.")
+        messages.success(request, f"✅ Pedido realizado con éxito usando {metodo}.")
         return redirect("pagos:confirmacion")
 
 
 
-@method_decorator(login_required, name='dispatch')
 class ConfirmacionPagoView(TemplateView):
     template_name = "pagos/confirmacion.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         user = self.request.user
-        carrito = Carrito.objects.filter(usuario=user).first()
+        
+        # Recuperamos el método de pago (desde la URL si es MP, o desde la sesión)
         status = self.request.GET.get("status")
-
         if status == "approved":
-            if carrito and carrito.items.exists():
-                pedidos_creados = []
-                for item in carrito.items.select_related("producto"):
-                    producto = item.producto
-                    if producto.stock < item.cantidad:
-                        messages.error(self.request, f"❌ Stock insuficiente para {producto.nombre}.")
-                        context["metodo"] = "MercadoPago"
-                        return context
-
-                    pedido = Pedido.objects.create(
-                        producto=producto,
-                        usuario=user,
-                        cantidad=item.cantidad,
-                        metodo_pago="MercadoPago",
-                        estado="pagado",
-                    )
-                    descontar_stock(producto, item.cantidad)
-                    pedidos_creados.append(pedido)
-
-                carrito.items.all().delete()
-            context["metodo"] = "MercadoPago"
+            context["metodo_display"] = "Mercado Pago"
+            context["pagado"] = True
         else:
-            context["metodo"] = self.request.session.get("metodo_pago", "No definido")
+            context["metodo_display"] = self.request.session.get("metodo_pago", "No definido").capitalize()
+            context["pagado"] = False
 
+        # Traemos los pedidos recientes del usuario (creados en los últimos 5 minutos)
+        # Esto es para mostrar el resumen en esta pantalla.
+        from django.utils import timezone
+        import datetime
+        hace_5_min = timezone.now() - datetime.timedelta(minutes=5)
+        
+        pedidos = Pedido.objects.filter(usuario=user, fecha_pedido__gte=hace_5_min).select_related('producto')
+        context["pedidos"] = pedidos
+        
+        # Calculamos el total de esos pedidos
+        total = sum(p.cantidad * p.producto.precio for p in pedidos)
+        context["total_final"] = total
+        
         return context
 
 

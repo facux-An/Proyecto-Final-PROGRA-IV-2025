@@ -10,22 +10,14 @@ from django.http import JsonResponse
 from django.urls import get_resolver
 
 def home(request):
-    productos_qs = Producto.objects.select_related('categoria').order_by('id')
-    paginator = Paginator(productos_qs, 10)
-    page_number = request.GET.get('page')
-    productos = paginator.get_page(page_number)
-
-    categorias = (
-        Categoria.objects
-        .annotate(num_productos=Count('productos'))
-        .order_by('nombre')
-    )
-
-    context = {
-        'productos': productos,
-        'categorias': categorias,
-    }
-    return render(request, 'home.html', context)
+    """
+    Vista de la página de inicio (Landing Page).
+    Es ligera y rápida. No necesita cargar listados complejos de productos
+    porque eso ya lo maneja el botón 'Ir al Catálogo'.
+    """
+    # El contador del carrito se carga solo gracias al context_processor,
+    # así que no necesitamos pasar nada extra en el contexto por ahora.
+    return render(request, 'home.html')
 
 def cerrar_sesion(request):
     logout(request)

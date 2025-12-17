@@ -1,68 +1,162 @@
 {% extends "ventas/base_ventas.html" %}
 {% load static %}
 
-{% block title %}Carrito{% endblock %}
+{% block title %}Mi Carrito · Tienda Plus{% endblock %}
 
 {% block content %}
-  <h2 class="mb-4">🛒 Tu carrito</h2>
-
-  {% if carrito.items.exists %}
-    <!-- Tabla de productos en el carrito -->
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>Producto</th>
-          <th>Cantidad</th>
-          <th>Precio</th>
-          <th>Subtotal</th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in carrito.items.all %}
-          <tr>
-            <td>{{ item.producto.nombre }}</td>
-            <td>{{ item.cantidad }}</td>
-            <td>${{ item.producto.precio|floatformat:2 }}</td>
-            <td>${{ item.subtotal|floatformat:2 }}</td>
-            <td class="text-center">
-              <form method="post" action="{% url 'carrito:carrito_remove' item.id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger">
-                  🗑️ Eliminar
-                </button>
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <!-- Total y botones de acción -->
-    <div class="mt-4 d-flex justify-content-between align-items-center">
-      <h4>Total: ${{ carrito.total|floatformat:2 }}</h4>
-
-      <div class="d-flex gap-2">
-        <!-- Botón finalizar compra -->
-        <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_checkout' %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-primary btn-lg">
-            🧾 Finalizar compra
-          </button>
-        </form>
-
-       
-      </div>
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-md-start">
+            <h2 class="fw-bold text-dark mb-1">Mi Carrito</h2>
+            <p class="text-muted">Gestioná tus productos antes de finalizar la compra.</p>
+        </div>
     </div>
 
-  {% else %}
-    <!-- Bloque fijo para carrito vacío -->
-    <div class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
-      <h4 class="text-muted">🛒 Tu carrito está vacío</h4>
-      <p class="text-secondary">Agregá productos desde el catálogo para verlos aquí.</p>
-      <a href="{% url 'productos:producto_list' %}" class="btn btn-primary btn-lg mt-3">
-        Ir al catálogo
-      </a>
+    {% if carrito.items.exists %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="border-0 ps-4 py-3">Producto</th>
+                                <th class="border-0 py-3 text-center">Cantidad</th>
+                                <th class="border-0 py-3">Precio</th>
+                                <th class="border-0 py-3">Subtotal</th>
+                                <th class="border-0 pe-4 py-3 text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in carrito.items.all %}
+                            <tr>
+                                <td class="ps-4 py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            {% if item.producto.portada %}
+                                                <img src="{{ item.producto.portada.url }}" class="rounded shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ item.producto.nombre }}">
+                                            {% else %}
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ms-3">
+                                            <h6 class="mb-0 fw-bold">{{ item.producto.nombre }}</h6>
+                                            <small class="text-muted">{{ item.producto.categoria.nombre|default:"General" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <div class="d-flex align-items-center bg-light rounded-3 p-1" style="border: 1px solid #dee2e6;">
+                                            <a href="{% url 'carrito:carrito_modificar' item.id 'restar' %}" 
+                                               class="btn btn-sm btn-light border-0 px-2 py-1 {% if item.cantidad <= 1 %}disabled text-muted{% endif %}">
+                                                <i class="bi bi-dash-lg"></i>
+                                            </a>
+                                            
+                                            <span class="px-3 fw-bold text-dark" style="min-width: 40px; text-align: center;">
+                                                {{ item.cantidad }}
+                                            </span>
+                                            
+                                            <a href="{% url 'carrito:carrito_modificar' item.id 'sumar' %}" 
+                                               class="btn btn-sm btn-light border-0 px-2 py-1">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td><span class="text-muted">${{ item.producto.precio|floatformat:2 }}</span></td>
+                                <td><span class="fw-bold text-dark">${{ item.subtotal|floatformat:2 }}</span></td>
+                                
+                                <td class="pe-4 text-end">
+                                    <form method="post" action="{% url 'carrito:carrito_remove' item.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0 border-0" title="Eliminar producto">
+                                            <i class="bi bi-trash3-fill fs-5"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white border-0 py-3 ps-4">
+                    <a href="{% url 'productos:producto_list' %}" class="text-primary text-decoration-none fw-bold small">
+                        <i class="bi bi-arrow-left me-1"></i> Seguir comprando
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="border-radius: 1rem; top: 2rem;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Resumen de cuenta</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal ({{ carrito.items.count }} productos)</span>
+                        <span class="text-dark fw-semibold">${{ carrito.total|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Envío</span>
+                        <span class="text-success fw-semibold">Gratis</span>
+                    </div>
+                    
+                    <hr class="my-4" style="border-top: 2px dashed #eee;">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="h5 fw-bold mb-0">Total</span>
+                        <span class="h4 fw-bold text-primary mb-0">${{ carrito.total|floatformat:2 }}</span>
+                    </div>
+
+                    <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_checkout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm mb-3" style="border-radius: 12px;">
+                            <i class="bi bi-credit-card-2-back me-2"></i> Finalizar Compra
+                        </button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="small text-muted mb-0">
+                            <i class="bi bi-shield-check me-1"></i> Compra Protegida por Tienda Plus
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  {% endif %}
+
+    {% else %}
+    <div class="row justify-content-center py-5">
+        <div class="col-md-6 text-center">
+            <div class="bg-white p-5 shadow-sm rounded-4 border-0">
+                <div class="display-1 text-muted mb-4">
+                    <i class="bi bi-cart-x"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Tu carrito está vacío</h3>
+                <p class="text-muted mb-4">Parece que aún no has agregado ningún producto. ¡Explorá nuestro catálogo!</p>
+                <a href="{% url 'productos:producto_list' %}" class="btn btn-primary btn-lg px-5 fw-bold" style="border-radius: 12px;">
+                    Ver Catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    body { background-color: #f8f9fa; }
+    .table thead th { font-weight: 600; letter-spacing: 0.5px; }
+    .btn-primary { background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none; transition: 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
+    .card { transition: 0.3s; }
+    .sticky-top { z-index: 1020; }
+    /* Estilo para los botones de cantidad */
+    .btn-light:hover { background-color: #e2e6ea; color: #000; }
+    .disabled { pointer-events: none; opacity: 0.5; }
+</style>
 {% endblock %}

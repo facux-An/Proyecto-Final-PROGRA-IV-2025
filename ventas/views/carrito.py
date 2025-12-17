@@ -42,7 +42,8 @@ def agregar_al_carrito(request, producto_id):
         item.save()
 
     messages.success(request, f"✅ {producto.nombre} agregado al carrito.")
-    return redirect("carrito:carrito_detail")
+    next_url = request.META.get('HTTP_REFERER', 'productos:producto_detail')
+    return redirect(next_url)
 
 
 @login_required
@@ -92,8 +93,8 @@ def finalizar_compra(request):
             producto=producto,
             usuario=request.user,
             cantidad=item.cantidad,
+            estado="Pagado",
         )
-        descontar_stock(producto, item.cantidad)
 
     carrito.items.all().delete()
     messages.success(request, "✅ Compra realizada con éxito.")
@@ -108,3 +109,30 @@ def carrito_checkout(request):
     - Actualmente redirige directamente a la selección de método de pago.
     """
     return redirect("pagos:metodo")
+
+@login_required
+def modificar_cantidad(request, item_id, accion):
+    """
+    Suma o resta cantidad de un item en el carrito.
+    accion: 'sumar' o 'restar'
+    """
+    item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
+    
+    if accion == 'sumar':
+        if item.producto.stock > item.cantidad:
+            item.cantidad += 1
+            item.save()
+            messages.success(request, f"Se agregó una unidad de {item.producto.nombre}.")
+        else:
+            messages.warning(request, "No hay más stock disponible.")
+            
+    elif accion == 'restar':
+        if item.cantidad > 1:
+            item.cantidad -= 1
+            item.save()
+            messages.info(request, f"Se quitó una unidad de {item.producto.nombre}.")
+        else:
+            # Si es 1 y resta, opcionalmente podrías eliminarlo o dejarlo en 1
+            messages.warning(request, "La cantidad mínima es 1. Usá el tacho para eliminar.")
+
+    return redirect("carrito:carrito_detail")
