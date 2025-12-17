@@ -26,13 +26,28 @@ class Pedido(models.Model):
         ordering = ["-fecha_pedido"]  # siempre mostrar pedidos más recientes primero
 
     def save(self, *args, **kwargs):
-        """
-        Al crear un pedido nuevo, se guarda el precio unitario del producto.
-        La validación de stock se hace en el formulario (forms.py).
-        El stock se descuenta recién al marcar el pedido como entregado.
-        """
-        if not self.pk:  # solo al crear
+        # 1. Guardar precio unitario al crear
+        if not self.pk:
             self.precio_unitario = self.producto.precio
+            
+            # 2. Lógica profesional: Si el pedido entra como 'pagado' o 'entregado'
+            # (típico de venta por mostrador), descontamos stock de inmediato.
+            if self.estado in ['pagado', 'entregado']:
+                self.producto.stock -= self.cantidad
+                self.producto.save()
+        
+        # 3. Lógica para cambios de estado posteriores
+        else:
+            original = Pedido.objects.get(pk=self.pk)
+            # Si pasa de 'pendiente' a 'entregado' o 'pagado', descontar stock
+            if original.estado == 'pendiente' and self.estado in ['pagado', 'entregado']:
+                self.producto.stock -= self.cantidad
+                self.producto.save()
+            # Si se cancela y ya se había descontado, devolver stock
+            elif original.estado in ['pagado', 'entregado'] and self.estado == 'cancelado':
+                self.producto.stock += self.cantidad
+                self.producto.save()
+
         super().save(*args, **kwargs)
 
     @property

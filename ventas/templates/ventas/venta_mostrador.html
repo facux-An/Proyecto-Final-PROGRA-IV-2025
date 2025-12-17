@@ -1,0 +1,140 @@
+{% extends 'ventas/base_ventas.html' %}
+{% block title %}Terminal de Venta - Tienda Plus{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="background-color: #f8f9fa; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            
+            <div class="text-center mb-4">
+                <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
+                    <i class="fas fa-cash-register fa-2x text-primary"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Nueva Venta Física</h2>
+                <p class="text-muted">Completá los datos para procesar la venta en el local.</p>
+            </div>
+
+            <div class="card border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <form method="post" id="venta-form">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                                {% for error in form.non_field_errors %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <span>{{ error }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">
+                                <i class="fas fa-box-open me-2"></i>Producto a Vender
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0" style="border-radius: 12px 0 0 12px;">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                {{ form.producto }}
+                            </div>
+                            {% if form.producto.errors %}
+                                <div class="text-danger small mt-1">{{ form.producto.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">
+                                    <i class="fas fa-layer-group me-2"></i>Cantidad
+                                </label>
+                                {{ form.cantidad }}
+                                {% if form.cantidad.errors %}
+                                    <div class="text-danger small mt-1">{{ form.cantidad.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">
+                                    <i class="fas fa-wallet me-2"></i>Método de Pago
+                                </label>
+                                {{ form.metodo_pago }}
+                                {% if form.metodo_pago.errors %}
+                                    <div class="text-danger small mt-1">{{ form.metodo_pago.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div id="stock-warning" class="alert alert-info border-0 shadow-sm d-none" style="border-radius: 12px;">
+                            <i class="fas fa-info-circle me-2"></i> 
+                            <small class="fw-bold">Nota:</small> 
+                            <span class="small">Verificando disponibilidad en tiempo real...</span>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow" style="border-radius: 12px; transition: 0.3s;">
+                                <i class="fas fa-check-circle me-2"></i>Confirmar y Finalizar Venta
+                            </button>
+                            <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-link text-muted text-decoration-none py-2">
+                                <i class="fas fa-arrow-left me-1"></i> Volver al panel sin guardar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light border-0 py-3 text-center" style="border-radius: 0 0 20px 20px;">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 10px;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <span class="text-muted small">Vendedor responsable: <strong>{{ request.user.username }}</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilización Premium de Campos */
+    .form-select, .form-control {
+        border-radius: 12px;
+        padding: 12px 15px;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-select:focus, .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+    .input-group .form-select {
+        border-radius: 0 12px 12px 0;
+        border-left: none;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productoSelect = document.querySelector('select[name="producto"]');
+        const stockWarning = document.getElementById('stock-warning');
+
+        // Toggle visual del aviso al seleccionar producto
+        productoSelect.addEventListener('change', function() {
+            if (this.value) {
+                stockWarning.classList.remove('d-none');
+            } else {
+                stockWarning.classList.add('d-none');
+            }
+        });
+    });
+</script>
+{% endblock %}
