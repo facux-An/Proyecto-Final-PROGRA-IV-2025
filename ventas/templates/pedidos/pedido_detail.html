@@ -1,75 +1,124 @@
-{% extends 'ventas/base_ventas.html' %}
-{% block title %}Detalle del Pedido{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Pedido #{{ pedido.id }}{% endblock %}
 
 {% block content %}
-<div class="card shadow-lg border-0">
-  <!-- Encabezado -->
-  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-    <h4 class="mb-0">📄 Pedido #{{ pedido.id }}</h4>
-    <span class="badge bg-secondary">ID interno: {{ pedido.id }}</span>
-  </div>
-
-  <div class="card-body">
-    <!-- Producto y precio -->
-    <div class="row mb-3">
-      <div class="col-12 col-md-6">
-        <p class="fw-bold mb-1">Producto:</p>
-        <p class="text-primary fw-semibold">{{ pedido.producto.nombre }}</p>
-      </div>
-      <div class="col-12 col-md-6">
-        <p class="fw-bold mb-1">Precio unitario:</p>
-        <p><span class="badge bg-success">${{ pedido.precio_unitario|floatformat:2 }}</span></p>
-      </div>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'pedidos:list' %}" class="text-decoration-none text-muted">Mis Pedidos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Pedido #{{ pedido.id }}</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0">Detalle de la compra</h2>
+        </div>
+        <a href="{% url 'pedidos:list' %}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Volver
+        </a>
     </div>
 
-    <!-- Estado y fecha -->
-    <div class="row mb-3">
-      <div class="col-12 col-md-6">
-        <p class="fw-bold mb-1">Estado:</p>
-        {% if pedido.estado == 'pendiente' %}
-          <span class="badge bg-warning text-dark">Pendiente</span>
-        {% elif pedido.estado == 'pagado' %}
-          <span class="badge bg-primary">Pagado</span>
-        {% elif pedido.estado == 'enviado' %}
-          <span class="badge bg-info text-dark">Enviado</span>
-        {% elif pedido.estado == 'entregado' %}
-          <span class="badge bg-success">Entregado</span>
-        {% elif pedido.estado == 'cancelado' %}
-          <span class="badge bg-danger">Cancelado</span>
-        {% else %}
-          <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span>
-        {% endif %}
-      </div>
-      <div class="col-12 col-md-6">
-        <p class="fw-bold mb-1">Fecha del pedido:</p>
-        <p><span class="badge bg-dark">{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</span></p>
-      </div>
-    </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-muted text-uppercase small">Producto Adquirido</span>
+                    <span class="badge rounded-pill px-3 py-2 
+                        {% if pedido.estado == 'pendiente' %}bg-warning text-dark
+                        {% elif pedido.estado == 'pagado' %}bg-primary
+                        {% elif pedido.estado == 'entregado' %}bg-success
+                        {% elif pedido.estado == 'cancelado' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ pedido.get_estado_display }}
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="flex-shrink-0 bg-white border rounded-3 p-2 shadow-sm" style="width: 120px; height: 120px;">
+                            {% if pedido.producto.portadas.all %}
+                                <img src="{{ pedido.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
+                            {% elif pedido.producto.portada %}
+                                <img src="{{ pedido.producto.portada.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
+                            {% else %}
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light rounded-2">
+                                    <i class="bi bi-image text-muted fs-3"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold mb-1">{{ pedido.producto.nombre }}</h4>
+                            <p class="text-muted mb-2 small">{{ pedido.producto.categoria.nombre|default:"General" }}</p>
+                            
+                            <div class="d-flex gap-4 mt-3">
+                                <div>
+                                    <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Precio Unitario</small>
+                                    <span class="fw-semibold">${{ pedido.precio_unitario|floatformat:2 }}</span>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Cantidad</small>
+                                    <span class="fw-semibold">{{ pedido.cantidad }} u.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Usuario -->
-    <div class="row mb-3">
-      <div class="col-12 col-md-6">
-        <p class="fw-bold mb-1">Usuario:</p>
-        <p class="text-info fw-semibold">@{{ pedido.usuario.username }}</p>
-      </div>
-    </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-truck me-2"></i>Ver Seguimiento
+                </a>
+                <button onclick="window.print()" class="btn btn-light rounded-pill px-4 border">
+                    <i class="bi bi-printer me-2"></i>Imprimir Comprobante
+                </button>
+            </div>
+        </div>
 
-    <!-- Botones de acción -->
-    <div class="mt-4 d-flex flex-wrap justify-content-between gap-2">
-      <!-- Volver -->
-      <a href="{% if volver_al_panel %}{% url 'panel:panel_pedidos' %}{% else %}{% url 'pedidos:list' %}{% endif %}"
-         class="btn btn-secondary w-100 w-md-auto">
-        ⬅️ {% if volver_al_panel %}Volver al panel{% else %}Volver a mis pedidos{% endif %}
-      </a>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Resumen del Pago</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-bold">${{ pedido.total|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Envío</span>
+                        <span class="text-success fw-bold">Gratis</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4 align-items-center">
+                        <span class="h6 mb-0 fw-bold">Total Pagado</span>
+                        <span class="h3 mb-0 fw-bold text-primary">${{ pedido.total|floatformat:2 }}</span>
+                    </div>
 
-      <!-- Acciones -->
-      {% if request.user.is_staff %}
-      <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
-        <a href="{% url 'pedidos:update' pedido.id %}" class="btn btn-warning w-100 w-md-auto">✏️ Editar</a>
-        <a href="{% url 'pedidos:delete' pedido.id %}" class="btn btn-danger w-100 w-md-auto">🗑️ Eliminar</a>
-      {% endif %}
-      </div>
+                    <div class="bg-light p-3 rounded-3 mb-3">
+                        <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Método de Pago</small>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-credit-card-2-front text-primary fs-5 me-2"></i>
+                            <span class="fw-bold text-dark">{{ pedido.metodo_pago|default:"No especificado"|capfirst }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-3">
+                        <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Fecha de Compra</small>
+                        <span class="fw-bold text-dark">{{ pedido.fecha_pedido|date:"d F Y, H:i" }}hs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+<style>
+    .object-fit-cover { object-fit: cover; }
+    @media print {
+        .btn, header, footer, .breadcrumb { display: none !important; }
+        .card { border: 1px solid #ddd !important; box-shadow: none !important; }
+    }
+</style>
 {% endblock %}
