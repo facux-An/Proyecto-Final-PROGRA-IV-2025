@@ -5,13 +5,7 @@ load_dotenv()
 from pathlib import Path
 import dj_database_url
 from django.contrib.messages import constants as messages
-import cloudinary
-cloudinary.config(
-    cloud_name="dsaqqwbdn",
-    api_key="967594418321858",
-    api_secret="jBjqm0rWf0e_Pup4aOtaVDtZB0o",
-    secure=True
-)
+
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -128,7 +122,7 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
