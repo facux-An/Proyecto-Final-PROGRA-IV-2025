@@ -11,8 +11,8 @@ python manage.py collectstatic --no-input
 echo "Aplicando migraciones a PostgreSQL..."
 python manage.py migrate
 
-echo "Cargando datos iniciales de fixtures..."
-python manage.py loaddata fixtures/datos_iniciales.json
+echo "Cargando backup definitivo..."
+python manage.py loaddata backup_final.json
 
 # Bloque para crear el superusuario automáticamente sin consola
 if [[ -n "${DJANGO_SUPERUSER_USERNAME}" ]] && [[ -n "${DJANGO_SUPERUSER_PASSWORD}" ]] && [[ -n "${DJANGO_SUPERUSER_EMAIL}" ]]; then
