@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{# Puente transparente para Productos #}
-{# Esto arregla el error "block tag with name 'content' appears more than once" #}
-
 {% block title %}Productos · Tienda Plus{% endblock %}
+
+{# Este es el puente real: conectamos la base principal con los hijos de productos #}
+{% block content %}
+    {% block producto_content %}
+    {% endblock %}
+{% endblock %}
