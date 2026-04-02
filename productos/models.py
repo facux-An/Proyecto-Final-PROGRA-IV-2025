@@ -34,6 +34,12 @@ class Producto(models.Model):
         ordering = ["nombre"]
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
+        # 🚀 Optimización de Base de Datos: Índices B-Tree
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_producto_nombre'),
+            models.Index(fields=['precio'], name='idx_producto_precio'),
+            models.Index(fields=['stock'], name='idx_producto_stock'),
+        ]
 
     def __str__(self):
         return self.nombre
