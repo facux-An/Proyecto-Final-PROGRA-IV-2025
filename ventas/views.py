@@ -107,35 +107,6 @@ def eliminar_item(request, item_id):
     messages.warning(request, "🗑️ Producto eliminado del carrito.")
     return redirect('carrito:carrito_detail')
 
-
-@login_required
-def finalizar_compra(request):
-    """Convierte el carrito en pedidos y ajusta stock."""
-    if request.method != "POST":
-        messages.warning(request, "Para finalizar la compra usá el botón correspondiente.")
-        return redirect('carrito:carrito_detail')
-
-    carrito = get_object_or_404(Carrito, usuario=request.user)
-
-    if not carrito.items.exists():
-        messages.warning(request, "Tu carrito está vacío.")
-        return redirect('carrito:carrito_detail')
-
-    for item in carrito.items.select_related('producto'):
-        Pedido.objects.create(
-            producto=item.producto,
-            usuario=request.user,
-            cantidad=item.cantidad
-        )
-        item.producto.stock -= item.cantidad
-        item.producto.save()
-
-    carrito.items.all().delete()
-
-    messages.success(request, "✅ Compra realizada con éxito. Tus productos fueron registrados como pedidos.")
-    return redirect('pedidos:list')
-
-
 @method_decorator(staff_member_required, name='dispatch')
 class PanelPedidosView(ListView):
     """Panel de administración de pedidos con filtros y estadísticas."""
@@ -227,23 +198,20 @@ class HistorialUsuarioView(LoginRequiredMixin, ListView):
 
 @login_required
 def finalizar_compra(request):
-    """Convierte el carrito en pedidos, valida stock y ajusta inventario."""
+    """Convierte el carrito en pedidos, valida stock y reserva el inventario."""
     if request.method != "POST":
         messages.warning(request, "Usá el botón para finalizar la compra.")
         return redirect('carrito:carrito_detail')
 
     carrito = Carrito.objects.filter(usuario=request.user).first()
-    if not carrito:
+    if not carrito or not carrito.items.exists():
         messages.error(request, "El carrito está vacío.")
         return redirect('carrito:carrito_detail')
 
-    items = ItemCarrito.objects.filter(carrito=carrito)
-    if not items.exists():
-        messages.error(request, "El carrito está vacío.")
-        return redirect('carrito:carrito_detail')
+    items = carrito.items.select_related('producto')
 
-    # Validar stock
-    for item in items.select_related('producto'):
+    # 1. Validar stock de todos los items antes de hacer nada
+    for item in items:
         if item.producto.stock < item.cantidad:
             messages.error(
                 request,
@@ -251,7 +219,7 @@ def finalizar_compra(request):
             )
             return redirect('carrito:carrito_detail')
 
-    # Crear pedidos y descontar stock
+    # 2. Crear pedidos y descontar stock (Reserva inmediata)
     for item in items:
         producto = item.producto
         Pedido.objects.create(
@@ -259,13 +227,15 @@ def finalizar_compra(request):
             usuario=request.user,
             precio_unitario=producto.precio,
             cantidad=item.cantidad,
-            estado='pendiente'
+            estado='pendiente' # Nace pendiente, pero el stock ya está reservado
         )
+        # Descontamos el stock físicamente
         producto.stock -= item.cantidad
         producto.save()
 
-    items.delete()
-    messages.success(request, "✅ Compra finalizada con éxito.")
+    # 3. Vaciar carrito
+    carrito.items.all().delete()
+    messages.success(request, "✅ Compra finalizada con éxito. Tu pedido está pendiente de pago/envío.")
     return redirect('pedidos:list')
 
 

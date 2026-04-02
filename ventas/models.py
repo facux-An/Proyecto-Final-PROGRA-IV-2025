@@ -65,13 +65,13 @@ class Pedido(models.Model):
 
         # --- Lógica de Stock ---
         if not is_new:
-            # Si pasa de 'pendiente' a 'pagado/entregado', descontar stock
-            if estado_anterior == 'pendiente' and self.estado in ['pagado', 'entregado']:
-                self.producto.stock -= self.cantidad
-                self.producto.save()
-            # Si se cancela y ya se había descontado, devolver stock
-            elif estado_anterior in ['pagado', 'entregado'] and self.estado == 'cancelado':
+            # Si el pedido se cancela, le devolvemos el stock al producto
+            if estado_anterior != 'cancelado' and self.estado == 'cancelado':
                 self.producto.stock += self.cantidad
+                self.producto.save()
+            # Si se "descancela" (ej. de cancelado a pendiente), volvemos a restar
+            elif estado_anterior == 'cancelado' and self.estado != 'cancelado':
+                self.producto.stock -= self.cantidad
                 self.producto.save()
         elif self.estado in ['pagado', 'entregado']:
              # Caso raro: se crea directamente como pagado
