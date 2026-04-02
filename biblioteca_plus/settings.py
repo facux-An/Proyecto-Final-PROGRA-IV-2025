@@ -14,19 +14,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -----------------------------------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "clave-insegura-para-dev")
 
-DEBUG = True
+# Seguridad: El modo DEBUG solo es True si la variable en .env dice explícitamente "True".
+# En Render, al no existir esta variable (o si la ponés en False), el modo seguro se activa.
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "proyecto-final-progra-iv-2025.onrender.com"
-).split(",")
+# Seguridad: Si el modo DEBUG está en False (Producción), exigimos que haya un ALLOWED_HOSTS
+# en las variables de entorno. Si no lo hay, falla rápido para evitar exposición.
+if not DEBUG:
+    ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+else:
+    # En desarrollo (DEBUG=True), permitimos local y Render por comodidad
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost", "proyecto-final-progra-iv-2025.onrender.com"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://proyecto-final-progra-iv-2025.onrender.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
-
 
 # -----------------------------------------------------------------------------
 # Apps
