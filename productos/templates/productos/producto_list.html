@@ -6,6 +6,38 @@
 <div class="row mb-5 align-items-center">
     <div class="col-md-8">
         <h1 class="fw-extrabold mb-1">Nuestro Catálogo</h1>
+        <div class="card border-0 shadow-sm mb-4 rounded-4 bg-light">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Buscar productos..." value="{{ search }}">
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <select name="categoria" class="form-select border-0 shadow-sm">
+                    <option value="">Todas las categorías</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_id %}selected{% endif %}>
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Filtrar</button>
+                {% if search or categoria_id %}
+                    <a href="{% url 'productos:producto_list' %}" class="btn btn-outline-secondary w-50 rounded-pill" title="Limpiar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
         <p class="text-muted">Explorá la mejor selección de productos para vos.</p>
     </div>
     {% if user.is_staff %}
