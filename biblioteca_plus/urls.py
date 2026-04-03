@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from biblioteca_plus import views
 from ventas.views.pagos import ConfirmacionPagoView
 from django.views.static import serve
+
 urlpatterns = [
     # Home
     path('', views.home, name='home'),
@@ -24,12 +25,16 @@ urlpatterns = [
     # Usuarios
     path('usuarios/', include('usuarios.urls')),
 
-    # Autenticación
+    # 🚀 Autenticación de terceros (Allauth) - ESTE ES EL CABLE QUE FALTABA
+    path('accounts/', include('allauth.urls')),
+
+    # Autenticación Local
     path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+    
+    # Pagos
     path("pagos/confirmacion/", ConfirmacionPagoView.as_view(), name="confirmacion"),
     path("ventas/pagos/", include("ventas.urls_pagos")),
-
 ]
 
 # Media en desarrollo (solo funciona con DEBUG=True)

@@ -54,8 +54,17 @@ INSTALLED_APPS = [
     # Cloudinary
     "cloudinary",
     "cloudinary_storage",
+    
+    # django-allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
+# -----------------------------------------------------------------------------
+# Middleware
+# -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # Middleware
 # -----------------------------------------------------------------------------
@@ -67,6 +76,9 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    # --- Middleware de Allauth inyectado aquí ---
+    "allauth.account.middleware.AccountMiddleware",
+    # --------------------------------------------
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
