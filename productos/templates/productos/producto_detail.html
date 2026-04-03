@@ -4,7 +4,7 @@
 {% block title %}{{ producto.nombre }} · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="row g-5">
+<div class="row gy-4 gx-3 gx-lg-5">
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm p-3 mb-4 rounded-4">
             <div id="mainImageContainer" class="position-relative overflow-hidden rounded-4 mb-3" style="height: 500px;">
@@ -26,9 +26,9 @@
             </div>
 
             {% if portadas and portadas|length > 1 %}
-            <div class="d-flex gap-2 overflow-auto pb-2">
+            <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
                 {% for portada in portadas %}
-                <button onclick="changeImage('{{ portada.imagen.url }}')" class="btn p-0 border-0 rounded-3 overflow-hidden shadow-sm thumb-btn" style="width: 80px; height: 80px;">
+                <button onclick="changeImage('{{ portada.imagen.url }}')" class="btn p-0 border-0 rounded-3 overflow-hidden shadow-sm thumb-btn flex-shrink-0" style="width: 80px; height: 80px;">
                     <img src="{{ portada.imagen.url }}" class="w-100 h-100 object-fit-cover opacity-75 hover-opacity-100 transition">
                 </button>
                 {% endfor %}
@@ -44,7 +44,7 @@
 
     <div class="col-lg-5">
         <div class="sticky-top" style="top: 100px; z-index: 10;">
-            <div class="card border-0 shadow-lg p-4 rounded-4">
+            <div class="card border-0 shadow-lg p-4 rounded-4 w-100 overflow-hidden">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-2 small text-muted">
                         <li class="breadcrumb-item"><a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-muted">Catálogo</a></li>
@@ -52,7 +52,7 @@
                     </ol>
                 </nav>
 
-                <h1 class="fw-extrabold display-6 mb-2">{{ producto.nombre }}</h1>
+                <h1 class="fw-extrabold display-6 mb-2 text-break">{{ producto.nombre }}</h1>
                 
                 <div class="d-flex align-items-center mb-4">
                     <div class="h2 fw-bold text-primary mb-0">${{ producto.precio|floatformat:2 }}</div>
@@ -84,7 +84,7 @@
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow-sm btn-hover-scale">
                                 <i class="bi bi-cart-plus-fill me-2"></i>Agregar al Carrito
                             </button>
-                            <a href="#" class="btn btn-outline-secondary rounded-pill fw-bold">
+                            <a href="#" class="btn btn-outline-secondary rounded-pill fw-bold py-2">
                                 <i class="bi bi-heart me-2"></i>Guardar en Favoritos
                             </a>
                         </div>
@@ -110,7 +110,7 @@
     <div class="row g-4">
         {% for rel in relacionados %}
         <div class="col-6 col-md-3">
-            <div class="card h-100 border-0 shadow-sm product-card hover-lift rounded-4">
+            <div class="card h-100 border-0 shadow-sm product-card hover-lift rounded-4 overflow-hidden">
                 <div class="position-relative rounded-top-4 overflow-hidden" style="height: 200px;">
                     <a href="{% url 'productos:producto_detail' rel.id %}">
                     {% if rel.portadas.all %}
