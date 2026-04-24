@@ -38,7 +38,8 @@ class PedidoDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     context_object_name = "pedido"
 
     def get_queryset(self):
-        return Pedido.objects.select_related("producto", "usuario")
+        # CAMBIO CLAVE: select_related para el usuario (1a1), prefetch_related para detalles (1 a Muchos)
+        return Pedido.objects.select_related("usuario").prefetch_related("detalles__producto")
 
     def test_func(self):
         pedido = self.get_object()
@@ -59,14 +60,16 @@ class PedidoListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        qs = Pedido.objects.filter(usuario=self.request.user).select_related('producto')
+        # CAMBIO CLAVE: prefetch_related
+        qs = Pedido.objects.filter(usuario=self.request.user).prefetch_related('detalles__producto')
         estado = self.request.GET.get('estado')
         producto = self.request.GET.get('producto')
 
         if estado:
             qs = qs.filter(estado=estado)
         if producto:
-            qs = qs.filter(producto__nombre__icontains=producto)
+            # CAMBIO CLAVE: Filtramos buscando DENTRO de los detalles. Usamos distinct() para que el pedido no aparezca repetido si tiene varios productos con ese nombre.
+            qs = qs.filter(detalles__producto__nombre__icontains=producto).distinct()
 
         return qs.order_by('-fecha_pedido')
 
@@ -91,9 +94,8 @@ class PedidoListView(LoginRequiredMixin, ListView):
 
 @method_decorator(staff_member_required, name="dispatch")
 class PedidoCreateView(SuccessMessageMixin, CreateView):
-   
     model = Pedido
-    fields = ["producto", "usuario", "estado"]
+    fields = ["usuario", "estado"] # Quitamos "producto"
     template_name = "pedidos/pedido_form.html"
     success_url = reverse_lazy("pedidos:list")
     success_message = "✅ Pedido creado correctamente."
@@ -105,7 +107,7 @@ class PedidoCreateView(SuccessMessageMixin, CreateView):
 
 class PedidoUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = Pedido
-    fields = ["producto", "usuario", "estado"]
+    fields = ["usuario", "estado"] # Quitamos "producto"
     template_name = "pedidos/pedido_update.html"
     # Redirigir al panel después de guardar
     success_url = reverse_lazy("panel:panel_pedidos")
@@ -169,9 +171,10 @@ def marcar_como_entregado(request, pk):
         return redirect("panel:panel_pedidos")
 
     with transaction.atomic():
-        # Descontar stock
-        pedido.producto.stock -= pedido.cantidad
-        pedido.producto.save()
+        # CAMBIO CLAVE: Bucle para descontar stock de todos los productos del pedido
+        for detalle in pedido.detalles.all():
+            detalle.producto.stock -= detalle.cantidad
+            detalle.producto.save()
 
         # Registrar historial y log
         registrar_historial(pedido, pedido.estado, "entregado", request.user)

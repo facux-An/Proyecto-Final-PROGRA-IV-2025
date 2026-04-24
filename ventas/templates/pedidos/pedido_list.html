@@ -73,25 +73,39 @@
                     </div>
 
                     <div class="d-flex gap-3 align-items-center">
+                        {% with primer_detalle=pedido.detalles.first %}
                         <div class="flex-shrink-0 bg-light rounded-3 d-flex align-items-center justify-content-center overflow-hidden" style="width: 80px; height: 80px;">
-                            {% if pedido.producto.portadas.all %}
-                                <img src="{{ pedido.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="img">
-                            {% elif pedido.producto.portada %}
-                                <img src="{{ pedido.producto.portada.url }}" class="w-100 h-100 object-fit-cover" alt="img">
+                            {% if primer_detalle %}
+                                {% if primer_detalle.producto.portadas.all %}
+                                    <img src="{{ primer_detalle.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="img">
+                                {% elif primer_detalle.producto.portada %}
+                                    <img src="{{ primer_detalle.producto.portada.url }}" class="w-100 h-100 object-fit-cover" alt="img">
+                                {% else %}
+                                    <i class="bi bi-box-seam text-muted fs-4"></i>
+                                {% endif %}
                             {% else %}
-                                <i class="bi bi-box-seam text-muted fs-4"></i>
+                                <i class="bi bi-bag text-muted fs-4"></i>
                             {% endif %}
                         </div>
 
                         <div class="flex-grow-1">
-                            <h5 class="fw-bold mb-1 text-truncate">{{ pedido.producto.nombre }}</h5>
+                            <h5 class="fw-bold mb-1 text-truncate">
+                                {% if primer_detalle %}
+                                    {{ primer_detalle.producto.nombre }}
+                                    {% if pedido.detalles.count > 1 %}
+                                        <span class="text-primary fs-6 fw-normal ms-1">y {{ pedido.detalles.count|add:"-1" }} más...</span>
+                                    {% endif %}
+                                {% else %}
+                                    Pedido sin productos
+                                {% endif %}
+                            </h5>
                             <p class="mb-0 text-muted small">
-                                <span class="fw-semibold">Cant:</span> {{ pedido.cantidad }} u. &bull; 
+                                <span class="fw-semibold">Total ítems:</span> {{ pedido.detalles.count }} &bull; 
                                 <span class="fw-semibold">Pago:</span> {{ pedido.metodo_pago|default:"-"|capfirst }}
                             </p>
                         </div>
+                        {% endwith %}
                     </div>
-                </div>
 
                 <div class="card-footer bg-white border-top-0 p-3 ps-5 d-flex justify-content-end gap-2">
                     <a href="{% url 'pedidos:detail' pedido.id %}" class="btn btn-light rounded-pill btn-sm px-3 fw-bold text-primary">

@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "cloudinary_storage",
     
-    # django-allauth
+    # django-allauth inicio con google.
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -110,15 +110,22 @@ TEMPLATES = [
 # -----------------------------------------------------------------------------
 # Base de datos
 # -----------------------------------------------------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
+# 1. Definimos la ruta ABSOLUTA para SQLite usando BASE_DIR para que nunca se pierda
+ruta_sqlite_local = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 
+# 2. Buscamos la variable de entorno, si no está, usamos la ruta local blindada
+DATABASE_URL = os.getenv("DATABASE_URL", ruta_sqlite_local)
+
+# 3. Configuramos la conexión
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
-        conn_max_age=600,
+        # Si es Postgres usamos 600 (producción), si es SQLite usamos 0 (local)
+        conn_max_age=600 if DATABASE_URL.startswith("postgres") else 0,
     )
 }
 
+# 4. Seguridad SSL obligatoria solo para PostgreSQL en la nube
 if DATABASE_URL.startswith(("postgres://", "postgresql://")):
     DATABASES["default"].setdefault("OPTIONS", {})
     DATABASES["default"]["OPTIONS"]["sslmode"] = "require"

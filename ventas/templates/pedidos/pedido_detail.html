@@ -24,7 +24,7 @@
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-muted text-uppercase small">Producto Adquirido</span>
+                    <span class="fw-bold text-muted text-uppercase small">Productos Adquiridos</span>
                     <span class="badge rounded-pill px-3 py-2 
                         {% if pedido.estado == 'pendiente' %}bg-warning text-dark
                         {% elif pedido.estado == 'pagado' %}bg-primary
@@ -34,38 +34,59 @@
                         {{ pedido.get_estado_display }}
                     </span>
                 </div>
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="flex-shrink-0 bg-white border rounded-3 p-2 shadow-sm" style="width: 120px; height: 120px;">
-                            {% if pedido.producto.portadas.all %}
-                                <img src="{{ pedido.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
-                            {% elif pedido.producto.portada %}
-                                <img src="{{ pedido.producto.portada.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
-                            {% else %}
-                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light rounded-2">
-                                    <i class="bi bi-image text-muted fs-3"></i>
+                
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                    {% for detalle in pedido.detalles.all %}
+                        <li class="list-group-item p-4 border-bottom">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="flex-shrink-0 bg-white border rounded-3 p-2 shadow-sm" style="width: 100px; height: 100px;">
+                                    {% if detalle.producto.portadas.all %}
+                                        <img src="{{ detalle.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
+                                    {% elif detalle.producto.portada %}
+                                        <img src="{{ detalle.producto.portada.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light rounded-2">
+                                            <i class="bi bi-image text-muted fs-3"></i>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="flex-grow-1">
-                            <h4 class="fw-bold mb-1">{{ pedido.producto.nombre }}</h4>
-                            <p class="text-muted mb-2 small">{{ pedido.producto.categoria.nombre|default:"General" }}</p>
-                            
-                            <div class="d-flex gap-4 mt-3">
-                                <div>
-                                    <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Precio Unitario</small>
-                                    <span class="fw-semibold">${{ pedido.precio_unitario|floatformat:2 }}</span>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Cantidad</small>
-                                    <span class="fw-semibold">{{ pedido.cantidad }} u.</span>
+                                
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-1">{{ detalle.producto.nombre }}</h5>
+                                    <p class="text-muted mb-2 small">{{ detalle.producto.categoria.nombre|default:"General" }}</p>
+                                    
+                                    <div class="d-flex gap-4 mt-2">
+                                        <div>
+                                            <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Precio Unitario</small>
+                                            <span class="fw-semibold">${{ detalle.precio_unitario|floatformat:2 }}</span>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Cantidad</small>
+                                            <span class="fw-semibold">{{ detalle.cantidad }} u.</span>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Subtotal</small>
+                                            <span class="fw-bold text-dark">${{ detalle.subtotal|floatformat:2 }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
                 </div>
             </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-truck me-2"></i>Ver Seguimiento
+                </a>
+                <button onclick="window.print()" class="btn btn-light rounded-pill px-4 border">
+                    <i class="bi bi-printer me-2"></i>Imprimir Comprobante
+                </button>
+            </div>
+        </div>
 
             <div class="d-flex gap-2">
                 <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-primary rounded-pill px-4 shadow-sm">

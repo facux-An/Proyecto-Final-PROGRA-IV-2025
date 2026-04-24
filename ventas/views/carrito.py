@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
+from django.db import transaction
 
-from ventas.models import Carrito, ItemCarrito, Pedido
+from ventas.models import Carrito, ItemCarrito, Pedido, DetallePedido
 from productos.models import Producto
-from ventas.views.helpers import descontar_stock
+from ventas.views.helpers import descontar_stock, registrar_historial, registrar_log
 
 
 @login_required
@@ -67,11 +68,12 @@ def eliminar_item(request, item_id):
 @login_required
 def finalizar_compra(request):
     """
-    Convierte el carrito en pedidos:
+    Paso 1: Valida el carrito antes de ir a seleccionar método de pago.
+    
     - Valida que el carrito no esté vacío.
     - Verifica stock de cada producto.
-    - Crea pedidos y descuenta inventario.
-    - Vacía el carrito al finalizar.
+    - NO crea el Pedido aún (se crea al confirmar método de pago).
+    - Redirige a seleccionar método de pago.
     """
     if request.method != "POST":
         messages.warning(request, "⚠️ Usá el botón para finalizar la compra.")
@@ -83,22 +85,16 @@ def finalizar_compra(request):
         messages.warning(request, "🛒 Tu carrito está vacío.")
         return redirect("carrito:carrito_detail")
 
+    # ✅ Validar stock ANTES de pasar a métodos de pago
     for item in carrito.items.select_related("producto"):
-        producto = item.producto
-        if producto.stock < item.cantidad:
-            messages.error(request, f"❌ Stock insuficiente para {producto.nombre}.")
+        if item.producto.stock < item.cantidad:
+            messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
-        Pedido.objects.create(
-            producto=producto,
-            usuario=request.user,
-            cantidad=item.cantidad,
-            estado="Pagado",
-        )
-
-    carrito.items.all().delete()
-    messages.success(request, "✅ Compra realizada con éxito.")
-    return redirect("pedidos:list")
+    # ✅ Carrito validado, redirige a seleccionar método de pago
+    # El Pedido se creará DESPUÉS de confirmar el método
+    messages.success(request, "✅ Carrito validado. Selecciona método de pago.")
+    return redirect("pagos:metodo")
 
 
 @login_required

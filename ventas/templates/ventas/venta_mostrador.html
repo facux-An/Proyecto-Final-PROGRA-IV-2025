@@ -1,140 +1,346 @@
-{% extends 'ventas/base_ventas.html' %}
-{% block title %}Terminal de Venta - Tienda Plus{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Caja Registradora · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="container py-5" style="background-color: #f8f9fa; min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            
-            <div class="text-center mb-4">
-                <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
-                    <i class="fas fa-cash-register fa-2x text-primary"></i>
-                </div>
-                <h2 class="fw-bold text-dark">Nueva Venta Física</h2>
-                <p class="text-muted">Completá los datos para procesar la venta en el local.</p>
-            </div>
+{{ catalogo_json|json_script:"catalogo-data" }}
+{% csrf_token %}
 
-            <div class="card border-0 shadow-lg" style="border-radius: 20px;">
-                <div class="card-body p-4 p-md-5">
+<div class="container-fluid py-4" style="max-width: 1500px; background-color: #f4f6f9; min-height: 90vh;">
+    <div class="row g-4 h-100">
+        
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4 d-flex flex-column">
+                    <h4 class="fw-bold mb-4 text-dark"><i class="fas fa-barcode me-2 text-primary"></i>Catálogo de Productos</h4>
                     
-                    <form method="post" id="venta-form">
-                        {% csrf_token %}
+                    <div class="input-group input-group-lg mb-4 shadow-sm rounded-pill overflow-hidden border">
+                        <span class="input-group-text bg-white border-0 ps-4"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="buscador" class="form-control bg-white border-0 shadow-none px-3" placeholder="Escaneá o buscá por nombre (Ej: Cepillo)..." autocomplete="off">
+                    </div>
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
-                                {% for error in form.non_field_errors %}
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        <span>{{ error }}</span>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">
-                                <i class="fas fa-box-open me-2"></i>Producto a Vender
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0" style="border-radius: 12px 0 0 12px;">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                {{ form.producto }}
-                            </div>
-                            {% if form.producto.errors %}
-                                <div class="text-danger small mt-1">{{ form.producto.errors }}</div>
-                            {% endif %}
+                    <div class="row g-3 flex-grow-1" id="catalogo-grid" style="overflow-y: auto; max-height: 60vh; align-content: flex-start;">
                         </div>
+                </div>
+            </div>
+        </div>
 
-                        <div class="row g-3">
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">
-                                    <i class="fas fa-layer-group me-2"></i>Cantidad
-                                </label>
-                                {{ form.cantidad }}
-                                {% if form.cantidad.errors %}
-                                    <div class="text-danger small mt-1">{{ form.cantidad.errors }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">
-                                    <i class="fas fa-wallet me-2"></i>Método de Pago
-                                </label>
-                                {{ form.metodo_pago }}
-                                {% if form.metodo_pago.errors %}
-                                    <div class="text-danger small mt-1">{{ form.metodo_pago.errors }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div id="stock-warning" class="alert alert-info border-0 shadow-sm d-none" style="border-radius: 12px;">
-                            <i class="fas fa-info-circle me-2"></i> 
-                            <small class="fw-bold">Nota:</small> 
-                            <span class="small">Verificando disponibilidad en tiempo real...</span>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow" style="border-radius: 12px; transition: 0.3s;">
-                                <i class="fas fa-check-circle me-2"></i>Confirmar y Finalizar Venta
-                            </button>
-                            <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-link text-muted text-decoration-none py-2">
-                                <i class="fas fa-arrow-left me-1"></i> Volver al panel sin guardar
-                            </a>
-                        </div>
-                    </form>
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100 d-flex flex-column overflow-hidden">
+                
+                <div class="bg-primary text-white p-4 text-center">
+                    <h5 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;"><i class="fas fa-receipt me-2"></i>Ticket de Venta</h5>
+                </div>
+                
+                <div class="card-body p-0 flex-grow-1" style="overflow-y: auto; max-height: 40vh; background-color: #fdfdfd;">
+                    <ul class="list-group list-group-flush" id="ticket-list">
+                        </ul>
                 </div>
 
-                <div class="card-footer bg-light border-0 py-3 text-center" style="border-radius: 0 0 20px 20px;">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 10px;">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <span class="text-muted small">Vendedor responsable: <strong>{{ request.user.username }}</strong></span>
+                <div class="card-footer bg-white p-4 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted fw-bold text-uppercase">Total</span>
+                        <h1 class="fw-extrabold text-success mb-0" id="total-pantalla">$0.00</h1>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Método de Pago</label>
+                        <select id="metodo-pago" class="form-select form-select-lg bg-light border-0 shadow-sm">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="debito">Débito</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="mercadopago">Mercado Pago</option>
+                        </select>
+                    </div>
+
+                    <div id="caja-vuelto" class="bg-light p-3 rounded-4 mb-4 border">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="small text-muted fw-bold mb-0">Abona con:</label>
+                            <div class="input-group input-group-sm w-50 shadow-sm">
+                                <span class="input-group-text bg-white border-0 fw-bold">$</span>
+                                <input type="number" id="paga-con" class="form-control border-0 text-end fw-bold shadow-none" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="small text-muted fw-bold mb-0">Vuelto:</label>
+                            <h4 id="vuelto-pantalla" class="fw-bold text-dark mb-0">$0.00</h4>
+                        </div>
+                    </div>
+
+                    <button id="btn-cobrar" class="btn btn-primary btn-lg w-100 fw-bold py-3 rounded-pill shadow-sm" disabled>
+                        <i class="fas fa-cash-register me-2"></i>Cobrar e Imprimir
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    /* Estilización Premium de Campos */
-    .form-select, .form-control {
-        border-radius: 12px;
-        padding: 12px 15px;
-        border: 1px solid #dee2e6;
-        transition: all 0.2s ease-in-out;
-    }
-    .form-select:focus, .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
-    }
-    .input-group .form-select {
-        border-radius: 0 12px 12px 0;
-        border-left: none;
-    }
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const productoSelect = document.querySelector('select[name="producto"]');
-        const stockWarning = document.getElementById('stock-warning');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 Iniciando Motor POS...");
 
-        // Toggle visual del aviso al seleccionar producto
-        productoSelect.addEventListener('change', function() {
-            if (this.value) {
-                stockWarning.classList.remove('d-none');
-            } else {
-                stockWarning.classList.add('d-none');
+    // 1. CARGA DE DATOS SEGURA
+    let catalogoCompleto = [];
+    try {
+        const rawData = document.getElementById('catalogo-data').textContent;
+        catalogoCompleto = JSON.parse(rawData);
+        console.log(`✅ Catálogo cargado: ${catalogoCompleto.length} productos.`);
+    } catch (error) {
+        console.error("❌ Error leyendo catálogo JSON:", error);
+        alert("Error crítico: No se pudieron cargar los productos.");
+        return; // Detenemos la ejecución si no hay datos
+    }
+
+    let ticketItems = []; 
+    let totalVenta = 0;
+
+    // Referencias DOM
+    const buscador = document.getElementById('buscador');
+    const gridCatalogo = document.getElementById('catalogo-grid');
+    const ticketList = document.getElementById('ticket-list');
+    const totalPantalla = document.getElementById('total-pantalla');
+    const metodoPago = document.getElementById('metodo-pago');
+    const cajaVuelto = document.getElementById('caja-vuelto');
+    const inputPagaCon = document.getElementById('paga-con');
+    const vueltoPantalla = document.getElementById('vuelto-pantalla');
+    const btnCobrar = document.getElementById('btn-cobrar');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Foco automático inicial para escanear rápido
+    buscador.focus();
+
+    // Formateador de moneda (Evita errores de sintaxis)
+    const formatoPlata = (numero) => {
+        return numero.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    };
+
+    // 2. RENDERIZADO DEL CATÁLOGO
+    function renderCatalogo(filtro = '') {
+        gridCatalogo.innerHTML = ''; 
+        const query = filtro.toLowerCase().trim();
+
+        const filtrados = catalogoCompleto.filter(p => {
+            const nombre = p.nombre ? p.nombre.toLowerCase() : "";
+            return nombre.includes(query) && p.stock > 0;
+        });
+
+        if (filtrados.length === 0) {
+            gridCatalogo.innerHTML = '<div class="col-12 text-center text-muted py-5 fw-bold">No hay productos disponibles.</div>';
+            return filtrados;
+        }
+
+        // Creamos las tarjetas usando "data-id" en lugar de "onclick" (Patrón de diseño avanzado)
+        filtrados.forEach(prod => {
+            const cardHTML = `
+                <div class="col-6 col-md-4 col-xl-3">
+                    <div class="card h-100 border bg-white rounded-4 shadow-sm producto-card" data-id="${prod.id}" style="cursor: pointer; transition: transform 0.1s;">
+                        <div class="card-body p-3 text-center d-flex flex-column justify-content-between">
+                            <h6 class="fw-bold text-dark mb-2 lh-sm" style="font-size: 0.9rem;">${prod.nombre}</h6>
+                            <span class="badge bg-secondary bg-opacity-25 text-dark mb-3 w-50 align-self-center rounded-pill">Stock: ${prod.stock}</span>
+                            <h5 class="fw-bolder text-primary mb-0">$${formatoPlata(prod.precio)}</h5>
+                        </div>
+                    </div>
+                </div>
+            `;
+            gridCatalogo.insertAdjacentHTML('beforeend', cardHTML);
+        });
+
+        return filtrados;
+    }
+
+    // 3. EVENT DELEGATION (El secreto para que no falle el JS)
+    // Escuchamos clics en toda la grilla, y detectamos si fue en una tarjeta
+    gridCatalogo.addEventListener('click', function(e) {
+        const tarjeta = e.target.closest('.producto-card');
+        if (tarjeta) {
+            const idProd = parseInt(tarjeta.getAttribute('data-id'));
+            agregarAlTicket(idProd);
+        }
+    });
+
+    // 4. LÓGICA DE BUSCADOR Y LECTOR DE BARRAS
+    buscador.addEventListener('input', (e) => renderCatalogo(e.target.value));
+
+    buscador.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = buscador.value.toLowerCase().trim();
+            if (query === '') return;
+
+            const filtrados = catalogoCompleto.filter(p => (p.nombre || "").toLowerCase().includes(query) && p.stock > 0);
+            
+            // Si el lector o el Enter encuentra un producto exacto, lo agrega y limpia
+            if (filtrados.length > 0) {
+                agregarAlTicket(filtrados[0].id);
             }
+        }
+    });
+
+    // 5. GESTIÓN DEL TICKET
+    function agregarAlTicket(idProducto) {
+        const prodData = catalogoCompleto.find(p => p.id === idProducto);
+        const itemExistente = ticketItems.find(item => item.id === idProducto);
+        
+        if (itemExistente) {
+            if (itemExistente.cantidad < prodData.stock) {
+                itemExistente.cantidad++;
+            } else {
+                alert("Límite de stock alcanzado.");
+            }
+        } else {
+            ticketItems.push({ 
+                id: prodData.id, 
+                nombre: prodData.nombre, 
+                precio: prodData.precio, 
+                cantidad: 1, 
+                stockMax: prodData.stock 
+            });
+        }
+        
+        actualizarTicket();
+        buscador.value = ''; 
+        renderCatalogo(); 
+        buscador.focus(); 
+    }
+
+    // Se expone globalmente SOLO para los botones + y - del ticket
+    window.modificarCantidad = function(index, delta) {
+        const item = ticketItems[index];
+        const nuevaCant = item.cantidad + delta;
+
+        if (nuevaCant === 0) {
+            ticketItems.splice(index, 1); 
+        } else if (nuevaCant <= item.stockMax) {
+            item.cantidad = nuevaCant;
+        } else {
+            alert("No hay más stock.");
+        }
+        actualizarTicket();
+        buscador.focus();
+    };
+
+    function actualizarTicket() {
+        ticketList.innerHTML = '';
+        totalVenta = 0;
+
+        if (ticketItems.length === 0) {
+            ticketList.innerHTML = '<li class="list-group-item text-center text-muted py-5 border-0 bg-transparent fw-bold">El ticket está vacío</li>';
+            btnCobrar.disabled = true;
+            totalPantalla.textContent = '$0.00';
+            calcularVuelto();
+            return;
+        }
+
+        ticketItems.forEach((item, index) => {
+            const subtotal = item.precio * item.cantidad;
+            totalVenta += subtotal;
+
+            const li = `
+                <li class="list-group-item px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <div style="max-width: 45%;">
+                        <h6 class="fw-bold mb-0 text-truncate text-dark">${item.nombre}</h6>
+                        <small class="text-primary fw-bold">$${formatoPlata(item.precio)}</small>
+                    </div>
+                    <div class="d-flex align-items-center bg-light rounded-pill border px-2 py-1">
+                        <button class="btn btn-sm text-secondary p-0 px-1" onclick="modificarCantidad(${index}, -1)"><i class="fas fa-minus small"></i></button>
+                        <span class="fw-bold px-3 text-dark">${item.cantidad}</span>
+                        <button class="btn btn-sm text-secondary p-0 px-1" onclick="modificarCantidad(${index}, 1)"><i class="fas fa-plus small"></i></button>
+                    </div>
+                    <div class="fw-bolder text-end text-dark" style="min-width: 80px;">$${formatoPlata(subtotal)}</div>
+                </li>
+            `;
+            ticketList.insertAdjacentHTML('beforeend', li);
+        });
+
+        totalPantalla.textContent = '$' + formatoPlata(totalVenta);
+        btnCobrar.disabled = false;
+        calcularVuelto();
+    }
+
+    // 6. CALCULADORA DE VUELTO
+    function calcularVuelto() {
+        if (metodoPago.value !== 'efectivo') return;
+        
+        const pago = parseFloat(inputPagaCon.value) || 0;
+        const vuelto = pago - totalVenta;
+
+        if (vuelto >= 0 && ticketItems.length > 0 && pago > 0) {
+            vueltoPantalla.textContent = '$' + formatoPlata(vuelto);
+            vueltoPantalla.className = 'fw-extrabold mb-0 text-success';
+        } else {
+            vueltoPantalla.textContent = 'Falta dinero';
+            vueltoPantalla.className = 'fw-bold mb-0 text-danger small';
+        }
+    }
+
+    metodoPago.addEventListener('change', () => {
+        if (metodoPago.value === 'efectivo') {
+            cajaVuelto.classList.remove('d-none');
+            calcularVuelto();
+            inputPagaCon.focus(); 
+        } else {
+            cajaVuelto.classList.add('d-none');
+            buscador.focus(); 
+        }
+    });
+
+    inputPagaCon.addEventListener('input', calcularVuelto);
+    inputPagaCon.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !btnCobrar.disabled) {
+            e.preventDefault();
+            btnCobrar.click(); 
+        }
+    });
+
+    // 7. ENVÍO AL BACKEND (Cobro final)
+    btnCobrar.addEventListener('click', function() {
+        if (ticketItems.length === 0) return;
+
+        btnCobrar.disabled = true;
+        btnCobrar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registrando Venta...';
+
+        const payload = {
+            items: ticketItems,
+            metodo_pago: metodoPago.value
+        };
+
+        fetch("{% url 'panel:venta_mostrador' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("✅ Venta registrada en la base de datos con éxito.");
+                ticketItems = [];
+                inputPagaCon.value = '';
+                actualizarTicket();
+                buscador.focus(); 
+            } else {
+                alert("❌ Error: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error de red:', error);
+            alert("Error de conexión. Revisá tu internet o consola.");
+        })
+        .finally(() => {
+            btnCobrar.innerHTML = '<i class="fas fa-cash-register me-2"></i>Cobrar e Imprimir';
         });
     });
+
+    // Inicializar la app
+    renderCatalogo();
+    actualizarTicket();
+});
 </script>
 {% endblock %}

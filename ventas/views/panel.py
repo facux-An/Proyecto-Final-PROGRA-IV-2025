@@ -4,14 +4,18 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView
 from ventas.models import Pedido
-from ..forms import VentaPresencialForm
 from ..views.helpers import descontar_stock
 from django.contrib import messages
 from django.db.models import Sum, Count, F, DecimalField, ExpressionWrapper, Q
 from django.views.generic import TemplateView
 from django.utils import timezone
 from datetime import timedelta
-
+import json
+from django.http import JsonResponse
+from django.db import transaction
+from productos.models import Producto
+from ventas.models import Pedido, DetallePedido
+from ventas.views.helpers import registrar_historial, registrar_log
 @method_decorator(staff_member_required, name='dispatch')
 class ReportesVentasView(TemplateView):
     template_name = 'ventas/reportes.html'
@@ -21,21 +25,15 @@ class ReportesVentasView(TemplateView):
         hoy = timezone.now()
         hace_30_dias = hoy - timedelta(days=30)
 
-        # 1. Filtramos las ventas válidas
+        # 1. Filtramos las ventas válidas (Cabeceras)
         ventas_validas = Pedido.objects.filter(
             fecha_pedido__gte=hace_30_dias,
             estado__in=['pagado', 'entregado']
         )
 
-        # 2. Calculamos el total de cada pedido (cantidad * precio_unitario) y luego sumamos todo
-        # Usamos F() para referenciar campos de la base de datos
-        metricas = ventas_validas.annotate(
-            subtotal_db=ExpressionWrapper(
-                F('cantidad') * F('precio_unitario'), 
-                output_field=DecimalField()
-            )
-        ).aggregate(
-            recaudacion_total=Sum('subtotal_db'),
+        # 2. Recaudación total: Ahora es MUCHO más rápido porque sumamos directamente el campo 'total' del Pedido
+        metricas = ventas_validas.aggregate(
+            recaudacion_total=Sum('total'),
             conteo=Count('id')
         )
 
@@ -43,17 +41,17 @@ class ReportesVentasView(TemplateView):
         cantidad_ventas = metricas['conteo'] or 0
         ticket_promedio = total_recaudado / cantidad_ventas if cantidad_ventas > 0 else 0
 
-        # 3. Productos más vendidos (Top 5)
+        # 3. Productos más vendidos (Top 5): Ahora tenemos que preguntarle a la tabla de Detalles!
         top_productos = (
-            Pedido.objects.filter(estado__in=['pagado', 'entregado'])
+            DetallePedido.objects.filter(pedido__estado__in=['pagado', 'entregado'])
             .values('producto__nombre')
             .annotate(total_vendido=Sum('cantidad'))
             .order_by('-total_vendido')[:5]
         )
 
-        # 4. Ventas por método de pago
+        # 4. Ventas por método de pago (Esto queda igual porque el método de pago está en la cabecera)
         metodos_pago = (
-            Pedido.objects.filter(estado__in=['pagado', 'entregado'])
+            ventas_validas
             .values('metodo_pago')
             .annotate(count=Count('id'))
         )
@@ -69,69 +67,125 @@ class ReportesVentasView(TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class VentaMostradorCreateView(CreateView):
-    model = Pedido
-    form_class = VentaPresencialForm
+class VentaMostradorView(TemplateView):
     template_name = 'ventas/venta_mostrador.html'
-    success_url = reverse_lazy('panel:panel_pedidos')
 
-    def form_valid(self, form):
-        pedido = form.save(commit=False)
-        producto = pedido.producto
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         
-        # 1. Validación de Stock (Antes de intentar guardar)
-        if producto.stock < pedido.cantidad:
-            messages.error(
-                self.request, 
-                f"❌ Stock insuficiente. Solo quedan {producto.stock} unidades de {producto.nombre}."
-            )
-            return self.form_invalid(form)
+        # Obtenemos productos con stock
+        productos = Producto.objects.filter(stock__gt=0)
+        
+        # Formateamos el catálogo en una lista de diccionarios (Data pura)
+        catalogo = [
+            {
+                'id': p.id,
+                'nombre': p.nombre,
+                'precio': float(p.precio), # Convertimos a float para JS
+                'stock': p.stock
+            }
+            for p in productos
+        ]
+        
+        # Pasamos el catálogo al contexto
+        context['catalogo_json'] = catalogo
+        return context
 
-        # 2. Asignar datos automáticos
-        pedido.usuario = self.request.user
-        pedido.estado = 'entregado'  # Al ser entregado, el save() del modelo descontará el stock
-        
-        # 3. Guardar (El método save() que modificamos en el paso anterior hace el resto)
-        pedido.save()
-        
-        messages.success(self.request, f"✅ Venta exitosa: {producto.nombre} x{pedido.cantidad}")
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        """
+        Recibe el "ticket" armado en JavaScript como un paquete JSON
+        y guarda la cabecera y sus múltiples detalles.
+        """
+        try:
+            datos = json.loads(request.body)
+            items = datos.get('items', [])
+            metodo_pago = datos.get('metodo_pago', 'efectivo')
+
+            if not items:
+                return JsonResponse({'error': 'El carrito está vacío'}, status=400)
+
+            # transaction.atomic() asegura que si falla el producto 5, 
+            # no se guarde ni se descuente el stock de los 4 anteriores.
+            with transaction.atomic():
+                # 1. Creamos la cabecera (Ticket)
+                pedido = Pedido.objects.create(
+                    usuario=request.user,  # El cajero queda registrado como dueño
+                    metodo_pago=metodo_pago,
+                    estado='entregado',    # Venta de mostrador se entrega en el acto
+                    total=0
+                )
+                
+                total_calculado = 0
+
+                # 2. Iteramos los renglones del ticket
+                for item in items:
+                    # select_for_update() bloquea la fila en la DB temporalmente para evitar 
+                    # que otra persona compre el mismo producto en el mismo milisegundo
+                    producto = Producto.objects.select_for_update().get(id=item['id'])
+                    cantidad = int(item['cantidad'])
+
+                    if producto.stock < cantidad:
+                        raise ValueError(f"Stock insuficiente para {producto.nombre}")
+
+                    # Descontamos el stock de la base de datos
+                    producto.stock -= cantidad
+                    producto.save()
+
+                    # Guardamos el renglón
+                    DetallePedido.objects.create(
+                        pedido=pedido,
+                        producto=producto,
+                        cantidad=cantidad,
+                        precio_unitario=producto.precio
+                    )
+                    total_calculado += (producto.precio * cantidad)
+
+                # 3. Cerramos el total de la cabecera
+                pedido.total = total_calculado
+                pedido.save()
+
+                # Registramos en tus logs
+                registrar_historial(pedido, "", "entregado", request.user)
+                registrar_log(pedido, request.user, "Venta mostrador (POS múltiple)")
+
+            # Respuesta exitosa para que JavaScript imprima el comprobante
+            return JsonResponse({'success': True, 'pedido_id': pedido.id})
+
+        except ValueError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': 'Error interno al procesar la venta'}, status=500)
     
 @method_decorator(staff_member_required, name='dispatch')
 class PanelPedidosView(ListView):
-    """
-    Panel de pedidos para staff con filtros avanzados, 
-    busqueda global y métricas rápidas.
-    """
     model = Pedido
     template_name = 'ventas/panel_pedidos.html'
     context_object_name = 'pedidos'
     paginate_by = 10
 
     def get_queryset(self):
-        # Usamos select_related para evitar el problema de N+1 consultas
-        qs = Pedido.objects.select_related('producto', 'usuario').all()
+        # CAMBIO CLAVE: Cambiamos select_related por prefetch_related para traer los detalles sin ahorcar la base de datos
+        qs = Pedido.objects.select_related('usuario').prefetch_related('detalles__producto').all()
 
-        # Captura de parámetros
-        query = self.request.GET.get('q') # Buscador general (el nuevo)
+        query = self.request.GET.get('q') 
         estado = self.request.GET.get('estado')
         producto = self.request.GET.get('producto')
         usuario = self.request.GET.get('usuario')
         fecha = self.request.GET.get('fecha')
 
-        # 1. Lógica del Buscador General (por ID o Producto)
         if query:
             clean_query = query.replace('#', '')
+            # Buscamos el nombre del producto DENTRO de los detalles. Usamos distinct() para no duplicar el pedido si tiene varios productos con "cepillo".
             qs = qs.filter(
-                Q(producto__nombre__icontains=query) | 
+                Q(detalles__producto__nombre__icontains=query) | 
                 Q(id__icontains=clean_query)
-            )
+            ).distinct()
 
-        # 2. Mantener Filtros Específicos (por si se usan en conjunto)
+        # Mantenemos los filtros
         if estado:
             qs = qs.filter(estado=estado)
         if producto:
-            qs = qs.filter(producto__nombre__icontains=producto)
+            qs = qs.filter(detalles__producto__nombre__icontains=producto).distinct()
         if usuario:
             qs = qs.filter(usuario__username__icontains=usuario)
         if fecha:
@@ -195,12 +249,12 @@ class PedidoEntregarView(UpdateView):
 @method_decorator(staff_member_required, name='dispatch')
 class TicketVentaDetailView(DetailView):
     model = Pedido
-    template_name = 'ventas/ticket_pdf.html' # Un diseño limpio para imprimir
+    template_name = 'ventas/ticket_pdf.html' 
     context_object_name = 'pedido'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Calculamos el total aquí para asegurar precisión en el ticket
-        context['total'] = self.object.cantidad * self.object.precio_unitario
+        # El total ya no se calcula multiplicando porque ahora viene guardado en el pedido
+        context['total'] = self.object.total
         return context
         
