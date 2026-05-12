@@ -77,7 +77,7 @@ class ProductoDetailView(DetailView):
             context['relacionados'] = []
 
         context['portadas'] = producto.portadas.all()
-        context['portadas_count'] = producto.portadas.count()
+        context['portadas_count'] = len(producto.portadas.all())
         return context
 
 
