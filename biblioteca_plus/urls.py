@@ -6,9 +6,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from biblioteca_plus import views
 from ventas.views.pagos import ConfirmacionPagoView
+# pyrefly: ignore [missing-import]
 from django.views.static import serve
 
 urlpatterns = [
+    # Health Check (para UptimeRobot)
+    path('ping/', views.health_check, name='health_check'),
+
     # Home
     path('', views.home, name='home'),
 

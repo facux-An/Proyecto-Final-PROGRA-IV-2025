@@ -117,11 +117,13 @@ ruta_sqlite_local = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 DATABASE_URL = os.getenv("DATABASE_URL", ruta_sqlite_local)
 
 # 3. Configuramos la conexión
+# NOTA: conn_max_age=0 porque usamos el pooler de Neon (PgBouncer).
+# PgBouncer ya recicla conexiones por su cuenta. Si Django también las reutiliza
+# (conn_max_age=600), se generan errores de "SSL connection closed unexpectedly".
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
-        # Si es Postgres usamos 600 (producción), si es SQLite usamos 0 (local)
-        conn_max_age=600 if DATABASE_URL.startswith("postgres") else 0,
+        conn_max_age=0,
     )
 }
 

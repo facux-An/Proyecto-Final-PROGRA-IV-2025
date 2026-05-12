@@ -6,8 +6,16 @@ from django.db.models import Count
 from productos.models import Producto
 from categorias.models import Categoria
 from django.contrib.auth.forms import UserCreationForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import get_resolver
+
+def health_check(request):
+    """
+    Endpoint ultra-ligero para UptimeRobot.
+    Retorna un simple texto plano 'OK' para confirmar que Render está vivo.
+    IMPORTANTE: No realiza consultas a la base de datos para no gastar horas de Neon.
+    """
+    return HttpResponse("OK")
 
 def home(request):
     """

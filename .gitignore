@@ -42,3 +42,8 @@ Thumbs.db
 # IDE / editor
 .vscode/
 .idea/
+
+# Archivos de migración y backups
+backup_para_neon.json
+analizar_estados.py
+skills-lock.json

@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from django.db import models
+# pyrefly: ignore [missing-import]
 from django.conf import settings
 from productos.models import Producto
 
@@ -12,6 +14,7 @@ class Pedido(models.Model):
     """
     ESTADOS = [
         ("pendiente", "Pendiente"),
+        ("pendiente_transferencia", "Pendiente de Transferencia"),
         ("pagado", "Pagado"),
         ("enviado", "Enviado"),
         ("entregado", "Entregado"),
@@ -25,7 +28,7 @@ class Pedido(models.Model):
     fecha_pedido = models.DateTimeField(auto_now_add=True)
     fecha_entrega = models.DateField(null=True, blank=True)
     metodo_pago = models.CharField(max_length=50, blank=True, null=True)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
+    estado = models.CharField(max_length=30, choices=ESTADOS, default="pendiente")
     
     # CACHÉ DEL TOTAL: Para no saturar la DB sumando los detalles todo el tiempo
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -73,8 +76,8 @@ class DetallePedido(models.Model):
 # -------------------------------
 class HistorialPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='historial')
-    estado_anterior = models.CharField(max_length=20, blank=True)
-    estado_nuevo = models.CharField(max_length=20)
+    estado_anterior = models.CharField(max_length=30, blank=True)
+    estado_nuevo = models.CharField(max_length=30)
     fecha_cambio = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
