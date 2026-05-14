@@ -1,70 +1,138 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load socialaccount %} {% block title %}Ingresar · Tienda Plus{% endblock %}
+{% load socialaccount %} 
+
+{% block title %}Ingresar · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
-        <div class="col-md-5 col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="card-header bg-primary text-white text-center py-4 border-0" 
-                     style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
-                    <h3 class="fw-bold mb-0"><i class="bi bi-person-lock me-2"></i>Acceso</h3>
-                </div>
-                <div class="card-body p-4 bg-white">
-                    {% if form.errors %}
-                        <div class="alert alert-danger border-0 shadow-sm rounded-3 py-2 small">
-                            <i class="bi bi-exclamation-circle-fill me-2"></i>Usuario o contraseña incorrectos.
-                        </div>
-                    {% endif %}
+<style>
+  .split-card {
+    border: 0;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,.08);
+    overflow: hidden;
+    background: #fff;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .split-left {
+    background-color: var(--brand-primary);
+    background-image: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%);
+    color: white;
+    position: relative;
+  }
+  .split-right {
+    padding: 3rem 4rem;
+  }
+  @media (max-width: 768px) {
+    .split-right { padding: 2rem; }
+  }
+  .form-control {
+    border-radius: .75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+  .form-control:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
+    background-color: #fff;
+  }
+  .btn-google {
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    transition: all 0.2s;
+  }
+  .btn-google:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  }
+</style>
 
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">USUARIO</label>
-                            {{ form.username }} 
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-muted">CONTRASEÑA</label>
-                            {{ form.password }}
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm py-2 mb-3">
-                            Ingresar
-                        </button>
-                    </form>
-
-                    <div class="d-flex align-items-center my-3">
-                        <hr class="flex-grow-1 text-muted">
-                        <span class="mx-2 text-muted small fw-bold">O</span>
-                        <hr class="flex-grow-1 text-muted">
-                    </div>
-
-                    <form action="{% provider_login_url 'google' %}" method="post" class="w-100">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-dark w-100 rounded-pill fw-bold shadow-sm py-2 d-flex align-items-center justify-content-center transition-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google me-2 text-danger" viewBox="0 0 16 16">
-                              <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
-                            </svg>
-                            Continuar con Google
-                        </button>
-                    </form>
-                </div>
-                
-                <div class="card-footer bg-light text-center py-3 border-0">
-                    <small>¿No tenés cuenta? <a href="{% url 'usuarios:registro' %}" class="fw-bold text-decoration-none">Registrate</a></small>
-                </div>
-            </div>
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+  
+  <div class="card split-card w-100">
+    <div class="row g-0">
+      
+      <!-- Mitad Izquierda (Branding) -->
+      <div class="col-lg-5 d-none d-lg-flex split-left align-items-center p-5 text-center">
+        <div>
+          <i class="bi bi-bag-heart-fill display-1 mb-4"></i>
+          <h2 class="fw-bold display-6 mb-3">¡Qué bueno verte de nuevo!</h2>
+          <p class="fs-5 opacity-75">Iniciá sesión para continuar tus compras, ver tus pedidos y acceder a ofertas exclusivas para tus mascotas.</p>
         </div>
+      </div>
+
+      <!-- Mitad Derecha (Formulario) -->
+      <div class="col-lg-7 split-right d-flex flex-column justify-content-center">
+        
+        <div class="mb-5 text-center text-lg-start">
+          <h3 class="fw-bold text-dark mb-2">Ingresar a tu cuenta</h3>
+          <p class="text-muted">Completá tus datos para acceder.</p>
+        </div>
+
+        {% if form.errors %}
+          <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div>Usuario o contraseña incorrectos. Verificá tus datos.</div>
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-muted mb-2">USUARIO O EMAIL</label>
+            {{ form.username }} 
+          </div>
+          <div class="mb-4">
+            <div class="d-flex justify-content-between">
+              <label class="form-label fw-bold small text-muted mb-2">CONTRASEÑA</label>
+              <a href="#" class="small text-decoration-none fw-bold" style="color: var(--brand-primary);">¿Olvidaste tu clave?</a>
+            </div>
+            {{ form.password }}
+          </div>
+          
+          <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mb-4" style="background-color: var(--brand-primary); border: none;">
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div class="d-flex align-items-center mb-4">
+          <hr class="flex-grow-1 border-secondary opacity-25">
+          <span class="mx-3 text-muted small fw-bold">O INGRESÁ CON</span>
+          <hr class="flex-grow-1 border-secondary opacity-25">
+        </div>
+
+        <form action="{% provider_login_url 'google' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-google btn-lg w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-google me-2 text-danger" viewBox="0 0 16 16">
+              <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+            </svg>
+            Continuar con Google
+          </button>
+        </form>
+
+        <div class="text-center mt-5">
+          <p class="text-muted mb-0">¿No tenés una cuenta? <a href="{% url 'usuarios:registro' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Registrate gratis</a></p>
+        </div>
+
+      </div>
     </div>
+  </div>
+
 </div>
 
-<style>
-    /* Forzamos estilo Bootstrap a los inputs de Django */
-    input[type="text"], input[type="password"] {
-        width: 100%; padding: 0.6rem 1rem; border: 1px solid #ced4da; border-radius: 0.5rem;
-    }
-    input:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
-    .transition-btn { transition: all 0.2s ease-in-out; }
-    .transition-btn:hover { background-color: #f8f9fa; color: #000; transform: translateY(-2px); }
-</style>
+<script>
+  // Añadir clases de bootstrap a los inputs renderizados por django si no las tienen
+  document.addEventListener("DOMContentLoaded", function() {
+    let inputs = document.querySelectorAll('.split-right input:not([type="hidden"])');
+    inputs.forEach(input => {
+      input.classList.add('form-control', 'form-control-lg');
+    });
+  });
+</script>
 {% endblock %}

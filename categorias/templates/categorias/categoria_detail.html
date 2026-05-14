@@ -1,96 +1,117 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
 
-{% block title %}Detalle de Categoría · Tienda Plus{% endblock %}
+{% block title %}Categoría: {{ categoria.nombre }} · Tienda Plus{% endblock %}
 
 {% block content %}
 <style>
-  .categoria-hero {
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  .categoria-banner {
+    position: relative;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background-color: var(--brand-primary);
+    color: white;
   }
-  .categoria-card {
-    border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  .categoria-banner-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
   }
   .producto-card {
     border: 0;
     border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
-    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,.05);
+    transition: transform .2s ease, box-shadow .2s ease;
     background: #fff;
+    overflow: hidden;
   }
   .producto-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 32px rgba(0,0,0,.15);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,.1);
+  }
+  .producto-img-container {
+    height: 200px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
   .producto-img {
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
-    max-height: 220px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
   }
-  .badge-soft {
-    border-radius: .5rem;
-    font-size: .85rem;
-    padding: .35em .65em;
+  .producto-card:hover .producto-img {
+    transform: scale(1.05);
   }
 </style>
 
 <div class="container py-4">
 
-  <!-- Hero superior -->
-  <div class="categoria-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-folder-fill me-2"></i>Categoría: {{ categoria.nombre }}</h1>
-    <p class="mb-0 opacity-75">Explorá los productos asociados a esta categoría.</p>
-  </div>
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'categorias:categoria_list' %}" class="text-decoration-none text-muted">Categorías</a></li>
+      <li class="breadcrumb-item active fw-bold" aria-current="page">{{ categoria.nombre }}</li>
+    </ol>
+  </nav>
 
-  <!-- Tarjeta de categoría -->
-  <div class="row justify-content-center mb-4">
-    <div class="col-md-8 col-lg-7">
-      <div class="card categoria-card">
-        <div class="card-header bg-primary text-white d-flex align-items-center">
-          <i class="bi bi-folder-fill me-2"></i>
-          <h4 class="mb-0">Información de la categoría</h4>
-        </div>
-        <div class="card-body p-4">
-          {% if categoria.descripcion %}
-            <p class="text-muted mb-3"><i class="bi bi-info-circle me-1"></i>{{ categoria.descripcion }}</p>
-          {% endif %}
-          <p class="mb-0"><strong><i class="bi bi-calendar-event me-1"></i>Fecha de creación:</strong> {{ categoria.fecha_creacion|date:"d/m/Y" }}</p>
-        </div>
-      </div>
+  <!-- Banner de Categoría -->
+  <div class="categoria-banner p-4 p-md-5 mb-5 shadow-sm text-center">
+    {% if categoria.imagen %}
+      <img src="{{ categoria.imagen.url }}" alt="{{ categoria.nombre }}" class="categoria-banner-img">
+    {% endif %}
+    <div class="position-relative z-1">
+      <h1 class="display-4 fw-bold mb-3 text-white">{{ categoria.nombre }}</h1>
+      {% if categoria.descripcion %}
+        <p class="fs-5 mb-0 mx-auto text-white opacity-75" style="max-width: 700px;">{{ categoria.descripcion }}</p>
+      {% endif %}
     </div>
   </div>
 
-  <!-- Productos -->
-  <h5 class="mb-3"><i class="bi bi-box-seam me-2"></i>Productos en esta categoría</h5>
-  <div class="row">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0 text-dark">Explorar Productos</h4>
+    <span class="text-muted">{{ productos.count }} artículos</span>
+  </div>
+
+  <!-- Grilla de Productos -->
+  <div class="row g-4 mb-5">
     {% for producto in productos %}
-      <div class="col-md-6 col-lg-4 mb-4">
+      <div class="col-6 col-md-4 col-lg-3">
         <div class="card producto-card h-100">
-          {% if producto.portada %}
-            <img src="{{ producto.portada.url }}" class="producto-img img-fluid shadow-sm" alt="{{ producto.nombre }}">
-          {% else %}
-            <img src="{% static 'img/no-image.png' %}" class="producto-img img-fluid shadow-sm" alt="Sin imagen">
-          {% endif %}
-          <div class="card-body text-center">
-            <h6 class="card-title fw-bold mb-1">{{ producto.nombre }}</h6>
-            <p class="text-muted mb-2"><i class="bi bi-currency-dollar me-1"></i>{{ producto.precio|floatformat:2 }}</p>
-            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-sm btn-outline-primary btn-icon">
-              <i class="bi bi-search me-1"></i>Ver detalle
-            </a>
+          <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark">
+            <div class="producto-img-container">
+              {% if producto.portada %}
+                <img src="{{ producto.portada.url }}" class="producto-img" alt="{{ producto.nombre }}">
+              {% else %}
+                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+              {% endif %}
+            </div>
+            <div class="card-body text-center p-3">
+              <h6 class="card-title fw-bold mb-1 text-truncate">{{ producto.nombre }}</h6>
+              <p class="fw-bold fs-5 mb-0" style="color: var(--brand-primary);">${{ producto.precio|floatformat:2 }}</p>
+            </div>
+          </a>
+          <div class="card-footer bg-white border-0 pt-0 pb-3 px-3 text-center">
+            <!-- Botón de agregar al carrito sutil -->
+            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-outline-dark btn-sm rounded-pill w-100 fw-bold">Ver Detalles</a>
           </div>
         </div>
       </div>
     {% empty %}
-      <div class="col-12 text-center text-muted py-5">
-        <div class="display-6 mb-3">📭</div>
-        <h5>No hay productos en esta categoría</h5>
-        <p>Pronto agregaremos nuevos artículos.</p>
+      <div class="col-12 text-center py-5">
+        <div class="bg-white rounded-4 shadow-sm p-5 mx-auto" style="max-width: 500px;">
+          <i class="bi bi-box-seam text-muted opacity-50 mb-3" style="font-size: 4rem;"></i>
+          <h5 class="fw-bold text-dark">Categoría vacía</h5>
+          <p class="text-muted mb-0">Pronto agregaremos nuevos artículos a esta colección.</p>
+        </div>
       </div>
     {% endfor %}
   </div>

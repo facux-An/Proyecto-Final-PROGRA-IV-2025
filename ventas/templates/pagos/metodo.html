@@ -13,8 +13,8 @@
                     <small class="d-block mt-2 fw-bold">Carrito</small>
                 </div>
                 <div class="step-line bg-success"></div>
-                <div class="step-item text-primary">
-                    <span class="step-badge bg-primary text-white border-primary shadow">2</span>
+                <div class="step-item" style="color: var(--brand-primary);">
+                    <span class="step-badge shadow border-0" style="background-color: var(--brand-primary); color: white;">2</span>
                     <small class="d-block mt-2 fw-bold">Pago</small>
                 </div>
                 <div class="step-line"></div>
@@ -34,15 +34,15 @@
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm p-4" style="border-radius: 1.5rem;">
                     <h5 class="fw-bold mb-4 d-flex align-items-center">
-                        <i class="bi bi-shield-lock-fill text-primary me-2"></i>
+                        <i class="bi bi-shield-lock-fill me-2" style="color: var(--brand-primary);"></i>
                         Métodos de pago seguros
                     </h5>
 
                     <div class="payment-card mb-3" onclick="seleccionarMetodo('mercadopago', this)">
                         <input type="radio" name="metodo" value="mercadopago" class="d-none">
                         <div class="card-body d-flex align-items-center p-3 border rounded-4 transition-card">
-                            <div class="icon-circle bg-primary-light me-3">
-                                <i class="bi bi-credit-card-2-front text-primary fs-4"></i>
+                            <div class="icon-circle me-3" style="background-color: #e0f2fe;">
+                                <i class="bi bi-credit-card-2-front fs-4" style="color: #0ea5e9;"></i>
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0 fw-bold">Mercado Pago</h6>
@@ -90,11 +90,11 @@
                     <div class="summary-box bg-light p-3 rounded-4 mb-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">Total a pagar:</span>
-                            <span class="h3 fw-bold text-primary mb-0">${{ total_a_pagar|floatformat:2 }}</span>
+                            <span class="h3 fw-bold mb-0" style="color: var(--brand-primary);">${{ total_a_pagar|floatformat:2 }}</span>
                         </div>
                     </div>
 
-                    <button type="submit" id="btn-finalizar" class="btn btn-secondary btn-lg w-100 py-3 fw-bold shadow-sm" style="border-radius: 12px;" disabled>
+                    <button type="submit" id="btn-finalizar" class="btn btn-secondary btn-lg w-100 py-3 fw-bold shadow-sm" style="border-radius: 12px; border: none;" disabled>
                         Elegí un método
                     </button>
                     
@@ -114,7 +114,7 @@
 </div>
 
 <style>
-    body { background-color: #f8faff; }
+    body { background-color: #f9fafb; }
     .transition-card { transition: all 0.2s ease-in-out; border: 2px solid #f1f3f5 !important; cursor: pointer; position: relative; }
     
     /* Indicador de pasos */
@@ -123,16 +123,15 @@
 
     /* Colores suaves para iconos */
     .icon-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .bg-primary-light { background-color: #eef4ff; }
-    .bg-success-light { background-color: #e9f7ef; }
+    .bg-success-light { background-color: #dcfce7; }
     .bg-dark-light { background-color: #f1f3f5; }
 
     /* Estado ACTIVO (Esto es lo que el JS activará) */
     .payment-card.active .card-body {
-        border-color: #0d6efd !important;
-        background-color: #f0f6ff;
+        border-color: var(--brand-primary) !important;
+        background-color: rgba(255, 102, 0, 0.05);
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.1);
+        box-shadow: 0 8px 20px rgba(255, 102, 0, 0.1);
     }
 
     .payment-card.active .icon-circle { background-color: #ffffff; }
@@ -140,11 +139,8 @@
     /* Checkmark visual */
     .payment-card.active .card-body::after {
         content: '\F26E'; font-family: 'bootstrap-icons'; position: absolute;
-        top: 10px; right: 15px; color: #0d6efd; font-size: 1.2rem;
+        top: 10px; right: 15px; color: var(--brand-primary); font-size: 1.2rem;
     }
-
-    .btn-primary { background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none; }
-    .btn-success { background: linear-gradient(135deg, #198754, #157347); border: none; }
 </style>
 
 <script>
@@ -171,10 +167,12 @@
 
         if (metodo === 'mercadopago') {
             btn.innerHTML = '<i class="bi bi-credit-card-fill me-2"></i> Pagar con Mercado Pago';
-            btn.className = 'btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm';
+            btn.className = 'btn text-white btn-lg w-100 py-3 fw-bold shadow-sm';
+            btn.style.backgroundColor = 'var(--brand-primary)';
         } else {
             btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Confirmar Mi Pedido';
             btn.className = 'btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm';
+            btn.style.backgroundColor = ''; // Limpiar el naranja si estaba seteado
         }
 
         console.log("Método seleccionado:", metodo); // Solo para debug

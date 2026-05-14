@@ -5,154 +5,158 @@
 
 {% block producto_content %}
 <style>
-  .producto-form-hero {
-    background: linear-gradient(135deg, #20c997, #0d6efd);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
-  .producto-form-card {
+  .form-card {
     border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    background: #fff;
   }
-  .form-label { font-weight: 600; }
+  .form-label { font-weight: 600; color: var(--text-main); }
   .form-control, .form-select {
-    border-radius: .5rem;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+    border-radius: .75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
+    background-color: #fff;
   }
   .preview-img {
     width: 140px;
-    height: 100px;
+    height: 140px;
     object-fit: cover;
-    border-radius: .75rem;
-    box-shadow: 0 6px 12px rgba(0,0,0,.08);
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+    border: 3px solid white;
   }
   .multi-upload {
-    border: 2px dashed #0d6efd;
-    border-radius: .75rem;
-    padding: 1rem;
+    border: 2px dashed #ced4da;
+    border-radius: 1rem;
+    padding: 2rem 1rem;
     text-align: center;
     background: #f8f9fa;
-    transition: background .2s ease;
+    transition: all .2s ease;
+    cursor: pointer;
   }
   .multi-upload:hover {
-    background: #e9ecef;
+    background: #fff;
+    border-color: var(--brand-primary);
   }
   .multi-upload i {
-    font-size: 2rem;
-    color: #0d6efd;
+    font-size: 2.5rem;
+    color: #adb5bd;
+    transition: color .2s ease;
+  }
+  .multi-upload:hover i {
+    color: var(--brand-primary);
   }
 </style>
 
-<div class="container py-4">
+<div class="container py-5">
 
-  <!-- Hero superior -->
-  <div class="producto-form-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2">
-      {% if form.instance.pk %}
-        <i class="bi bi-pencil-square me-2"></i>Editar producto #{{ form.instance.pk }}
-      {% else %}
-        <i class="bi bi-plus-circle-fill me-2"></i>Nuevo producto
-      {% endif %}
-    </h1>
-    <p class="mb-0 opacity-75">Completá los datos para administrar tu catálogo de manera clara y atractiva.</p>
-  </div>
-
-  <!-- Tarjeta de formulario -->
   <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-7">
-      <div class="card producto-form-card">
-        <div class="card-body p-4">
+    <div class="col-md-10 col-lg-8">
+      
+      <div class="text-center mb-5">
+        {% if form.instance.pk %}
+          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-pencil-square fs-3 text-dark"></i>
+          </div>
+          <h2 class="fw-bold text-dark">Editar Producto #{{ form.instance.pk }}</h2>
+        {% else %}
+          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-box-seam fs-3 text-dark"></i>
+          </div>
+          <h2 class="fw-bold text-dark">Nuevo Producto</h2>
+        {% endif %}
+        <p class="text-muted">Asegúrate de incluir buenas imágenes y una descripción clara para aumentar las ventas.</p>
+      </div>
+
+      <div class="card form-card">
+        <div class="card-body p-4 p-md-5">
           <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
-            <!-- Errores generales -->
             {% if form.non_field_errors %}
-              <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <div class="alert alert-danger rounded-3 d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
                 {{ form.non_field_errors }}
               </div>
             {% endif %}
 
-            <!-- Campos -->
-            <div class="mb-3">
-              <label for="{{ form.nombre.id_for_label }}" class="form-label"><i class="bi bi-box-seam me-1"></i>Nombre</label>
-              {{ form.nombre }}
-              {% if form.nombre.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.nombre.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-              <label for="{{ form.descripcion.id_for_label }}" class="form-label"><i class="bi bi-card-text me-1"></i>Descripción</label>
-              {{ form.descripcion }}
-              {% if form.descripcion.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.descripcion.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-              <label for="{{ form.categoria.id_for_label }}" class="form-label"><i class="bi bi-folder-fill me-1"></i>Categoría</label>
-              {{ form.categoria }}
-              {% if form.categoria.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.categoria.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-              <label for="{{ form.precio.id_for_label }}" class="form-label"><i class="bi bi-currency-dollar me-1"></i>Precio</label>
-              {{ form.precio }}
-              {% if form.precio.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.precio.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-              <label for="{{ form.stock.id_for_label }}" class="form-label"><i class="bi bi-stack me-1"></i>Stock</label>
-              {{ form.stock }}
-              {% if form.stock.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.stock.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <!-- ✅ Campo para múltiples portadas -->
-            <div class="mb-3">
-              <label class="form-label"><i class="bi bi-images me-1"></i>Portadas (hasta 5)</label>
-              <div class="multi-upload">
-                <i class="bi bi-cloud-upload"></i>
-                <p class="mb-2 text-muted">Seleccioná hasta 5 imágenes</p>
-                {{ portadas_form.portadas }}
+            <div class="row g-4">
+              <div class="col-md-12">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre del Producto</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.nombre.errors|striptags }}</div>{% endif %}
               </div>
-              {% if portadas_form.portadas.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ portadas_form.portadas.errors|striptags }}</div>
-              {% endif %}
-            </div>
 
-            <!-- Vista previa de portada única -->
-            {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
-              <div class="mb-3 text-center">
-                <p class="mb-1 text-muted">Portada única actual:</p>
-                <img src="{{ form.instance.portada.url }}" alt="{{ form.instance.nombre }}" class="preview-img">
+              <div class="col-md-6">
+                <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría</label>
+                {{ form.categoria }}
+                {% if form.categoria.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.categoria.errors|striptags }}</div>{% endif %}
               </div>
-            {% endif %}
 
-            <!-- Botones -->
-            <div class="mt-4 d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-success btn-icon">
-                {% if form.instance.pk %}
-                  <i class="bi bi-save-fill me-1"></i>Actualizar
-                {% else %}
-                  <i class="bi bi-check-circle-fill me-1"></i>Guardar
+              <div class="col-md-3">
+                <label for="{{ form.precio.id_for_label }}" class="form-label">Precio ($)</label>
+                {{ form.precio }}
+                {% if form.precio.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.precio.errors|striptags }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-3">
+                <label for="{{ form.stock.id_for_label }}" class="form-label">Stock</label>
+                {{ form.stock }}
+                {% if form.stock.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.stock.errors|striptags }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-12">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.descripcion.errors|striptags }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-12 border-top pt-4 mt-2">
+                <label class="form-label fs-5 mb-3">Imágenes del Producto</label>
+                
+                {% if form.instance.pk and form.instance.portada and form.instance.portada.url %}
+                  <div class="d-flex align-items-center gap-4 mb-4 bg-light p-3 rounded-4 border">
+                    <img src="{{ form.instance.portada.url }}" alt="Portada" class="preview-img">
+                    <div>
+                      <h6 class="fw-bold mb-1">Portada Actual</h6>
+                      <p class="text-muted small mb-0">Esta es la imagen principal que ven los clientes.</p>
+                    </div>
+                  </div>
                 {% endif %}
-              </button>
-              <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary btn-icon">
-                <i class="bi bi-arrow-left-circle me-1"></i>Cancelar
-              </a>
+
+                <div class="multi-upload">
+                  <i class="bi bi-cloud-arrow-up mb-2"></i>
+                  <h6 class="fw-bold mb-1">Subir nuevas imágenes (hasta 5)</h6>
+                  <p class="small text-muted mb-3">Formatos aceptados: JPG, PNG, WEBP.</p>
+                  {{ portadas_form.portadas }}
+                </div>
+                {% if portadas_form.portadas.errors %}
+                  <div class="text-danger small mt-2 fw-bold text-center">{{ portadas_form.portadas.errors|striptags }}</div>
+                {% endif %}
+              </div>
+
             </div>
+
+            <div class="d-flex flex-column flex-md-row gap-3 mt-5">
+              <a href="{% url 'productos:producto_list' %}" class="btn btn-light btn-lg rounded-pill fw-bold text-secondary px-5">
+                Cancelar
+              </a>
+              <button type="submit" class="btn btn-lg fw-bold text-white rounded-pill flex-grow-1" style="background-color: var(--brand-primary); border: none;">
+                {% if form.instance.pk %}Guardar Cambios del Producto{% else %}Crear y Publicar Producto{% endif %}
+              </button>
+            </div>
+            
           </form>
         </div>
       </div>
+      
     </div>
   </div>
 

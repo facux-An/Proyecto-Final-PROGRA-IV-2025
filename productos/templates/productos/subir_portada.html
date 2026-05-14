@@ -5,88 +5,94 @@
 
 {% block producto_content %}
 <style>
-  .portada-hero {
-    background: linear-gradient(135deg, #6610f2, #0d6efd);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
-  .portada-card {
+  .form-card {
     border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    background: #fff;
   }
-  .form-label { font-weight: 600; }
+  .form-label { font-weight: 600; color: var(--text-main); }
   .form-control {
-    border-radius: .5rem;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+    border-radius: .75rem;
+    padding: 0.75rem 1rem;
+    border: 1px dashed #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+  .form-control:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
+    background-color: #fff;
   }
   .preview-img {
-    width: 200px;
-    height: 140px;
+    width: 250px;
+    height: 250px;
     object-fit: cover;
-    border-radius: .75rem;
-    box-shadow: 0 6px 12px rgba(0,0,0,.08);
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.1);
+    border: 4px solid white;
   }
 </style>
 
-<div class="container py-4">
+<div class="container py-5">
 
-  <!-- Hero superior -->
-  <div class="portada-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-image-fill me-2"></i>Subir portada</h1>
-    <p class="mb-0 opacity-75">Seleccioná una imagen para destacar tu producto en el catálogo.</p>
-  </div>
-
-  <!-- Mensajes -->
-  {% if messages %}
-    <div class="mb-3">
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert">
-          <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <!-- Tarjeta de formulario -->
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-      <div class="card portada-card">
-        <div class="card-body p-4">
+      
+      <div class="text-center mb-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
+          <i class="bi bi-image-fill fs-3 text-dark"></i>
+        </div>
+        <h2 class="fw-bold text-dark">Subir Portada Principal</h2>
+        <p class="text-muted">Destaca tu producto con una imagen de alta calidad.</p>
+      </div>
+
+      <!-- Mensajes -->
+      {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} rounded-3 shadow-sm d-flex align-items-center" role="alert">
+              <i class="bi bi-info-circle-fill me-2 fs-5"></i>{{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="card form-card">
+        <div class="card-body p-4 p-md-5">
           <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
-            <!-- Campo de portada -->
-            <div class="mb-3">
-              <label for="{{ form.portada.id_for_label }}" class="form-label"><i class="bi bi-upload me-1"></i>Seleccionar imagen</label>
+            <div class="mb-4 text-center">
+              <!-- Vista previa de imagen actual -->
+              {% if producto.portada and producto.portada.url %}
+                <p class="mb-3 text-muted fw-bold">Portada Actual</p>
+                <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="preview-img mb-4">
+              {% else %}
+                <div class="preview-img mb-4 mx-auto bg-light d-flex align-items-center justify-content-center">
+                  <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                </div>
+              {% endif %}
+              
+              <label for="{{ form.portada.id_for_label }}" class="form-label mb-2">Selecciona un nuevo archivo</label>
               {{ form.portada }}
               {% if form.portada.errors %}
-                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.portada.errors|striptags }}</div>
+                <div class="text-danger small mt-2 fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ form.portada.errors|striptags }}</div>
               {% endif %}
             </div>
 
-            <!-- Vista previa de imagen actual -->
-            {% if producto.portada and producto.portada.url %}
-              <div class="mb-3 text-center">
-                <p class="mb-1 text-muted">Imagen actual:</p>
-                <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="preview-img">
-              </div>
-            {% endif %}
-
-            <!-- Botones -->
-            <div class="mt-4 d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-success btn-icon">
-                <i class="bi bi-check-circle-fill me-1"></i>Guardar portada
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-lg fw-bold text-white rounded-pill" style="background-color: var(--brand-primary); border: none;">
+                Guardar Portada
               </button>
-              <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary btn-icon">
-                <i class="bi bi-arrow-left-circle me-1"></i>Cancelar
+              <a href="{% url 'productos:producto_list' %}" class="btn btn-light btn-lg rounded-pill fw-bold text-secondary">
+                Cancelar
               </a>
             </div>
           </form>
         </div>
       </div>
+      
     </div>
   </div>
 

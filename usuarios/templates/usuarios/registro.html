@@ -1,81 +1,128 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
 
-{% block title %}Registro · Tienda Plus{% endblock %}
+{% block title %}Crear Cuenta · Tienda Plus{% endblock %}
 
 {% block content %}
 <style>
-  .registro-hero {
-    background: linear-gradient(135deg, #0d6efd, #20c997);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
-  .registro-card {
+  .split-card {
     border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,.08);
+    overflow: hidden;
+    background: #fff;
+    max-width: 1000px;
+    margin: 0 auto;
   }
-  .form-label { font-weight: 600; }
+  .split-left {
+    background-color: var(--brand-primary);
+    background-image: radial-gradient(circle at bottom left, rgba(255,255,255,0.15) 0%, transparent 50%);
+    color: white;
+    position: relative;
+  }
+  .split-right {
+    padding: 3rem 4rem;
+  }
+  @media (max-width: 768px) {
+    .split-right { padding: 2rem; }
+  }
+  .form-label { font-weight: 600; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;}
   .form-control {
-    border-radius: .5rem;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+    border-radius: .75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+  }
+  .form-control:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
+    background-color: #fff;
   }
 </style>
 
-<div class="container py-4">
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+  
+  <div class="card split-card w-100">
+    <div class="row g-0">
+      
+      <!-- Mitad Izquierda (Branding) -->
+      <div class="col-lg-5 d-none d-lg-flex split-left align-items-center p-5 text-center">
+        <div>
+          <i class="bi bi-star-fill display-1 mb-4 text-white"></i>
+          <h2 class="fw-bold display-6 mb-3">Unite a la familia</h2>
+          <p class="fs-5 opacity-75">Creá tu cuenta hoy y empezá a disfrutar de una experiencia de compra diseñada especialmente para el bienestar de tu mascota.</p>
+          
+          <div class="mt-5 text-start">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+              <span>Proceso de pago rápido y seguro</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+              <span>Historial de todos tus pedidos</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+              <span>Guarda tus productos favoritos</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- Hero superior -->
-  <div class="registro-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-person-plus-fill me-2"></i>Crear cuenta</h1>
-    <p class="mb-0 opacity-75">Registrate para acceder a todas las funcionalidades de Tienda Plus.</p>
-  </div>
+      <!-- Mitad Derecha (Formulario) -->
+      <div class="col-lg-7 split-right d-flex flex-column justify-content-center">
+        
+        <div class="mb-5 text-center text-lg-start">
+          <h3 class="fw-bold text-dark mb-2">Crear cuenta gratis</h3>
+          <p class="text-muted">Llená el formulario y empezá a explorar.</p>
+        </div>
 
-  <!-- Tarjeta de registro -->
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card registro-card">
-        <div class="card-body p-4">
-          <h2 class="h5 mb-4 text-center">Formulario de registro</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
 
-          <form method="post" novalidate>
-            {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
 
-            <!-- Errores generales -->
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {{ form.non_field_errors }}
-              </div>
-            {% endif %}
-
-            <!-- Campos -->
+          <div class="row">
             {% for field in form %}
-              <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              <div class="col-12 mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label text-muted">{{ field.label }}</label>
                 {{ field }}
                 {% if field.errors %}
-                  <div class="text-danger small mt-1">
+                  <div class="text-danger small mt-1 fw-bold">
                     <i class="bi bi-exclamation-circle me-1"></i>{{ field.errors|striptags }}
                   </div>
                 {% endif %}
               </div>
             {% endfor %}
+          </div>
+          
+          <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-3 mb-4" style="background-color: var(--brand-primary); border: none;">
+            Crear mi cuenta
+          </button>
+        </form>
 
-            <!-- Botones -->
-            <div class="mt-4 d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-success btn-icon">
-                <i class="bi bi-check-circle-fill me-1"></i>Registrarse
-              </button>
-              <a href="{% url 'login' %}" class="btn btn-link">
-                <i class="bi bi-box-arrow-in-right me-1"></i>Ya tengo cuenta
-              </a>
-            </div>
-          </form>
+        <div class="text-center mt-3">
+          <p class="text-muted mb-0">¿Ya tenés una cuenta? <a href="{% url 'login' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Iniciá sesión aquí</a></p>
         </div>
+
       </div>
     </div>
   </div>
 
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    let inputs = document.querySelectorAll('.split-right input:not([type="hidden"])');
+    inputs.forEach(input => {
+      input.classList.add('form-control', 'form-control-lg');
+    });
+  });
+</script>
 {% endblock %}

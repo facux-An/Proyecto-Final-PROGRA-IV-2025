@@ -6,95 +6,90 @@
 
 {% block content %}
 <style>
-  .categoria-form-hero {
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
-  .categoria-form-card {
+  .form-card {
     border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
-    transition: transform .2s ease, box-shadow .2s ease;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    background: #fff;
   }
-  .categoria-form-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 32px rgba(0,0,0,.18);
-  }
-  .form-label { font-weight: 600; }
+  .form-label { font-weight: 600; color: var(--text-main); }
   .form-control {
-    border-radius: .5rem;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
-    transition: border-color .2s ease, box-shadow .2s ease;
+    border-radius: .75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
   }
   .form-control:focus {
-    border-color: #6610f2;
-    box-shadow: 0 0 0 .25rem rgba(102,16,242,.25);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
+    background-color: #fff;
   }
   .btn-icon {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    font-weight: 500;
+    gap: .5rem;
+    font-weight: 600;
   }
 </style>
 
-<div class="container py-4">
-
-  <!-- Hero superior -->
-  <div class="categoria-form-hero p-4 p-md-5 mb-4 text-center">
-    {% if form.instance.pk %}
-      <h1 class="h3 mb-2"><i class="bi bi-pencil-square me-2"></i>Editar categoría</h1>
-      <p class="mb-0 opacity-75">Modificá los datos de la categoría existente y guardá los cambios.</p>
-    {% else %}
-      <h1 class="h3 mb-2"><i class="bi bi-plus-circle-fill me-2"></i>Agregar nueva categoría</h1>
-      <p class="mb-0 opacity-75">Completá los campos para crear una nueva categoría en tu catálogo.</p>
-    {% endif %}
-  </div>
-
-  <!-- Tarjeta de formulario -->
+<div class="container py-5">
+  
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-      <div class="card categoria-form-card">
-        <div class="card-body p-4">
-          <h2 class="h5 mb-4 text-center">
-            {% if form.instance.pk %}Formulario de edición{% else %}Formulario de creación{% endif %}
-          </h2>
+      
+      <div class="text-center mb-4">
+        {% if form.instance.pk %}
+          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-pencil-square fs-3 text-dark"></i>
+          </div>
+          <h2 class="fw-bold text-dark">Editar Categoría</h2>
+          <p class="text-muted">Modificá los detalles y la imagen.</p>
+        {% else %}
+          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-folder-plus fs-3 text-dark"></i>
+          </div>
+          <h2 class="fw-bold text-dark">Nueva Categoría</h2>
+          <p class="text-muted">Creá una nueva sección en tu tienda.</p>
+        {% endif %}
+      </div>
 
-          <form method="post" novalidate>
+      <div class="card form-card">
+        <div class="card-body p-4 p-md-5">
+          <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             {% if form.non_field_errors %}
-              <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <div class="alert alert-danger rounded-3 d-flex align-items-center mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
                 {{ form.non_field_errors }}
               </div>
             {% endif %}
 
             {% for field in form %}
-              <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="form-label mb-2">{{ field.label }}</label>
                 {{ field }}
                 {% if field.errors %}
-                  <div class="text-danger small mt-1">
+                  <div class="text-danger small mt-2 fw-semibold">
                     <i class="bi bi-exclamation-circle-fill me-1"></i>{{ field.errors|striptags }}
                   </div>
                 {% endif %}
               </div>
             {% endfor %}
 
-            <div class="mt-4 d-flex justify-content-between align-items-center">
-              <a href="{% url 'categorias:categoria_list' %}" class="btn btn-secondary btn-icon">
-                <i class="bi bi-x-circle-fill me-1"></i>Cancelar
-              </a>
-              <button type="submit" class="btn btn-primary btn-icon">
-                <i class="bi bi-check-circle-fill me-1"></i>{% if form.instance.pk %}Guardar cambios{% else %}Guardar{% endif %}
+            <div class="d-grid gap-2 mt-5">
+              <button type="submit" class="btn btn-lg fw-bold text-white rounded-pill" style="background-color: var(--brand-primary); border: none;">
+                {% if form.instance.pk %}Guardar cambios{% else %}Crear Categoría{% endif %}
               </button>
+              <a href="{% url 'categorias:categoria_list' %}" class="btn btn-light btn-lg rounded-pill fw-bold text-secondary">
+                Cancelar
+              </a>
             </div>
           </form>
         </div>
       </div>
+      
     </div>
   </div>
 

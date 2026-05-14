@@ -5,88 +5,91 @@
 
 {% block producto_content %}
 <style>
-  .delete-hero {
-    background: linear-gradient(135deg, #dc3545, #fd7e14);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
   .delete-card {
     border: 0;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,.1);
+    background: #fff;
+    overflow: hidden;
+  }
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #FEE2E2;
+    color: #DC2626;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .product-mini-card {
+    background: #f8f9fa;
     border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
-  }
-  .delete-icon {
-    font-size: 2.5rem;
-  }
-  .list-group-item {
-    border: none;
-    border-bottom: 1px solid #f1f1f1;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
   }
   .producto-img {
-    width: 140px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     object-fit: cover;
     border-radius: .75rem;
-    box-shadow: 0 6px 12px rgba(0,0,0,.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,.05);
+    background: white;
   }
 </style>
 
-<div class="container py-4">
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 70vh;">
 
-  <!-- Hero superior -->
-  <div class="delete-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-exclamation-octagon-fill me-2"></i>Confirmar eliminación de producto</h1>
-    <p class="mb-0 opacity-75">Esta acción es irreversible. Revisá bien antes de continuar.</p>
-  </div>
+  <div class="card delete-card text-center" style="max-width: 550px; width: 100%;">
+    <div class="card-body p-5">
+      
+      <div class="icon-circle mb-4">
+        <i class="bi bi-trash3-fill fs-1"></i>
+      </div>
+      
+      <h3 class="fw-bold text-dark mb-3">¿Eliminar Producto?</h3>
+      
+      <p class="text-muted mb-4">
+        Estás a punto de borrar permanentemente este producto del catálogo.
+      </p>
 
-  <!-- Tarjeta de confirmación -->
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card delete-card border-danger">
-        <div class="card-header bg-danger text-white d-flex align-items-center">
-          <i class="bi bi-trash-fill delete-icon me-2"></i>
-          <h4 class="mb-0">Eliminar producto</h4>
-        </div>
-        <div class="card-body p-4">
-          <p class="mb-3 fs-5">¿Estás seguro de que querés eliminar este producto?</p>
-          <ul class="list-group mb-4">
-            <li class="list-group-item"><strong><i class="bi bi-hash me-1"></i>ID:</strong> {{ producto.id }}</li>
-            <li class="list-group-item"><strong><i class="bi bi-box-seam me-1"></i>Nombre:</strong> {{ producto.nombre }}</li>
-            <li class="list-group-item"><strong><i class="bi bi-folder-fill me-1"></i>Categoría:</strong>
-              {% if producto.categoria %}
-                {{ producto.categoria.nombre }}
-              {% else %}
-                <span class="text-muted">Sin categoría</span>
-              {% endif %}
-            </li>
-            <li class="list-group-item"><strong><i class="bi bi-currency-dollar me-1"></i>Precio:</strong> ${{ producto.precio|floatformat:2 }}</li>
-            <li class="list-group-item"><strong><i class="bi bi-stack me-1"></i>Stock:</strong> {{ producto.stock }}</li>
-            <li class="list-group-item text-center">
-              {% if producto.portada and producto.portada.url %}
-                <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="producto-img">
-              {% else %}
-                <img src="{% static 'img/no-image.png' %}" alt="Sin imagen" class="producto-img">
-              {% endif %}
-            </li>
-          </ul>
-          <div class="alert alert-warning d-flex align-items-center" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <div>Los pedidos o registros asociados podrían verse afectados.</div>
+      <!-- Mini resumen del producto -->
+      <div class="product-mini-card mb-4">
+        {% if producto.portada and producto.portada.url %}
+          <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="producto-img">
+        {% else %}
+          <div class="producto-img d-flex align-items-center justify-content-center bg-white border">
+            <i class="bi bi-image text-muted"></i>
           </div>
-        </div>
-        <div class="card-footer d-flex justify-content-between">
-          <form method="post" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-lg btn-icon">
-              <i class="bi bi-trash-fill me-1"></i> Sí, eliminar
-            </button>
-          </form>
-          <a href="{% url 'productos:producto_list' %}" class="btn btn-secondary btn-lg btn-icon">
-            <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
-          </a>
+        {% endif %}
+        <div>
+          <h6 class="fw-bold text-dark mb-1">{{ producto.nombre }}</h6>
+          <p class="small text-muted mb-1"><i class="bi bi-folder-fill me-1"></i>{% if producto.categoria %}{{ producto.categoria.nombre }}{% else %}Sin categoría{% endif %}</p>
+          <span class="badge bg-dark rounded-pill">${{ producto.precio|floatformat:2 }}</span>
         </div>
       </div>
+      
+      <div class="alert alert-danger bg-opacity-10 border-0 rounded-3 text-start mb-4" role="alert">
+        <div class="d-flex">
+          <i class="bi bi-info-circle-fill text-danger me-3 fs-5 mt-1"></i>
+          <span class="small text-danger fw-semibold">Esta acción no se puede deshacer. Los pedidos ya realizados mantendrán el registro, pero el producto ya no se podrá comprar.</span>
+        </div>
+      </div>
+
+      <form method="post" class="d-grid gap-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill">
+          Sí, eliminar producto
+        </button>
+        <a href="{% url 'productos:producto_list' %}" class="btn btn-light btn-lg fw-bold rounded-pill text-secondary">
+          Cancelar
+        </a>
+      </form>
+      
     </div>
   </div>
 

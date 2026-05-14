@@ -4,58 +4,59 @@
 
 {% block content %}
 <style>
-  .delete-hero {
-    background: linear-gradient(135deg, #dc3545, #fd7e14);
-    color: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,.15);
-  }
   .delete-card {
     border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,.1);
+    background: #fff;
+    overflow: hidden;
   }
-  .delete-icon {
-    font-size: 2.5rem;
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #FEE2E2;
+    color: #DC2626;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
   }
 </style>
 
-<div class="container py-4">
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 70vh;">
 
-  <!-- Hero superior -->
-  <div class="delete-hero p-4 p-md-5 mb-4 text-center">
-    <h1 class="h3 mb-2"><i class="bi bi-exclamation-octagon-fill me-2"></i>Confirmar eliminación</h1>
-    <p class="mb-0 opacity-75">Esta acción es irreversible. Revisá bien antes de continuar.</p>
-  </div>
-
-  <!-- Tarjeta de confirmación -->
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card delete-card border-danger">
-        <div class="card-header bg-danger text-white d-flex align-items-center">
-          <i class="bi bi-trash-fill delete-icon me-2"></i>
-          <h4 class="mb-0">Eliminar categoría</h4>
-        </div>
-        <div class="card-body p-4">
-          <p class="mb-3 fs-5">
-            ¿Estás seguro que deseas borrar la categoría 
-            <strong class="text-danger">"{{ object.nombre }}"</strong>?
-          </p>
-          <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <div>Los productos asociados también podrían verse afectados.</div>
-          </div>
-          <form method="post" class="d-flex gap-3 justify-content-center">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-lg btn-icon">
-              <i class="bi bi-trash-fill me-1"></i> Sí, borrar
-            </button>
-            <a href="{% url 'categorias:categoria_list' %}" class="btn btn-secondary btn-lg btn-icon">
-              <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
-            </a>
-          </form>
+  <div class="card delete-card text-center" style="max-width: 500px; width: 100%;">
+    <div class="card-body p-5">
+      
+      <div class="icon-circle mb-4">
+        <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+      </div>
+      
+      <h3 class="fw-bold text-dark mb-3">¿Eliminar Categoría?</h3>
+      
+      <p class="text-muted fs-5 mb-4">
+        Estás a punto de borrar la categoría <br>
+        <strong class="text-dark fs-4">"{{ object.nombre }}"</strong>
+      </p>
+      
+      <div class="alert alert-danger bg-opacity-10 border-0 rounded-3 text-start mb-4" role="alert">
+        <div class="d-flex">
+          <i class="bi bi-info-circle-fill text-danger me-3 fs-5 mt-1"></i>
+          <span class="small text-danger fw-semibold">Esta acción no se puede deshacer. Los productos asociados a esta categoría podrían quedar huérfanos.</span>
         </div>
       </div>
+
+      <form method="post" class="d-grid gap-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill">
+          Sí, eliminar definitivamente
+        </button>
+        <a href="{% url 'categorias:categoria_list' %}" class="btn btn-light btn-lg fw-bold rounded-pill text-secondary">
+          Cancelar y regresar
+        </a>
+      </form>
+      
     </div>
   </div>
 

@@ -105,11 +105,25 @@
 </head>
 <body>
 
+  <!-- Barra de Administrador (Solo visible para Staff) -->
+  {% if user.is_staff %}
+  <div class="bg-dark py-2 px-3 d-flex justify-content-between align-items-center w-100 shadow-sm" style="font-size: 0.85rem; z-index: 1050; border-bottom: 2px solid #ffc107;">
+    <div class="d-flex align-items-center gap-3">
+      <span class="fw-bold text-warning"><i class="bi bi-shield-lock-fill me-1"></i> MODO ADMINISTRADOR</span>
+      <span class="d-none d-md-inline text-muted">|</span>
+      <a href="{% url 'panel:panel_pedidos' %}" class="text-white text-decoration-none" style="transition: color 0.2s;" onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='white'">Ir al Panel de Control <i class="bi bi-arrow-right-short"></i></a>
+    </div>
+    <div class="d-none d-sm-block">
+      <span class="badge bg-danger rounded-pill px-3 py-1 shadow-sm"><i class="bi bi-bell-fill me-1"></i> Revisar Pedidos</span>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Topbar institucional opcional -->
-  <div class="bg-dark text-white text-center py-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+  <div class="text-white text-center py-1" style="background-color: var(--text-main); font-size: 0.75rem; letter-spacing: 1px;">
     SOMOS EXPERTOS EN EL CUIDADO FELINO
   </div>
-
+   
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container flex-wrap">
       
@@ -153,9 +167,6 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
               <li><a class="dropdown-item" href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
-              {% if user.is_staff %}
-                <li><a class="dropdown-item text-warning" href="{% url 'panel:panel_pedidos' %}">Panel de Admin</a></li>
-              {% endif %}
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form action="{% url 'logout' %}" method="post">
