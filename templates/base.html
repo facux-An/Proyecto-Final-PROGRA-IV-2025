@@ -13,10 +13,10 @@
   
   <style>
     :root {
-      --brand-primary: #0d6efd;
-      --brand-secondary: #6610f2;
-      --bg-body: #f4f6f8;
-      --text-main: #212529;
+      --brand-primary: #FF6600; /* Naranja vibrante */
+      --brand-secondary: #E05A00;
+      --bg-body: #F9FAFB; /* Gris muy claro */
+      --text-main: #1F2937; /* Carbón */
     }
     body {
       font-family: "Inter", sans-serif;
@@ -26,96 +26,200 @@
       flex-direction: column;
       min-height: 100vh;
     }
-    /* Navbar Sticky y Profesional */
+    
+    /* Navbar Profesional Alpina Style */
     .navbar-custom {
-      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      padding: 0.8rem 1rem;
+      background-color: var(--brand-primary);
+      padding: 0.8rem 0;
     }
-    .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
-    .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; transition: 0.2s; }
-    .nav-link:hover { color: #fff !important; transform: translateY(-1px); }
+    .navbar-brand-text { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; color: white; text-decoration: none;}
+    
+    /* Buscador Central */
+    .search-form-container {
+      flex: 1;
+      max-width: 600px;
+      margin: 0 2rem;
+    }
+    .search-input {
+      border-radius: 4px 0 0 4px;
+      border: none;
+      padding: 0.6rem 1rem;
+    }
+    .search-input:focus { box-shadow: none; outline: none; }
+    .search-btn {
+      border-radius: 0 4px 4px 0;
+      background: white;
+      border: none;
+      color: var(--brand-primary);
+      padding: 0 1rem;
+      font-weight: bold;
+    }
+    .search-btn:hover { background: #f1f1f1; }
+
+    /* Enlaces e iconos Navbar */
+    .nav-icon-link {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .nav-icon-link:hover { opacity: 0.8; color: white; }
 
     /* Botón Carrito */
-    .btn-cart-nav {
-      position: relative;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 50px;
-      padding: 0.5rem 1.2rem;
-      transition: all 0.3s;
-    }
-    .btn-cart-nav:hover { background: rgba(255,255,255,0.2); border-color: #fff; color: white; }
+    .btn-cart-nav { position: relative; }
     .cart-badge {
-      position: absolute; top: -5px; right: -5px;
-      background-color: #dc3545; color: white;
-      border-radius: 50%; padding: 0.25em 0.6em;
+      position: absolute; top: -5px; right: -8px;
+      background-color: #22C55E; /* Verde éxito */
+      color: white;
+      border-radius: 50%; padding: 0.15em 0.5em;
       font-size: 0.75rem; font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border: 2px solid var(--brand-primary);
+    }
+
+    /* Sub-barra de Beneficios */
+    .benefits-bar {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 0.5rem 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .benefit-item { display: flex; align-items: center; gap: 0.5rem; }
+
+    /* Ajustes Mobile */
+    @media (max-width: 991px) {
+      .search-form-container { margin: 1rem 0 0 0; max-width: 100%; order: 3; }
+      .mobile-navbar-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+      .desktop-only { display: none !important; }
+    }
+    @media (min-width: 992px) {
+      .mobile-only { display: none !important; }
     }
     
-    /* Footer Sticky */
-    footer { margin-top: auto; background: #fff; border-top: 1px solid #e9ecef; }
+    footer { margin-top: auto; background: white; border-top: 1px solid #E5E7EB; }
   </style>
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-        <i class="bi bi-bag-heart-fill me-2"></i>Tienda Plus
-      </a>
+  <!-- Topbar institucional opcional -->
+  <div class="bg-dark text-white text-center py-1" style="font-size: 0.75rem; letter-spacing: 1px;">
+    SOMOS EXPERTOS EN EL CUIDADO FELINO
+  </div>
+
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container flex-wrap">
       
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <!-- Logo y Toggler para Mobile -->
+      <div class="mobile-navbar-top">
+        <button class="navbar-toggler border-0 text-white shadow-none mobile-only" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+          <i class="bi bi-list fs-1"></i>
+        </button>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto ms-lg-4">
-          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'productos:producto_list' %}">Catálogo</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'categorias:categoria_list' %}">Categorías</a></li>
-          {% if user.is_staff %}
-             <li class="nav-item"><a class="nav-link text-warning" href="{% url 'panel:panel_pedidos' %}"><i class="bi bi-speedometer2 me-1"></i>Panel</a></li>
-          {% endif %}
-        </ul>
+        <a class="navbar-brand-text d-flex align-items-center" href="{% url 'home' %}">
+          <!-- Aquí luego pondremos el logo img src="..." -->
+          <i class="bi bi-cat me-2"></i>Tienda Plus
+        </a>
 
-        <ul class="navbar-nav ms-auto align-items-center gap-3">
-          <li class="nav-item">
-            <a href="{% url 'carrito:carrito_detail' %}" class="btn-cart-nav text-decoration-none">
-              <i class="bi bi-cart3 me-2"></i>Carrito
-              {% if carrito_count and carrito_count > 0 %}
-                <span class="cart-badge">{{ carrito_count }}</span>
-              {% endif %}
-            </a>
-          </li>
-
-          {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3">
-                <li><a class="dropdown-item" href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                  </form>
-                </li>
-              </ul>
-            </li>
-          {% else %}
-            <li class="nav-item">
-              <a class="btn btn-light btn-sm rounded-pill px-3 fw-bold text-primary" href="{% url 'login' %}">Ingresar</a>
-            </li>
-          {% endif %}
-        </ul>
+        <!-- Iconos Mobile a la derecha -->
+        <div class="d-flex gap-3 align-items-center mobile-only">
+          <a href="{% url 'carrito:carrito_detail' %}" class="nav-icon-link btn-cart-nav">
+            <i class="bi bi-basket2 fs-3"></i>
+            {% if carrito_count and carrito_count > 0 %}
+              <span class="cart-badge">{{ carrito_count }}</span>
+            {% endif %}
+          </a>
+        </div>
       </div>
+
+      <!-- Buscador (Centro en PC, Abajo en Mobile) -->
+      <form class="search-form-container d-flex" action="{% url 'productos:producto_list' %}" method="get">
+        <input class="form-control search-input" type="search" name="q" placeholder="¿Qué estás buscando para tu gato?" aria-label="Buscar">
+        <button class="btn search-btn" type="submit"><i class="bi bi-search"></i></button>
+      </form>
+
+      <!-- Iconos Desktop (Derecha) -->
+      <div class="d-none d-lg-flex align-items-center gap-4">
+        {% if user.is_authenticated %}
+          <div class="dropdown">
+            <a class="nav-icon-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="text-decoration:none;">
+              <div class="d-flex flex-column text-start" style="line-height: 1.2;">
+                <span style="font-size: 0.75rem;">¡Hola, {{ user.username }}!</span>
+                <span>Mi Cuenta</span>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+              <li><a class="dropdown-item" href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
+              {% if user.is_staff %}
+                <li><a class="dropdown-item text-warning" href="{% url 'panel:panel_pedidos' %}">Panel de Admin</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a class="nav-icon-link" href="{% url 'login' %}">
+            <i class="bi bi-person fs-3"></i>
+            <div class="d-flex flex-column text-start" style="line-height: 1.2;">
+              <span style="font-size: 0.75rem;">Bienvenido</span>
+              <span>Ingresar</span>
+            </div>
+          </a>
+        {% endif %}
+
+        <a href="{% url 'carrito:carrito_detail' %}" class="nav-icon-link btn-cart-nav">
+          <i class="bi bi-basket2 fs-3"></i>
+          {% if carrito_count and carrito_count > 0 %}
+            <span class="cart-badge">{{ carrito_count }}</span>
+          {% endif %}
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Menú Colapsable Mobile -->
+    <div class="collapse navbar-collapse bg-white mt-3 p-3 d-lg-none shadow-sm rounded-bottom" id="mobileMenu">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link text-dark fw-bold py-2" href="{% url 'home' %}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link text-dark fw-bold py-2" href="{% url 'productos:producto_list' %}">Catálogo</a></li>
+        <li class="nav-item"><a class="nav-link text-dark fw-bold py-2" href="{% url 'categorias:categoria_list' %}">Categorías</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link text-primary fw-bold py-2" href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
+          <li class="nav-item">
+            <form action="{% url 'logout' %}" method="post" class="mt-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger w-100">Cerrar Sesión</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item mt-2"><a class="btn btn-primary w-100" href="{% url 'login' %}">Ingresar / Registro</a></li>
+        {% endif %}
+      </ul>
     </div>
   </nav>
+
+  <!-- Sub-barra de Enlaces y Beneficios -->
+  <div class="benefits-bar d-none d-lg-block shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-4">
+        <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-dark hover-primary">CATÁLOGO</a>
+        <a href="{% url 'categorias:categoria_list' %}" class="text-decoration-none text-dark hover-primary">CATEGORÍAS</a>
+        <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-danger fw-bold">OFERTAS 🔥</a>
+      </div>
+      <div class="d-flex gap-4 text-muted" style="font-size: 0.8rem;">
+        <div class="benefit-item"><i class="bi bi-truck fs-5 text-primary"></i> ENVÍOS A TODO EL PAÍS</div>
+        <div class="benefit-item"><i class="bi bi-shield-check fs-5 text-success"></i> COMPRA SEGURA</div>
+      </div>
+    </div>
+  </div>
 
   <div class="container mt-3 position-fixed start-50 translate-middle-x" style="z-index: 1060; max-width: 600px; pointer-events: none;">
     {% if messages %}
@@ -137,23 +241,25 @@
       {% block content %}{% endblock %}
   </main>
 
-  <footer class="py-4 text-center text-muted">
+  <footer class="py-5 text-center text-muted mt-5">
     <div class="container">
-      <small>Tienda Plus © {% now "Y" %} · Todos los derechos reservados.</small>
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cat text-primary"></i> Tienda Plus</h5>
+      <p class="small mx-auto" style="max-width:400px;">El cuidado que tu mascota merece. Somos especialistas en bienestar y accesorios felinos.</p>
+      <hr class="my-4">
+      <small>© {% now "Y" %} Tienda Plus. Todos los derechos reservados.</small>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
-    // Auto-hide mensajes después de 4 segundos
     document.addEventListener('DOMContentLoaded', function() {
       const alerts = document.querySelectorAll('.alert');
       alerts.forEach(function(alert) {
         setTimeout(function() {
           const bsAlert = new bootstrap.Alert(alert);
           bsAlert.close();
-        }, 4000); // 4 segundos
+        }, 4000);
       });
     });
   </script>
