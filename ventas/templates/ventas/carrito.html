@@ -4,159 +4,246 @@
 {% block title %}Mi Carrito · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row mb-4">
-        <div class="col-12 text-center text-md-start">
-            <h2 class="fw-bold text-dark mb-1">Mi Carrito</h2>
-            <p class="text-muted">Gestioná tus productos antes de finalizar la compra.</p>
-        </div>
+<style>
+    body { background-color: #f9fafb; }
+    
+    /* Contenedores Soft */
+    .cart-box {
+        background: #ffffff;
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    /* Botones de Cantidad Rediseñados */
+    .qty-control {
+        display: inline-flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 2rem;
+        padding: 0.25rem;
+        border: 1px solid #e9ecef;
+    }
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: none;
+        color: #495057;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .qty-btn:hover:not(.disabled) {
+        background: var(--brand-primary);
+        color: white;
+    }
+    .qty-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    .qty-value {
+        min-width: 40px;
+        text-align: center;
+        font-weight: 700;
+        color: #212529;
+    }
+    
+    /* Botón de eliminar más sutil */
+    .btn-remove {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: none;
+    }
+    .btn-remove:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .product-row {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+        .product-actions {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px dashed #e9ecef;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+        .product-price-mobile {
+            display: block !important;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+        .product-price-desktop { display: none !important; }
+    }
+    @media (min-width: 769px) {
+        .product-price-mobile { display: none !important; }
+    }
+</style>
+
+<div class="container py-4 py-lg-5">
+    
+    <!-- Encabezado -->
+    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+        <h2 class="fw-bold text-dark mb-0 d-flex align-items-center">
+            <i class="bi bi-cart3 fs-1 me-3" style="color: var(--brand-primary);"></i>
+            Mi Carrito
+        </h2>
+        {% if carrito.items.exists %}
+            <span class="badge rounded-pill ms-3 fs-6" style="background-color: #f1f3f5; color: #495057;">
+                {{ carrito.items.count }} Productos
+            </span>
+        {% endif %}
     </div>
 
     {% if carrito.items.exists %}
     <div class="row g-4">
+        
+        <!-- Lista de Productos (Izquierda) -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="bg-light text-muted small text-uppercase">
-                            <tr>
-                                <th class="border-0 ps-4 py-3">Producto</th>
-                                <th class="border-0 py-3 text-center">Cantidad</th>
-                                <th class="border-0 py-3">Precio</th>
-                                <th class="border-0 py-3">Subtotal</th>
-                                <th class="border-0 pe-4 py-3 text-end">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in carrito.items.all %}
-                            <tr>
-                                <td class="ps-4 py-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            {% if item.producto.portada %}
-                                                <img src="{{ item.producto.portada.url }}" class="rounded shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ item.producto.nombre }}">
-                                            {% else %}
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                                    <i class="bi bi-image text-muted"></i>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="ms-3">
-                                            <h6 class="mb-0 fw-bold">{{ item.producto.nombre }}</h6>
-                                            <small class="text-muted">{{ item.producto.categoria.nombre|default:"General" }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <div class="d-flex align-items-center bg-light rounded-3 p-1" style="border: 1px solid #dee2e6;">
-                                            <a href="{% url 'carrito:carrito_modificar' item.id 'restar' %}" 
-                                               class="btn btn-sm btn-light border-0 px-2 py-1 {% if item.cantidad <= 1 %}disabled text-muted{% endif %}">
-                                                <i class="bi bi-dash-lg"></i>
-                                            </a>
-                                            
-                                            <span class="px-3 fw-bold text-dark" style="min-width: 40px; text-align: center;">
-                                                {{ item.cantidad }}
-                                            </span>
-                                            
-                                            <a href="{% url 'carrito:carrito_modificar' item.id 'sumar' %}" 
-                                               class="btn btn-sm btn-light border-0 px-2 py-1">
-                                                <i class="bi bi-plus-lg"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
+            <div class="cart-box p-3 p-md-4 mb-4">
+                
+                {% for item in carrito.items.all %}
+                <!-- Item Producto -->
+                <div class="product-row d-flex align-items-center py-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    
+                    <!-- Info (Imagen + Título) -->
+                    <div class="d-flex align-items-center flex-grow-1 mb-2 mb-md-0">
+                        {% if item.producto.portada %}
+                            <img src="{{ item.producto.portada.url }}" class="rounded-3 shadow-sm object-fit-cover" style="width: 80px; height: 80px; min-width: 80px;" alt="{{ item.producto.nombre }}">
+                        {% else %}
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; min-width: 80px;">
+                                <i class="bi bi-image text-muted fs-3"></i>
+                            </div>
+                        {% endif %}
+                        <div class="ms-3">
+                            <h6 class="mb-1 fw-bold text-dark fs-5">{{ item.producto.nombre }}</h6>
+                            <small class="text-muted text-uppercase fw-semibold" style="letter-spacing: 0.5px; font-size: 0.75rem;">{{ item.producto.categoria.nombre|default:"General" }}</small>
+                            <div class="product-price-mobile mt-1">${{ item.subtotal|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones (Cantidad + Eliminar) -->
+                    <div class="product-actions gap-4">
+                        
+                        <!-- Control de cantidad -->
+                        <div class="qty-control">
+                            <a href="{% url 'carrito:carrito_modificar' item.id 'restar' %}" class="qty-btn {% if item.cantidad <= 1 %}disabled{% endif %}">
+                                <i class="bi bi-dash"></i>
+                            </a>
+                            <span class="qty-value">{{ item.cantidad }}</span>
+                            <a href="{% url 'carrito:carrito_modificar' item.id 'sumar' %}" class="qty-btn">
+                                <i class="bi bi-plus"></i>
+                            </a>
+                        </div>
 
-                                <td><span class="text-muted">${{ item.producto.precio|floatformat:2 }}</span></td>
-                                <td><span class="fw-bold text-dark">${{ item.subtotal|floatformat:2 }}</span></td>
-                                
-                                <td class="pe-4 text-end">
-                                    <form method="post" action="{% url 'carrito:carrito_remove' item.id %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link text-danger p-0 border-0" title="Eliminar producto">
-                                            <i class="bi bi-trash3-fill fs-5"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        <!-- Precio Desktop -->
+                        <div class="product-price-desktop fw-bold fs-5 text-dark" style="min-width: 100px; text-align: right;">
+                            ${{ item.subtotal|floatformat:2 }}
+                        </div>
+
+                        <!-- Eliminar -->
+                        <form method="post" action="{% url 'carrito:carrito_remove' item.id %}" class="mb-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-remove" title="Eliminar producto">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
-                <div class="card-footer bg-white border-0 py-3 ps-4">
-                    <a href="{% url 'productos:producto_list' %}" class="text-primary text-decoration-none fw-bold small">
-                        <i class="bi bi-arrow-left me-1"></i> Seguir comprando
-                    </a>
-                </div>
+                {% endfor %}
+                
             </div>
+            
+            <a href="{% url 'productos:producto_list' %}" class="btn btn-light fw-bold rounded-pill text-secondary px-4 py-2 border">
+                <i class="bi bi-arrow-left me-2"></i> Seguir comprando
+            </a>
         </div>
 
+        <!-- Resumen de Cuenta (Derecha) -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm sticky-top" style="border-radius: 1rem; top: 2rem;">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4">Resumen de cuenta</h5>
-                    
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Subtotal ({{ carrito.items.count }} productos)</span>
-                        <span class="text-dark fw-semibold">${{ carrito.total|floatformat:2 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Envío</span>
-                        <span class="text-success fw-semibold">Gratis</span>
-                    </div>
-                    
-                    <hr class="my-4" style="border-top: 2px dashed #eee;">
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="h5 fw-bold mb-0">Total</span>
-                        <span class="h4 fw-bold text-primary mb-0">${{ carrito.total|floatformat:2 }}</span>
-                    </div>
-
-                    <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm mb-3" style="border-radius: 12px;">
-                            <i class="bi bi-credit-card-2-back me-2"></i> Finalizar Compra
-                        </button>
-                    </form>
-                    
-                    <div class="text-center">
-                        <p class="small text-muted mb-0">
-                            <i class="bi bi-shield-check me-1"></i> Compra Protegida por Tienda Plus
-                        </p>
-                    </div>
+            <div class="cart-box p-4 sticky-top" style="top: 2rem;">
+                
+                <h5 class="fw-bold mb-4">Resumen de compra</h5>
+                
+                <!-- Subtotal y Envío -->
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="text-dark fw-semibold">${{ carrito.total|floatformat:2 }}</span>
                 </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-muted">Envío</span>
+                    <span class="fw-bold" style="color: #10B981;">¡Gratis!</span>
+                </div>
+                
+                <hr class="mb-4" style="border-top: 2px dashed #e9ecef;">
+                
+                <!-- Total Gigante -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold fs-5">Total</span>
+                    <span class="fw-bold display-6" style="color: var(--brand-primary);">${{ carrito.total|floatformat:2 }}</span>
+                </div>
+
+                <!-- Botón Finalizar -->
+                <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill mb-3 text-white" style="background-color: var(--brand-primary); border: none; padding: 1rem;">
+                        FINALIZAR COMPRA
+                    </button>
+                </form>
+                
+                <!-- Trust Badges -->
+                <div class="bg-light p-3 rounded-4 mt-4 text-center">
+                    <div class="d-flex justify-content-center align-items-center mb-2">
+                        <i class="bi bi-shield-check fs-4 me-2" style="color: #10B981;"></i>
+                        <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Pago 100% Seguro</span>
+                    </div>
+                    <p class="small text-muted mb-0" style="font-size: 0.75rem; line-height: 1.3;">
+                        Tus datos están protegidos por encriptación SSL de extremo a extremo. Compra Protegida por Tienda Plus.
+                    </p>
+                </div>
+
             </div>
         </div>
     </div>
 
+    <!-- Empty State Rediseñado -->
     {% else %}
     <div class="row justify-content-center py-5">
         <div class="col-md-6 text-center">
-            <div class="bg-white p-5 shadow-sm rounded-4 border-0">
-                <div class="display-1 text-muted mb-4">
-                    <i class="bi bi-cart-x"></i>
+            <div class="cart-box p-5">
+                <div class="mb-4 d-inline-block p-4 rounded-circle bg-light text-muted opacity-75">
+                    <i class="bi bi-cart-x fs-1"></i>
                 </div>
-                <h3 class="fw-bold text-dark">Tu carrito está vacío</h3>
-                <p class="text-muted mb-4">Parece que aún no has agregado ningún producto. ¡Explorá nuestro catálogo!</p>
-                <a href="{% url 'productos:producto_list' %}" class="btn btn-primary btn-lg px-5 fw-bold" style="border-radius: 12px;">
-                    Ver Catálogo
+                <h3 class="fw-bold text-dark mb-3">Tu carrito está esperando</h3>
+                <p class="text-muted mb-4 fs-5">Parece que aún no has agregado productos. ¡Es el momento perfecto para mimar a tu mascota!</p>
+                <a href="{% url 'productos:producto_list' %}" class="btn btn-lg fw-bold px-5 py-3 rounded-pill text-white shadow-sm" style="background-color: var(--brand-primary); border: none;">
+                    <i class="bi bi-shop me-2"></i> Ir al Catálogo
                 </a>
             </div>
         </div>
     </div>
     {% endif %}
-</div>
 
-<style>
-    body { background-color: #f8f9fa; }
-    .table thead th { font-weight: 600; letter-spacing: 0.5px; }
-    .btn-primary { background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none; transition: 0.3s; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
-    .card { transition: 0.3s; }
-    .sticky-top { z-index: 1020; }
-    /* Estilo para los botones de cantidad */
-    .btn-light:hover { background-color: #e2e6ea; color: #000; }
-    .disabled { pointer-events: none; opacity: 0.5; }
-</style>
+</div>
 {% endblock %}
