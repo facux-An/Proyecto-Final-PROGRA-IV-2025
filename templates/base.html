@@ -196,8 +196,8 @@
 
     </div>
 
-    <!-- Menú Colapsable Mobile -->
-    <div class="collapse navbar-collapse bg-white mt-3 p-3 d-lg-none shadow-sm rounded-bottom" id="mobileMenu">
+    <!-- Menú Colapsable Mobile (Solo Visible en Mobile) -->
+    <div class="collapse navbar-collapse d-lg-none" id="mobileMenu" style="background-color: transparent; margin-top: 0; padding: 0;">
       <ul class="navbar-nav mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link text-dark fw-bold py-2" href="{% url 'home' %}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link text-dark fw-bold py-2" href="{% url 'productos:producto_list' %}">Catálogo</a></li>

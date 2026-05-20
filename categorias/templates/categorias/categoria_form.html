@@ -31,6 +31,30 @@
     gap: .5rem;
     font-weight: 600;
   }
+  /* Preview de imagen */
+  .preview-container {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 2px dashed var(--brand-primary);
+    border-radius: .75rem;
+    text-align: center;
+    background-color: #fff8f3;
+  }
+  #preview-imagen {
+    display: none;
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: .75rem;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2);
+  }
+  #preview-imagen.show {
+    display: block;
+  }
+  .preview-label {
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin-top: 0.75rem;
+  }
 </style>
 
 <div class="container py-5">
@@ -78,6 +102,15 @@
               </div>
             {% endfor %}
 
+            <!-- Preview de imagen (solo para campo imagen) -->
+            <div class="preview-container" id="preview-container" style="display: none;">
+              <i class="bi bi-image fs-1 text-muted mb-2"></i>
+              <div>
+                <img id="preview-imagen" alt="Preview de la imagen">
+                <p class="preview-label"><i class="bi bi-check-circle-fill text-success me-1"></i>Imagen seleccionada correctamente</p>
+              </div>
+            </div>
+
             <div class="d-grid gap-2 mt-5">
               <button type="submit" class="btn btn-lg fw-bold text-white rounded-pill" style="background-color: var(--brand-primary); border: none;">
                 {% if form.instance.pk %}Guardar cambios{% else %}Crear Categoría{% endif %}
@@ -94,4 +127,50 @@
   </div>
 
 </div>
+
+<!-- JavaScript para Preview de Imagen -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const imageInput = document.getElementById('id_imagen');
+  const previewContainer = document.getElementById('preview-container');
+  const previewImage = document.getElementById('preview-imagen');
+  
+  if (imageInput) {
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      
+      if (file && file.type.startsWith('image/')) {
+        // Validar tamaño (5 MB = 5242880 bytes)
+        const maxSize = 5242880;
+        if (file.size > maxSize) {
+          alert('La imagen supera el tamaño máximo permitido (5 MB)');
+          imageInput.value = '';
+          previewContainer.style.display = 'none';
+          return;
+        }
+        
+        // Leer archivo y mostrar preview
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          previewImage.src = event.target.result;
+          previewContainer.style.display = 'block';
+          previewImage.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+      } else if (file) {
+        alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP)');
+        imageInput.value = '';
+        previewContainer.style.display = 'none';
+      }
+    });
+    
+    // Si hay imagen existente en edición, mostrarla en preview
+    {% if form.instance.imagen %}
+      previewContainer.style.display = 'block';
+      previewImage.src = '{{ form.instance.imagen.url }}';
+      previewImage.classList.add('show');
+    {% endif %}
+  }
+});
+</script>
 {% endblock %}

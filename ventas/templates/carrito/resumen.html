@@ -69,12 +69,28 @@
                       <!-- Info del Producto -->
                       <td>
                         <div class="d-flex align-items-center gap-3">
-                          <!-- Placeholder para la imagen del producto -->
-                          <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                            <i class="bi bi-image text-muted fs-3"></i>
-                          </div>
+                          <!-- Imagen del producto (clickeable) -->
+                          <a href="{% url 'productos:producto_detail' pk=item.producto.pk %}" class="text-decoration-none" style="min-width: 70px;">
+                            {% if item.producto.portada %}
+                              <img 
+                                src="{{ item.producto.portada.url }}" 
+                                alt="{{ item.producto.nombre }}" 
+                                class="rounded-3" 
+                                style="width: 70px; height: 70px; object-fit: cover; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1)'"
+                              >
+                            {% else %}
+                              <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; cursor: pointer;">
+                                <i class="bi bi-image text-muted fs-3"></i>
+                              </div>
+                            {% endif %}
+                          </a>
                           <div>
-                            <h6 class="fw-bold mb-1 text-dark">{{ item.producto.nombre }}</h6>
+                            <!-- Nombre clickeable al detalle -->
+                            <a href="{% url 'productos:producto_detail' pk=item.producto.pk %}" class="text-decoration-none">
+                              <h6 class="fw-bold mb-1 text-dark" style="transition: color 0.2s;" onmouseover="this.style.color='var(--brand-primary)'" onmouseout="this.style.color='#1F2937'">{{ item.producto.nombre }}</h6>
+                            </a>
                             <p class="text-muted small mb-0">Precio uni: ${{ item.producto.precio }}</p>
                             <!-- Botón sutil de eliminar -->
                             <a href="#" class="text-danger small text-decoration-none mt-2 d-inline-block hover-underline"><i class="bi bi-trash3 me-1"></i>Eliminar</a>
