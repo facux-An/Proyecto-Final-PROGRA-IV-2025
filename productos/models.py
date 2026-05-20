@@ -10,6 +10,9 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
+    
+    # Campo para la Vitrina Dinámica
+    destacado = models.BooleanField(default=False, verbose_name="Destacado en Home")
 
     # Portada principal existente (opcional, la podés seguir usando)
     portada = models.ImageField(

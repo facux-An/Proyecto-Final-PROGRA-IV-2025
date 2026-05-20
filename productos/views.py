@@ -6,6 +6,8 @@ from categorias.models import Categoria
 from .models import Producto, PortadaProducto
 from .forms import ProductoForm, ProductoPortadaForm, PortadasMultiplesForm
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
 import traceback
 
 
@@ -155,3 +157,13 @@ def subir_portada(request, producto_id):
     else:
         form = ProductoPortadaForm()
     return render(request, "productos/subir_portada.html", {"form": form, "producto": producto})
+
+@staff_member_required
+@require_POST
+def toggle_destacado(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    producto.destacado = not producto.destacado
+    producto.save()
+    status = "destacado" if producto.destacado else "removido de la vitrina"
+    messages.success(request, f"⭐ Producto '{producto.nombre}' {status}.")
+    return redirect(request.META.get('HTTP_REFERER', 'productos:producto_list'))

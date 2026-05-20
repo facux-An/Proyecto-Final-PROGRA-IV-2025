@@ -3,157 +3,253 @@
 {% block title %}Catálogo · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="row mb-5 align-items-center">
-    <div class="col-md-8">
-        <h1 class="fw-extrabold mb-1">Nuestro Catálogo</h1>
-        <div class="card border-0 shadow-sm mb-4 rounded-4 bg-light">
-    <div class="card-body p-3">
-        <form method="get" class="row g-2 align-items-center">
-            <div class="col-md-5">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Buscar productos..." value="{{ search }}">
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <select name="categoria" class="form-select border-0 shadow-sm">
-                    <option value="">Todas las categorías</option>
-                    {% for cat in categorias %}
-                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_id %}selected{% endif %}>
-                            {{ cat.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Filtrar</button>
-                {% if search or categoria_id %}
-                    <a href="{% url 'productos:producto_list' %}" class="btn btn-outline-secondary w-50 rounded-pill" title="Limpiar filtros">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
-                {% endif %}
-            </div>
-        </form>
+<style>
+    /* Estilos Premium Catálogo */
+    .catalog-header {
+        background: linear-gradient(135deg, #ffffff 0%, #FFF8F3 100%);
+        border: 1px solid rgba(255, 102, 0, 0.1);
+        border-radius: 1.5rem;
+    }
+    .filter-box {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .product-img {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04);
+        background-color: #ffffff;
+    }
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+    }
+    .product-card:hover .product-img {
+        transform: scale(1.08);
+    }
+    /* Botón agregar rápido corregido */
+    .btn-quick-add {
+        width: 42px; 
+        height: 42px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid #e9ecef;
+    }
+    .btn-quick-add:hover {
+        background-color: var(--brand-primary) !important;
+        border-color: var(--brand-primary) !important;
+        transform: scale(1.1);
+    }
+    .btn-quick-add:hover i { 
+        color: white !important; 
+    }
+    /* Enlace estirado para que toda la tarjeta sea clickeable (menos los botones de acción) */
+    .card-title a::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        z-index: 1;
+    }
+    .btn-quick-add, .card-footer a {
+        position: relative;
+        z-index: 2;
+    }
+</style>
+
+<!-- Encabezado del Catálogo -->
+<div class="catalog-header p-4 p-md-5 mb-5 shadow-sm">
+    <div class="row align-items-center">
+        <div class="col-md-7 mb-4 mb-md-0">
+            <h1 class="fw-extrabold text-dark mb-2" style="letter-spacing: -1px;">Nuestro Catálogo</h1>
+            <p class="text-muted fs-5 mb-0">Explorá la mejor selección de productos premium para tu mascota.</p>
+        </div>
+        {% if user.is_staff %}
+        <div class="col-md-5 text-md-end">
+            <a href="{% url 'productos:producto_create' %}" class="btn btn-lg fw-bold rounded-pill text-white shadow-sm px-4" style="background-color: var(--brand-primary); border: none;">
+                <i class="bi bi-plus-lg me-2"></i> Nuevo Producto
+            </a>
+        </div>
+        {% endif %}
     </div>
-</div>
-        <p class="text-muted">Explorá la mejor selección de productos para vos.</p>
-    </div>
-    {% if user.is_staff %}
-    <div class="col-md-4 text-md-end">
-        <a href="{% url 'productos:producto_create' %}" class="btn btn-primary rounded-pill shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
-        </a>
-    </div>
-    {% endif %}
 </div>
 
+<!-- Barra de Filtros Premium -->
+<div class="filter-box p-3 mb-5">
+    <form method="get" class="row g-3 align-items-center">
+        <!-- Buscador -->
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-pill ps-4 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="search" class="form-control bg-light border-0 rounded-end-pill py-2 shadow-none" placeholder="¿Qué estás buscando?" value="{{ search }}">
+            </div>
+        </div>
+        
+        <!-- Categorías -->
+        <div class="col-md-4">
+            <select name="categoria" class="form-select bg-light border-0 rounded-pill py-2 shadow-none text-muted fw-semibold">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_id %}selected{% endif %}>
+                        {{ cat.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Botones de Acción -->
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn fw-bold w-100 rounded-pill text-white shadow-sm" style="background-color: var(--brand-primary); border: none;">
+                Filtrar
+            </button>
+            {% if search or categoria_id %}
+                <a href="{% url 'productos:producto_list' %}" class="btn btn-light text-secondary rounded-pill border fw-bold d-flex align-items-center justify-content-center px-4" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Grilla de Productos -->
 <div class="row g-4">
     {% for producto in productos %}
     <div class="col-sm-6 col-lg-4 col-xl-3">
-        <div class="card h-100 border-0 shadow-sm product-card">
+        <div class="card h-100 product-card position-relative">
             
-            <div class="position-relative overflow-hidden rounded-top-4">
-                <a href="{% url 'productos:producto_detail' producto.id %}">
-                    {% if producto.portadas.all %}
-                        <img src="{{ producto.portadas.first.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
-                    {% elif producto.portada and producto.portada.url %}
-                        <img src="{{ producto.portada.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
-                    {% else %}
-                        <div class="bg-light d-flex align-items-center justify-content-center product-img">
-                            <i class="bi bi-camera text-muted fs-1"></i>
-                        </div>
-                    {% endif %}
-                </a>
+            <div class="position-relative overflow-hidden rounded-top-4 bg-light">
+                <!-- Imagen -->
+                {% if producto.portadas.all %}
+                    <img src="{{ producto.portadas.first.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
+                {% elif producto.portada and producto.portada.url %}
+                    <img src="{{ producto.portada.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center product-img">
+                        <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                    </div>
+                {% endif %}
 
-                <div class="position-absolute top-0 end-0 m-3">
+                <!-- Badges / Etiquetas -->
+                <div class="position-absolute top-0 start-0 m-3 z-2">
                     {% if producto.stock == 0 %}
-                        <span class="badge bg-danger shadow-sm">Agotado</span>
+                        <span class="badge bg-dark shadow-sm px-3 py-2 rounded-pill fw-bold">Agotado</span>
                     {% elif producto.stock < 5 %}
-                        <span class="badge bg-warning text-dark shadow-sm">¡Últimos {{ producto.stock }}!</span>
+                        <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill fw-bold">¡Últimos {{ producto.stock }}!</span>
                     {% endif %}
                 </div>
             </div>
 
             <div class="card-body d-flex flex-column p-4">
-                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">
+                <!-- Categoría -->
+                <small class="text-uppercase fw-bold mb-2" style="font-size: 0.75rem; color: #6B7280; letter-spacing: 0.5px;">
                     {{ producto.categoria.nombre|default:"General" }}
                 </small>
-                <h5 class="card-title fw-bold mt-1 mb-3">
-                    <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark stretched-link-fix">
+                
+                <!-- Título -->
+                <h5 class="card-title fw-bold mb-3" style="line-height: 1.3;">
+                    <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark hover-brand">
                         {{ producto.nombre }}
                     </a>
                 </h5>
                 
+                <!-- Precio y Acción -->
                 <div class="mt-auto d-flex align-items-end justify-content-between">
                     <div>
-                        <span class="h4 fw-bold text-primary">${{ producto.precio|floatformat:0 }}</span>
+                        <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
                     </div>
                     
                     {% if producto.stock > 0 %}
-                        <form method="post" action="{% url 'carrito:carrito_add' producto.id %}">
+                        <form method="post" action="{% url 'carrito:carrito_add' producto.id %}" class="mb-0 z-2 position-relative">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-light rounded-circle shadow-sm btn-quick-add" title="Agregar al carrito">
-                                <i class="bi bi-cart-plus-fill text-primary"></i>
+                            <button type="submit" class="btn-quick-add bg-white rounded-circle shadow-sm" title="Agregar al carrito">
+                                <i class="bi bi-cart-plus-fill fs-5" style="color: var(--brand-primary);"></i>
                             </button>
                         </form>
                     {% else %}
-                        <button class="btn btn-light rounded-circle shadow-sm" disabled>
+                        <div class="btn-quick-add bg-light rounded-circle shadow-sm opacity-50">
                             <i class="bi bi-x-lg text-muted"></i>
-                        </button>
+                        </div>
                     {% endif %}
                 </div>
             </div>
 
+            <!-- Controles de Administrador -->
             {% if user.is_staff %}
-            <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-4">
-                <div class="d-grid gap-2 d-flex justify-content-end">
-                    <a href="{% url 'productos:producto_update' producto.id %}" class="btn btn-sm btn-outline-warning rounded-pill">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <a href="{% url 'productos:producto_delete' producto.id %}" class="btn btn-sm btn-outline-danger rounded-pill">
-                        <i class="bi bi-trash"></i>
-                    </a>
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-4 z-2 position-relative">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Botón Estrella (Destacar) -->
+                    <form method="post" action="{% url 'productos:toggle_destacado' producto.id %}" class="mb-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm border-0 bg-transparent" title="{% if producto.destacado %}Quitar del Home{% else %}Destacar en el Home{% endif %}" style="padding: 0;">
+                            <i class="bi {% if producto.destacado %}bi-star-fill text-warning fs-4{% else %}bi-star text-muted fs-4 opacity-50 hover-warning{% endif %}" style="transition: color 0.2s;"></i>
+                        </button>
+                    </form>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'productos:producto_update' producto.id %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'productos:producto_delete' producto.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
             {% endif %}
         </div>
     </div>
+    
     {% empty %}
+    <!-- Estado Vacío -->
     <div class="col-12 text-center py-5">
-        <div class="bg-white p-5 rounded-4 shadow-sm d-inline-block">
-            <i class="bi bi-search display-1 text-muted mb-3"></i>
-            <h3>No encontramos productos</h3>
-            <p class="text-muted">Parece que el catálogo está vacío por el momento.</p>
+        <div class="bg-white p-5 rounded-4 shadow-sm d-inline-block border" style="max-width: 500px;">
+            <div class="mb-4 d-inline-block p-4 rounded-circle bg-light text-muted opacity-75">
+                <i class="bi bi-search fs-1"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-3">No encontramos resultados</h3>
+            <p class="text-muted mb-4 fs-5">No hay productos que coincidan con tu búsqueda actual. Intentá con otros filtros.</p>
             {% if user.is_staff %}
-                <a href="{% url 'productos:producto_create' %}" class="btn btn-primary mt-2">Crear primer producto</a>
+                <a href="{% url 'productos:producto_create' %}" class="btn fw-bold px-4 py-2 rounded-pill text-white" style="background-color: var(--brand-primary);">
+                    <i class="bi bi-plus-lg me-1"></i> Crear primer producto
+                </a>
             {% endif %}
         </div>
     </div>
     {% endfor %}
 </div>
 
+<!-- Paginación -->
 {% if is_paginated %}
 <nav class="mt-5">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link rounded-start-pill border-0 shadow-sm" href="?page={{ page_obj.previous_page_number }}">
+            <a class="page-link rounded-start-pill border shadow-sm px-4 text-dark fw-bold" href="?page={{ page_obj.previous_page_number }}">
                 <i class="bi bi-chevron-left me-1"></i> Anterior
             </a>
         </li>
         {% endif %}
         
         <li class="page-item disabled">
-            <span class="page-link border-0 bg-transparent fw-bold text-muted">
-                Página {{ page_obj.number }}
+            <span class="page-link border-top border-bottom bg-transparent fw-bold text-muted px-4">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
             </span>
         </li>
 
         {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link rounded-end-pill border-0 shadow-sm" href="?page={{ page_obj.next_page_number }}">
+            <a class="page-link rounded-end-pill border shadow-sm px-4 text-dark fw-bold" href="?page={{ page_obj.next_page_number }}">
                 Siguiente <i class="bi bi-chevron-right ms-1"></i>
             </a>
         </li>
@@ -162,32 +258,4 @@
 </nav>
 {% endif %}
 
-<style>
-    .product-img {
-        height: 250px;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 1.2rem;
-        overflow: hidden;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-    }
-    .product-card:hover .product-img {
-        transform: scale(1.05);
-    }
-    .btn-quick-add {
-        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-        transition: 0.2s;
-    }
-    .btn-quick-add:hover {
-        background-color: var(--brand-1) !important;
-        color: white;
-    }
-    .btn-quick-add:hover i { color: white !important; }
-</style>
 {% endblock %}
