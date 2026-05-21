@@ -91,10 +91,9 @@ def finalizar_compra(request):
             messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
-    # ✅ Carrito validado, redirige a seleccionar método de pago
-    # El Pedido se creará DESPUÉS de confirmar el método
-    messages.success(request, "✅ Carrito validado. Selecciona método de pago.")
-    return redirect("pagos:metodo")
+    # ✅ Carrito validado, redirige a datos de envío (Paso 1)
+    messages.success(request, "✅ Carrito validado. Completá tus datos de envío.")
+    return redirect("pagos:envio")
 
 
 @login_required

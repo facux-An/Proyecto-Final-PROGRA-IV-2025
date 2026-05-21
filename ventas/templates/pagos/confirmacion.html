@@ -4,13 +4,15 @@
 {% block title %}¡Gracias por tu compra! · Tienda Plus{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4 py-lg-5">
+
+    <!-- Stepper Completado -->
     <div class="row mb-5">
-        <div class="col-12 text-center">
-            <div class="d-flex justify-content-center align-items-center mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-center align-items-center">
                 <div class="step-item text-success">
                     <span class="step-badge border-success bg-success text-white"><i class="bi bi-check2"></i></span>
-                    <small class="d-block mt-2 fw-bold">Carrito</small>
+                    <small class="d-block mt-2 fw-bold">Envío</small>
                 </div>
                 <div class="step-line bg-success"></div>
                 <div class="step-item text-success">
@@ -18,8 +20,10 @@
                     <small class="d-block mt-2 fw-bold">Pago</small>
                 </div>
                 <div class="step-line bg-success"></div>
-                <div class="step-item text-primary">
-                    <span class="step-badge bg-primary text-white border-primary shadow">3</span>
+                <div class="step-item text-success">
+                    <span class="step-badge bg-success text-white border-success shadow">
+                        <i class="bi bi-check2"></i>
+                    </span>
                     <small class="d-block mt-2 fw-bold">Confirmación</small>
                 </div>
             </div>
@@ -28,19 +32,25 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-lg mb-4 text-center p-4 p-md-5" style="border-radius: 2rem;">
+
+            <!-- Cabecera de Éxito -->
+            <div class="checkout-box mb-4 text-center p-4 p-md-5">
                 <div class="mb-4">
                     <div class="display-1 text-success pulse-animation">
                         <i class="bi bi-check-circle-fill"></i>
                     </div>
                 </div>
-                <h1 class="fw-extrabold mb-3">¡Pedido Recibido!</h1>
-                <p class="lead text-muted px-md-5">
-                    Gracias por confiar en <strong>Tienda Plus</strong>. Tu orden está siendo procesada y te enviaremos una notificación cuando esté lista.
+                <h1 class="fw-extrabold mb-2">¡Pedido Recibido!</h1>
+                {% if pedido %}
+                    <p class="lead text-muted mb-1">Pedido <strong>#{{ pedido.id }}</strong></p>
+                {% endif %}
+                <p class="text-muted px-md-5">
+                    Gracias por confiar en <strong>Tienda Plus</strong>. Tu orden está siendo procesada y recibirás novedades por email.
                 </p>
                 
-                <hr class="my-4 opacity-25">
+                <hr class="my-4 opacity-15">
 
+                <!-- Estado del pago + Método -->
                 <div class="row g-3 text-start">
                     <div class="col-md-6">
                         <div class="p-3 border rounded-4 bg-light">
@@ -64,23 +74,78 @@
                     </div>
                 </div>
 
-                {% if metodo_display == "Transferencia" %}
-                <div class="alert alert-info mt-4 text-start border-0 shadow-sm p-4" style="border-radius: 1.5rem;">
-                    <h6 class="fw-bold"><i class="bi bi-info-circle-fill me-2"></i>Pasos para completar tu compra:</h6>
-                    <p class="small mb-3">Realizá la transferencia a la siguiente cuenta y envianos el comprobante por WhatsApp.</p>
-                    <div class="bg-white p-3 rounded-3 border">
-                        <code class="d-block text-dark fw-bold mb-1">ALIAS: tienda.plus.deco</code>
-                        <code class="d-block text-dark fw-bold">CBU: 000000310009623456789</code>
+                <!-- Datos de envío confirmados -->
+                {% if pedido and pedido.direccion_envio %}
+                <div class="mt-4 text-start p-3 border rounded-4 bg-light">
+                    <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.7rem;">
+                        <i class="bi bi-truck me-1"></i> Se envía a
+                    </small>
+                    <div class="fw-bold">{{ pedido.nombre_envio }}</div>
+                    <div class="text-muted small">
+                        {{ pedido.direccion_envio }}, {{ pedido.ciudad_envio }}<br>
+                        {{ pedido.provincia_envio }} - CP {{ pedido.codigo_postal_envio }}
                     </div>
                 </div>
                 {% endif %}
             </div>
 
-            <div class="card border-0 shadow-sm mb-5" style="border-radius: 1.5rem; overflow: hidden;">
-                <div class="card-header bg-dark text-white p-4">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i>Resumen de la Orden</h5>
+            <!-- BLOQUE DE TRANSFERENCIA con datos reales -->
+            {% if metodo_display == "Transferencia" or metodo_display == "transferencia" %}
+            <div class="checkout-box mb-4 p-4 p-md-5 border-start border-4 border-warning">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="section-icon bg-warning bg-opacity-10 text-warning me-3 flex-shrink-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Completá tu pago por transferencia</h5>
+                        <p class="text-muted small mb-0">Realizá la transferencia y envianos el comprobante por WhatsApp para acreditar tu pedido.</p>
+                    </div>
                 </div>
-                <div class="card-body p-0">
+
+                <div class="bg-light p-4 rounded-4 border mb-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.7rem;">Alias</small>
+                            <div class="d-flex align-items-center">
+                                <code class="fs-5 fw-bold text-dark me-2" id="alias-value">facux.mp</code>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copiarTexto('facux.mp', this)" title="Copiar">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.7rem;">CVU</small>
+                            <div class="d-flex align-items-center">
+                                <code class="fs-6 fw-bold text-dark me-2" id="cvu-value">0000003100190070696820</code>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copiarTexto('0000003100190070696820', this)" title="Copiar">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center bg-dark text-white p-3 rounded-4">
+                    <div>
+                        <small class="d-block opacity-75">Monto exacto a transferir</small>
+                        <span class="fw-extrabold fs-4">${{ total_final|floatformat:2 }}</span>
+                    </div>
+                    <a href="https://wa.me/541165909847?text=Hola!%20Te%20envío%20el%20comprobante%20del%20Pedido%20%23{{ pedido.id }}%20por%20${{ total_final|floatformat:2 }}" 
+                       target="_blank" 
+                       class="btn btn-success fw-bold rounded-pill px-4 py-2 shadow-sm">
+                        <i class="bi bi-whatsapp me-2"></i> Enviar Comprobante
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Resumen de la Orden -->
+            {% if pedido %}
+            <div class="checkout-box mb-5 overflow-hidden">
+                <div class="p-4 bg-dark text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i>Detalle de tu Orden</h5>
+                </div>
+                <div class="p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="bg-light">
@@ -91,34 +156,34 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for pedido in pedidos %}
+                                {% for detalle in pedido.detalles.all %}
                                 <tr>
                                     <td class="ps-4 py-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="fw-bold">{{ pedido.producto.nombre }}</div>
-                                        </div>
+                                        <div class="fw-bold">{{ detalle.producto.nombre }}</div>
+                                        <small class="text-muted">${{ detalle.precio_unitario|floatformat:2 }} c/u</small>
                                     </td>
-                                    <td class="text-center py-3">{{ pedido.cantidad }}</td>
-                                    <td class="text-end pe-4 py-3 fw-bold">${{ pedido.subtotal_display|default:pedido.producto.precio|floatformat:2 }}</td>
+                                    <td class="text-center py-3">{{ detalle.cantidad }}</td>
+                                    <td class="text-end pe-4 py-3 fw-bold">${{ detalle.subtotal|floatformat:2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot class="bg-light">
                                 <tr>
                                     <td colspan="2" class="ps-4 py-4 h5 fw-bold mb-0">Total Final</td>
-                                    <td class="text-end pe-4 py-4 h4 fw-extrabold text-primary mb-0">${{ total_final|floatformat:2 }}</td>
+                                    <td class="text-end pe-4 py-4 h4 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ total_final|floatformat:2 }}</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <div class="d-flex flex-column flex-md-row gap-3 justify-content-center mb-5">
                 <a href="{% url 'home' %}" class="btn btn-outline-dark btn-lg px-5 py-3 rounded-pill fw-bold">
-                    Ir al Inicio
+                    <i class="bi bi-house me-2"></i>Volver al Inicio
                 </a>
-                <a href="#" onclick="window.print();" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow">
+                <a href="#" onclick="window.print();" class="btn btn-lg px-5 py-3 rounded-pill fw-bold shadow text-white" style="background-color: var(--brand-primary); border: none;">
                     <i class="bi bi-printer-fill me-2"></i>Imprimir Ticket
                 </a>
             </div>
@@ -129,13 +194,24 @@
 <style>
     body { background-color: #f8faff; }
     .fw-extrabold { font-weight: 800; }
+    
+    .checkout-box {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .section-icon {
+        width: 38px; height: 38px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem;
+    }
+
     .step-badge { width: 40px; height: 40px; border: 2px solid #dee2e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto; }
     .step-line { width: 60px; height: 2px; background-color: #dee2e6; margin-bottom: 25px; }
     
-    .pulse-animation {
-        animation: pulse 2s infinite;
-    }
-
+    .pulse-animation { animation: pulse 2s infinite; }
     @keyframes pulse {
         0% { transform: scale(0.95); opacity: 0.8; }
         50% { transform: scale(1.05); opacity: 1; }
@@ -144,8 +220,24 @@
 
     @media print {
         .btn, .step-item, .step-line { display: none !important; }
-        .card { box-shadow: none !important; border: 1px solid #eee !important; }
+        .checkout-box { box-shadow: none !important; border: 1px solid #eee !important; }
         body { background: white; }
     }
 </style>
+
+<script>
+    function copiarTexto(texto, btn) {
+        navigator.clipboard.writeText(texto).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    }
+</script>
 {% endblock %}

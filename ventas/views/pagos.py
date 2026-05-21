@@ -16,8 +16,58 @@ import logging
 
 from ventas.models import Carrito, Pedido, DetallePedido
 from ventas.views.helpers import descontar_stock, registrar_historial, registrar_log
+from ventas.forms import DatosEnvioForm
 
 logger = logging.getLogger(__name__)
+
+
+# =============================================================
+# PASO 1 DEL CHECKOUT: Datos de Envío
+# =============================================================
+@method_decorator(login_required, name='dispatch')
+class DatosEnvioView(TemplateView):
+    template_name = "pagos/envio.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        carrito = Carrito.objects.filter(usuario=self.request.user).first()
+
+        if not carrito or not carrito.items.exists():
+            return context
+
+        # Pre-rellenar con datos de sesión si el usuario vuelve atrás
+        datos_guardados = self.request.session.get('datos_envio', {})
+        form = DatosEnvioForm(initial=datos_guardados)
+
+        context['form'] = form
+        context['carrito'] = carrito
+        context['total_a_pagar'] = sum(item.subtotal for item in carrito.items.all())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        carrito = Carrito.objects.filter(usuario=request.user).first()
+
+        if not carrito or not carrito.items.exists():
+            messages.warning(request, "🛒 Tu carrito está vacío.")
+            return redirect("carrito:carrito_detail")
+
+        form = DatosEnvioForm(request.POST)
+
+        if form.is_valid():
+            # Guardar en sesión (NO crear Pedido todavía)
+            request.session['datos_envio'] = form.cleaned_data
+            messages.success(request, "✅ Datos de envío guardados. Elegí tu método de pago.")
+            return redirect("pagos:metodo")
+
+        # Si hay errores, re-renderizar con los errores
+        context = self.get_context_data()
+        context['form'] = form
+        return self.render_to_response(context)
+
+
+# =============================================================
+# PASO 2 DEL CHECKOUT: Selección de Método de Pago
+# =============================================================
 
 
 @method_decorator(login_required, name='dispatch')
@@ -53,12 +103,23 @@ class MetodoPagoView(TemplateView):
                 # Calcular total del carrito
                 total = sum(item.subtotal for item in carrito.items.all())
                 
-                # Crear cabecera (Pedido)
+                # Recuperar datos de envío de la sesión
+                datos_envio = request.session.get('datos_envio', {})
+                
+                # Crear cabecera (Pedido) con datos de envío
                 pedido = Pedido.objects.create(
                     usuario=request.user,
                     estado="pendiente",
                     metodo_pago=None,  # Se asigna en _procesar_*
-                    total=total
+                    total=total,
+                    nombre_envio=datos_envio.get('nombre_envio', ''),
+                    email_envio=datos_envio.get('email_envio', ''),
+                    telefono_envio=datos_envio.get('telefono_envio', ''),
+                    direccion_envio=datos_envio.get('direccion_envio', ''),
+                    ciudad_envio=datos_envio.get('ciudad_envio', ''),
+                    provincia_envio=datos_envio.get('provincia_envio', ''),
+                    codigo_postal_envio=datos_envio.get('codigo_postal_envio', ''),
+                    notas_envio=datos_envio.get('notas_envio', ''),
                 )
                 
                 # Crear detalles + descontar stock

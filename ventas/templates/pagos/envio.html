@@ -1,0 +1,229 @@
+{% extends 'ventas/base_ventas.html' %}
+{% load static %}
+
+{% block title %}Datos de Envío · Checkout · Tienda Plus{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+
+    <!-- Stepper Premium -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="step-item" style="color: var(--brand-primary);">
+                    <span class="step-badge shadow border-0" style="background-color: var(--brand-primary); color: white;">1</span>
+                    <small class="d-block mt-2 fw-bold">Envío</small>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item text-muted">
+                    <span class="step-badge border-secondary">2</span>
+                    <small class="d-block mt-2">Pago</small>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item text-muted">
+                    <span class="step-badge border-secondary">3</span>
+                    <small class="d-block mt-2">Confirmación</small>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <h2 class="fw-extrabold">¿A dónde te lo enviamos?</h2>
+                <p class="text-muted">Completá tus datos y recibí tu pedido en la puerta de tu casa.</p>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" action="" id="form-envio" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+            
+            <!-- Formulario (Izquierda) -->
+            <div class="col-lg-8">
+                <div class="checkout-box p-4 p-lg-5">
+                    
+                    <!-- Sección: Datos de Contacto -->
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-1 d-flex align-items-center">
+                            <span class="section-icon me-3"><i class="bi bi-person-fill"></i></span>
+                            Datos de contacto
+                        </h5>
+                        <p class="text-muted small mb-4 ms-5">Para enviarte el número de seguimiento.</p>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Nombre completo <span class="text-danger">*</span></label>
+                                {{ form.nombre_envio }}
+                                {% if form.nombre_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.nombre_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Email <span class="text-danger">*</span></label>
+                                {{ form.email_envio }}
+                                {% if form.email_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.email_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Teléfono / WhatsApp <span class="text-danger">*</span></label>
+                                {{ form.telefono_envio }}
+                                {% if form.telefono_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.telefono_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Dirección de Envío -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-1 d-flex align-items-center">
+                            <span class="section-icon me-3"><i class="bi bi-geo-alt-fill"></i></span>
+                            Dirección de envío
+                        </h5>
+                        <p class="text-muted small mb-4 ms-5">Donde recibirás tu paquete.</p>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Dirección completa <span class="text-danger">*</span></label>
+                                {{ form.direccion_envio }}
+                                {% if form.direccion_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.direccion_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Ciudad / Localidad <span class="text-danger">*</span></label>
+                                {{ form.ciudad_envio }}
+                                {% if form.ciudad_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.ciudad_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Provincia <span class="text-danger">*</span></label>
+                                {{ form.provincia_envio }}
+                                {% if form.provincia_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.provincia_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Código Postal <span class="text-danger">*</span></label>
+                                {{ form.codigo_postal_envio }}
+                                {% if form.codigo_postal_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.codigo_postal_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Notas para el envío <span class="text-muted">(opcional)</span></label>
+                                {{ form.notas_envio }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Lateral (Derecha) -->
+            <div class="col-lg-4">
+                <div class="checkout-box p-4 sticky-top" style="top: 2rem;">
+                    <h5 class="fw-bold mb-4 text-center">Tu Pedido</h5>
+
+                    {% if carrito %}
+                    <div class="mb-3">
+                        {% for item in carrito.items.all %}
+                        <div class="d-flex align-items-center mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                {% if item.producto.portada and item.producto.portada.url %}
+                                    <img src="{{ item.producto.portada.url }}" class="rounded-3 w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <i class="bi bi-box text-muted"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold small text-truncate" style="max-width: 150px;">{{ item.producto.nombre }}</div>
+                                <div class="text-muted small">x{{ item.cantidad }}</div>
+                            </div>
+                            <div class="fw-bold small text-end">${{ item.subtotal|floatformat:2 }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-semibold">${{ total_a_pagar|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Envío</span>
+                        <span class="fw-bold text-success">¡Gratis!</span>
+                    </div>
+
+                    <hr style="border-top: 2px dashed #e9ecef;">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-extrabold fs-3" style="color: var(--brand-primary);">${{ total_a_pagar|floatformat:2 }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill py-3 text-white" style="background-color: var(--brand-primary); border: none; font-size: 1.05rem;">
+                        Continuar al Pago <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+
+                    <a href="{% url 'carrito:carrito_detail' %}" class="btn btn-link w-100 text-muted mt-3 text-decoration-none small">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al carrito
+                    </a>
+
+                    <!-- Trust -->
+                    <div class="mt-4 pt-3 border-top text-center">
+                        <div class="d-flex justify-content-center gap-3 text-muted opacity-75 fs-5 mb-2">
+                            <i class="bi bi-shield-lock-fill text-success"></i>
+                            <i class="bi bi-truck"></i>
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <p class="small text-muted mb-0" style="font-size: 0.72rem;">
+                            Envío gratis · Compra protegida · Devolución sin costo
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    body { background-color: #f9fafb; }
+    .fw-extrabold { font-weight: 800; }
+
+    .checkout-box {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .section-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: rgba(255, 102, 0, 0.1);
+        color: var(--brand-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    /* Stepper */
+    .step-badge { width: 40px; height: 40px; border: 2px solid #dee2e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto; }
+    .step-line { width: 60px; height: 2px; background-color: #dee2e6; margin-bottom: 25px; }
+
+    /* Focus premium en los inputs */
+    .form-control:focus, .form-select:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15) !important;
+        border: 1px solid var(--brand-primary) !important;
+    }
+
+    /* Mobile */
+    @media (max-width: 992px) {
+        .checkout-box { border-radius: 1rem; }
+    }
+</style>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.urls import path
 from ventas.views.pagos import (
+    DatosEnvioView,
     MetodoPagoView,
     ConfirmacionPagoView,
     PagoErrorView,
@@ -10,6 +11,7 @@ from ventas.views.pagos import (
 app_name = "pagos"
 
 urlpatterns = [
+    path("envio/", DatosEnvioView.as_view(), name="envio"),
     path("metodo/", MetodoPagoView.as_view(), name="metodo"),
     path("confirmacion/", ConfirmacionPagoView.as_view(), name="confirmacion"),
     path("error/", PagoErrorView.as_view(), name="error"),

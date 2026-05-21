@@ -33,6 +33,17 @@ class Pedido(models.Model):
     # CACHÉ DEL TOTAL: Para no saturar la DB sumando los detalles todo el tiempo
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    # ----- DATOS DE ENVÍO -----
+    nombre_envio = models.CharField("Nombre completo", max_length=120, blank=True, null=True)
+    email_envio = models.EmailField("Email de contacto", blank=True, null=True)
+    telefono_envio = models.CharField("Teléfono / WhatsApp", max_length=30, blank=True, null=True)
+    direccion_envio = models.CharField("Dirección", max_length=255, blank=True, null=True)
+    ciudad_envio = models.CharField("Ciudad / Localidad", max_length=100, blank=True, null=True)
+    provincia_envio = models.CharField("Provincia", max_length=100, blank=True, null=True)
+    codigo_postal_envio = models.CharField("Código Postal", max_length=10, blank=True, null=True)
+    notas_envio = models.TextField("Notas para el envío", blank=True, null=True,
+                                   help_text="Ej: Timbre 2B, dejar en portería, etc.")
+
     class Meta:
         ordering = ["-fecha_pedido"]
 
