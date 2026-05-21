@@ -188,6 +188,12 @@ MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
 MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY", "")
 SITE_URL = os.getenv("SITE_URL", "https://proyecto-final-progra-iv-2025.onrender.com")
 
+# Zipnova (ex Zippin) - Motor Logístico
+ZIPNOVA_API_TOKEN = os.getenv("ZIPNOVA_API_TOKEN", "")
+ZIPNOVA_API_SECRET = os.getenv("ZIPNOVA_API_SECRET", "")
+ZIPNOVA_ACCOUNT_ID = os.getenv("ZIPNOVA_ACCOUNT_ID", "")
+ZIPNOVA_ORIGIN_ZIPCODE = os.getenv("ZIPNOVA_ORIGIN_ZIPCODE", "1763")
+
 # -----------------------------------------------------------------------------
 # Cloudinary (activación segura con flag)
 # -----------------------------------------------------------------------------

@@ -91,6 +91,20 @@ def finalizar_compra(request):
             messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
+    # ✅ Guardar selección de envío en la sesión
+    envio_precio = request.POST.get("envio_precio", 0)
+    envio_nombre = request.POST.get("envio_nombre", "")
+    
+    try:
+        envio_precio = float(envio_precio)
+    except ValueError:
+        envio_precio = 0.0
+
+    request.session["envio_cotizado"] = {
+        "precio": envio_precio,
+        "nombre": envio_nombre
+    }
+
     # ✅ Carrito validado, redirige a datos de envío (Paso 1)
     messages.success(request, "✅ Carrito validado. Completá tus datos de envío.")
     return redirect("pagos:envio")
@@ -131,3 +145,35 @@ def modificar_cantidad(request, item_id, accion):
             messages.warning(request, "La cantidad mínima es 1. Usá el tacho para eliminar.")
 
     return redirect("carrito:carrito_detail")
+
+
+@login_required
+def api_cotizar_envio(request):
+    """
+    Endpoint AJAX que recibe un Código Postal y devuelve las opciones
+    de envío cotizadas en tiempo real con Zipnova.
+    
+    GET /carrito/cotizar-envio/?cp=1425
+    Responde JSON.
+    """
+    from django.http import JsonResponse
+    from logistica.zipnova import cotizar_envio
+
+    cp = request.GET.get("cp", "").strip()
+
+    if not cp or len(cp) < 4:
+        return JsonResponse({"ok": False, "error": "Ingresá un código postal válido."})
+
+    carrito = Carrito.objects.filter(usuario=request.user).first()
+
+    if not carrito or not carrito.items.exists():
+        return JsonResponse({"ok": False, "error": "Tu carrito está vacío."})
+
+    items = carrito.items.select_related("producto")
+    resultado = cotizar_envio(cp, items)
+
+    # Agregar el subtotal del carrito para que el front calcule el total
+    subtotal = float(sum(item.subtotal for item in items))
+    resultado["subtotal_carrito"] = subtotal
+
+    return JsonResponse(resultado)

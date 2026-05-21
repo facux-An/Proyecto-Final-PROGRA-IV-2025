@@ -89,9 +89,22 @@
                     <h5 class="fw-bold mb-4 text-center">Resumen</h5>
                     
                     <div class="summary-box bg-light p-3 rounded-4 mb-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-muted">Total a pagar:</span>
-                            <span class="h3 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ total_a_pagar|floatformat:2 }}</span>
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="fw-semibold">${{ subtotal|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 small">
+                            <span class="text-muted">Envío:</span>
+                            {% if costo_envio > 0 %}
+                                <span class="fw-semibold">${{ costo_envio|floatformat:2 }}</span>
+                            {% else %}
+                                <span class="fw-semibold text-success">¡Gratis!</span>
+                            {% endif %}
+                        </div>
+                        <hr class="my-2 opacity-25">
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="text-muted fw-bold">Total a pagar:</span>
+                            <span class="h4 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ total_a_pagar|floatformat:2 }}</span>
                         </div>
                     </div>
 

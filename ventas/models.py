@@ -43,6 +43,10 @@ class Pedido(models.Model):
     codigo_postal_envio = models.CharField("Código Postal", max_length=10, blank=True, null=True)
     notas_envio = models.TextField("Notas para el envío", blank=True, null=True,
                                    help_text="Ej: Timbre 2B, dejar en portería, etc.")
+    
+    # Datos calculados por Zipnova
+    metodo_envio = models.CharField("Método de envío", max_length=150, blank=True, null=True)
+    costo_envio = models.DecimalField("Costo de envío", max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         ordering = ["-fecha_pedido"]

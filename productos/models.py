@@ -14,6 +14,15 @@ class Producto(models.Model):
     # Campo para la Vitrina Dinámica
     destacado = models.BooleanField(default=False, verbose_name="Destacado en Home")
 
+    # ----- LOGÍSTICA (Zipnova) -----
+    peso_gramos = models.PositiveIntegerField(
+        "Peso (gramos)", default=500,
+        help_text="Peso del producto en gramos. Ej: 500 = medio kilo."
+    )
+    largo_cm = models.PositiveIntegerField("Largo (cm)", default=20)
+    ancho_cm = models.PositiveIntegerField("Ancho (cm)", default=15)
+    alto_cm = models.PositiveIntegerField("Alto (cm)", default=10)
+
     # Portada principal existente (opcional, la podés seguir usando)
     portada = models.ImageField(
         storage=MediaCloudinaryStorage(),

@@ -27,4 +27,7 @@ urlpatterns = [
     path("checkout/", carrito_checkout, name="carrito_checkout"),
     
     path('modificar/<int:item_id>/<str:accion>/', carrito.modificar_cantidad, name='carrito_modificar'),
+
+    # API AJAX: Cotizar envío por Código Postal
+    path('cotizar-envio/', carrito.api_cotizar_envio, name='cotizar_envio'),
 ]

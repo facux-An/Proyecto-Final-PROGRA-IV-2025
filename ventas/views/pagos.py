@@ -39,9 +39,15 @@ class DatosEnvioView(TemplateView):
         datos_guardados = self.request.session.get('datos_envio', {})
         form = DatosEnvioForm(initial=datos_guardados)
 
+        envio_cotizado = self.request.session.get('envio_cotizado', {})
+        costo_envio = envio_cotizado.get('precio', 0.0)
+        subtotal = sum(item.subtotal for item in carrito.items.all())
+
         context['form'] = form
         context['carrito'] = carrito
-        context['total_a_pagar'] = sum(item.subtotal for item in carrito.items.all())
+        context['subtotal'] = subtotal
+        context['costo_envio'] = costo_envio
+        context['total_a_pagar'] = float(subtotal) + float(costo_envio)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -77,11 +83,17 @@ class MetodoPagoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # ✅ NUEVO: Obtener total DESDE EL CARRITO (el Pedido aún no existe)
+        # Obtener total del carrito
         carrito = Carrito.objects.filter(usuario=self.request.user).first()
-        total = sum(item.subtotal for item in carrito.items.all()) if carrito else 0
+        subtotal = sum(item.subtotal for item in carrito.items.all()) if carrito else 0
         
-        context["total_a_pagar"] = total
+        # Obtener datos de envío cotizados en la sesión
+        envio_cotizado = self.request.session.get("envio_cotizado", {})
+        costo_envio = envio_cotizado.get("precio", 0.0)
+        
+        context["subtotal"] = subtotal
+        context["costo_envio"] = costo_envio
+        context["total_a_pagar"] = float(subtotal) + float(costo_envio)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -90,28 +102,34 @@ class MetodoPagoView(TemplateView):
             messages.warning(request, "⚠️ Debés elegir un método de pago.")
             return self.get(request, *args, **kwargs)
 
-        # ✅ Obtener carrito (aún no fue vaciado)
+        # Obtener carrito
         carrito = get_object_or_404(Carrito, usuario=request.user)
 
         if not carrito.items.exists():
             messages.warning(request, "🛒 Tu carrito está vacío.")
             return redirect("carrito:carrito_detail")
 
-        # ✅ PASO 1: Crear el Pedido con sus Detalles de forma ATÓMICA
         try:
             with transaction.atomic():
                 # Calcular total del carrito
-                total = sum(item.subtotal for item in carrito.items.all())
+                subtotal = sum(item.subtotal for item in carrito.items.all())
                 
-                # Recuperar datos de envío de la sesión
+                # Datos de envío
                 datos_envio = request.session.get('datos_envio', {})
+                envio_cotizado = request.session.get("envio_cotizado", {})
+                costo_envio = envio_cotizado.get("precio", 0.0)
+                metodo_envio = envio_cotizado.get("nombre", "")
                 
-                # Crear cabecera (Pedido) con datos de envío
+                total_final = float(subtotal) + float(costo_envio)
+                
+                # Crear cabecera (Pedido)
                 pedido = Pedido.objects.create(
                     usuario=request.user,
                     estado="pendiente",
-                    metodo_pago=None,  # Se asigna en _procesar_*
-                    total=total,
+                    metodo_pago=None,
+                    total=total_final,
+                    costo_envio=costo_envio,
+                    metodo_envio=metodo_envio,
                     nombre_envio=datos_envio.get('nombre_envio', ''),
                     email_envio=datos_envio.get('email_envio', ''),
                     telefono_envio=datos_envio.get('telefono_envio', ''),

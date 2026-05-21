@@ -147,11 +147,15 @@
 
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Subtotal</span>
-                        <span class="fw-semibold">${{ total_a_pagar|floatformat:2 }}</span>
+                        <span class="fw-semibold">${{ subtotal|floatformat:2 }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Envío</span>
-                        <span class="fw-bold text-success">¡Gratis!</span>
+                        {% if costo_envio > 0 %}
+                            <span class="fw-bold">${{ costo_envio|floatformat:2 }}</span>
+                        {% else %}
+                            <span class="fw-bold text-success">¡Gratis!</span>
+                        {% endif %}
                     </div>
 
                     <hr style="border-top: 2px dashed #e9ecef;">
