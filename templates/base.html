@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Tienda Plus{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -134,8 +135,7 @@
         </button>
 
         <a class="navbar-brand-text d-flex align-items-center" href="{% url 'home' %}">
-          <!-- Aquí luego pondremos el logo img src="..." -->
-          <i class="bi bi-cat me-2"></i>Tienda Plus
+          <img src="{% static 'img/logo_tienda.png' %}" alt="Tienda Plus Logo" height="50" style="object-fit: contain;">
         </a>
 
         <!-- Iconos Mobile a la derecha -->
