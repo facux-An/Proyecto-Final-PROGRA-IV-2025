@@ -147,33 +147,61 @@ def modificar_cantidad(request, item_id, accion):
     return redirect("carrito:carrito_detail")
 
 
+import logging as _logging
+_cotizar_logger = _logging.getLogger("ventas.carrito.cotizar")
+
+
 @login_required
 def api_cotizar_envio(request):
     """
     Endpoint AJAX que recibe un Código Postal y devuelve las opciones
     de envío cotizadas en tiempo real con Zipnova.
-    
-    GET /carrito/cotizar-envio/?cp=1425
-    Responde JSON.
+
+    GET /ventas/carrito/cotizar-envio/?cp=1004
+    Siempre responde JSON (nunca un 500).
     """
+    import traceback
     from django.http import JsonResponse
     from logistica.zipnova import cotizar_envio
 
-    cp = request.GET.get("cp", "").strip()
+    try:
+        cp = request.GET.get("cp", "").strip()
 
-    if not cp or len(cp) < 4:
-        return JsonResponse({"ok": False, "error": "Ingresá un código postal válido."})
+        if not cp or len(cp) < 4:
+            return JsonResponse({"ok": False, "error": "Ingresá un código postal válido (mínimo 4 dígitos)."})
 
-    carrito = Carrito.objects.filter(usuario=request.user).first()
+        carrito = Carrito.objects.filter(usuario=request.user).first()
 
-    if not carrito or not carrito.items.exists():
-        return JsonResponse({"ok": False, "error": "Tu carrito está vacío."})
+        if not carrito or not carrito.items.exists():
+            _cotizar_logger.warning(
+                f"[cotizar_envio] Carrito vacío para usuario={request.user} "
+                f"(carrito={'None' if not carrito else carrito.id})"
+            )
+            return JsonResponse({"ok": False, "error": "Tu carrito está vacío."})
 
-    items = carrito.items.select_related("producto")
-    resultado = cotizar_envio(cp, items)
+        items = carrito.items.select_related("producto")
 
-    # Agregar el subtotal del carrito para que el front calcule el total
-    subtotal = float(sum(item.subtotal for item in items))
-    resultado["subtotal_carrito"] = subtotal
+        _cotizar_logger.info(
+            f"[cotizar_envio] usuario={request.user} | cp={cp} | "
+            f"items={items.count()} | carrito_id={carrito.id}"
+        )
 
-    return JsonResponse(resultado)
+        resultado = cotizar_envio(cp, items)
+
+        # Agregar subtotal para que el frontend pueda calcular el total con envío
+        subtotal = float(sum(item.subtotal for item in items))
+        resultado["subtotal_carrito"] = subtotal
+
+        _cotizar_logger.info(
+            f"[cotizar_envio] OK | opciones={len(resultado.get('opciones', []))} | error={resultado.get('error')}"
+        )
+
+        return JsonResponse(resultado)
+
+    except Exception as exc:
+        tb = traceback.format_exc()
+        _cotizar_logger.error(f"[cotizar_envio] EXCEPCION NO MANEJADA:\n{tb}")
+        return JsonResponse({
+            "ok": False,
+            "error": "Ocurrió un error interno al cotizar el envío. Por favor intentá de nuevo.",
+        })
