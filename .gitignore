@@ -24,7 +24,6 @@ media/
 
 # Archivos estáticos generados
 staticfiles/
-static/
 
 # Archivos del sistema
 .DS_Store
