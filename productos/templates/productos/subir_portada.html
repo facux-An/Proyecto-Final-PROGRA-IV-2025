@@ -65,9 +65,9 @@
 
             <div class="mb-4 text-center">
               <!-- Vista previa de imagen actual -->
-              {% if producto.portada and producto.portada.url %}
+              {% if producto.imagen_principal_url %}
                 <p class="mb-3 text-muted fw-bold">Portada Actual</p>
-                <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="preview-img mb-4">
+                <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="preview-img mb-4">
               {% else %}
                 <div class="preview-img mb-4 mx-auto bg-light d-flex align-items-center justify-content-center">
                   <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>

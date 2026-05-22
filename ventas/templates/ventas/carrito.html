@@ -149,8 +149,8 @@
                     
                     <!-- Info (Imagen + Título) -->
                     <div class="d-flex align-items-center flex-grow-1 mb-2 mb-md-0">
-                        {% if item.producto.portada %}
-                            <img src="{{ item.producto.portada.url }}" class="rounded-3 shadow-sm object-fit-cover" style="width: 80px; height: 80px; min-width: 80px;" alt="{{ item.producto.nombre }}">
+                        {% if item.producto.imagen_principal_url %}
+                            <img src="{{ item.producto.imagen_principal_url }}" class="rounded-3 shadow-sm object-fit-cover" style="width: 80px; height: 80px; min-width: 80px;" alt="{{ item.producto.nombre }}">
                         {% else %}
                             <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; min-width: 80px;">
                                 <i class="bi bi-image text-muted fs-3"></i>
@@ -321,7 +321,8 @@
 <!-- JAVASCRIPT: Motor de cotización AJAX                     -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
-    const SUBTOTAL_CARRITO = {{ carrito.total|default:"0" }};
+    // Parseo seguro del subtotal, ya que Django puede renderizarlo con coma o punto según el locale
+    const SUBTOTAL_CARRITO = parseFloat("{{ carrito.total|default:'0' }}".replace(",", "."));
     let costoEnvioSeleccionado = 0;
 
     // Enter = Calcular

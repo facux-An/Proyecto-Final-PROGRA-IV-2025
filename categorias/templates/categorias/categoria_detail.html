@@ -89,7 +89,7 @@
           <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark">
             <div class="producto-img-container">
               {% if producto.portada %}
-                <img src="{{ producto.portada.url }}" class="producto-img" alt="{{ producto.nombre }}">
+                <img src="{{ producto.imagen_principal_url }}" class="producto-img" alt="{{ producto.nombre }}">
               {% else %}
                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
               {% endif %}

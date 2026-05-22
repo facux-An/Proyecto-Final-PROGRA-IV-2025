@@ -59,8 +59,8 @@
 
       <!-- Mini resumen del producto -->
       <div class="product-mini-card mb-4">
-        {% if producto.portada and producto.portada.url %}
-          <img src="{{ producto.portada.url }}" alt="{{ producto.nombre }}" class="producto-img">
+        {% if producto.imagen_principal_url %}
+          <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="producto-img">
         {% else %}
           <div class="producto-img d-flex align-items-center justify-content-center bg-white border">
             <i class="bi bi-image text-muted"></i>

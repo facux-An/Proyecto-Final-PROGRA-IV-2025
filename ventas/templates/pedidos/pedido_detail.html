@@ -44,7 +44,7 @@
                                     {% if detalle.producto.portadas.all %}
                                         <img src="{{ detalle.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
                                     {% elif detalle.producto.portada %}
-                                        <img src="{{ detalle.producto.portada.url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
+                                        <img src="{{ detalle.producto.imagen_principal_url }}" class="w-100 h-100 object-fit-cover rounded-2" alt="img">
                                     {% else %}
                                         <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light rounded-2">
                                             <i class="bi bi-image text-muted fs-3"></i>

@@ -10,8 +10,8 @@
             <div id="mainImageContainer" class="position-relative overflow-hidden rounded-4 mb-3" style="height: 500px;">
                 {% if portadas and portadas|length > 0 %}
                     <img id="mainImage" src="{{ portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.nombre }}">
-                {% elif producto.portada and producto.portada.url %}
-                    <img id="mainImage" src="{{ producto.portada.url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.nombre }}">
+                {% elif producto.imagen_principal_url %}
+                    <img id="mainImage" src="{{ producto.imagen_principal_url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.nombre }}">
                 {% else %}
                     <div class="d-flex align-items-center justify-content-center h-100 bg-light">
                         <i class="bi bi-camera text-muted display-1"></i>
@@ -175,8 +175,8 @@
                     <a href="{% url 'productos:producto_detail' rel.id %}">
                     {% if rel.portadas.all %}
                         <img src="{{ rel.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="{{ rel.nombre }}">
-                    {% elif rel.portada and rel.portada.url %}
-                        <img src="{{ rel.portada.url }}" class="w-100 h-100 object-fit-cover" alt="{{ rel.nombre }}">
+                    {% elif rel.imagen_principal_url %}
+                        <img src="{{ rel.imagen_principal_url }}" class="w-100 h-100 object-fit-cover" alt="{{ rel.nombre }}">
                     {% else %}
                         <div class="bg-light w-100 h-100 d-flex align-items-center justify-content-center">
                             <i class="bi bi-image text-muted"></i>

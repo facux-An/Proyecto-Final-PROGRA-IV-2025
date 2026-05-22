@@ -129,8 +129,8 @@
                         {% for item in carrito.items.all %}
                         <div class="d-flex align-items-center mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
                             <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
-                                {% if item.producto.portada and item.producto.portada.url %}
-                                    <img src="{{ item.producto.portada.url }}" class="rounded-3 w-100 h-100" style="object-fit: cover;">
+                                {% if item.producto.imagen_principal_url %}
+                                    <img src="{{ item.producto.imagen_principal_url }}" class="rounded-3 w-100 h-100" style="object-fit: cover;">
                                 {% else %}
                                     <i class="bi bi-box text-muted"></i>
                                 {% endif %}

@@ -130,10 +130,8 @@
             
             <div class="position-relative overflow-hidden rounded-top-4 bg-light">
                 <!-- Imagen -->
-                {% if producto.portadas.all %}
-                    <img src="{{ producto.portadas.first.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
-                {% elif producto.portada and producto.portada.url %}
-                    <img src="{{ producto.portada.url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
+                {% if producto.imagen_principal_url %}
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
                 {% else %}
                     <div class="d-flex align-items-center justify-content-center product-img">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>

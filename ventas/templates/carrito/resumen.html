@@ -73,7 +73,7 @@
                           <a href="{% url 'productos:producto_detail' pk=item.producto.pk %}" class="text-decoration-none" style="min-width: 70px;">
                             {% if item.producto.portada %}
                               <img 
-                                src="{{ item.producto.portada.url }}" 
+                                src="{{ item.producto.imagen_principal_url }}" 
                                 alt="{{ item.producto.nombre }}" 
                                 class="rounded-3" 
                                 style="width: 70px; height: 70px; object-fit: cover; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"

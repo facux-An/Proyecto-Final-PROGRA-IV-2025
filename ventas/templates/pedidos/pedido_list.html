@@ -79,7 +79,7 @@
                                 {% if primer_detalle.producto.portadas.all %}
                                     <img src="{{ primer_detalle.producto.portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="img">
                                 {% elif primer_detalle.producto.portada %}
-                                    <img src="{{ primer_detalle.producto.portada.url }}" class="w-100 h-100 object-fit-cover" alt="img">
+                                    <img src="{{ primer_detalle.producto.imagen_principal_url }}" class="w-100 h-100 object-fit-cover" alt="img">
                                 {% else %}
                                     <i class="bi bi-box-seam text-muted fs-4"></i>
                                 {% endif %}

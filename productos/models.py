@@ -62,10 +62,18 @@ class Producto(models.Model):
     def get_absolute_url(self):
         return reverse("productos:producto_detail", args=[self.pk])
 
+    @property
+    def imagen_principal_url(self):
+        primera = self.portadas.first()
+        if primera and primera.imagen:
+            return primera.imagen.url
+        if self.portada:
+            return self.portada.url
+        return None
+
     def portada_preview(self):
         # Muestra la primera “portada múltiple” si existe; sino la portada única
-        primera = self.portadas.first()
-        url = primera.imagen.url if primera else (self.portada.url if self.portada else None)
+        url = self.imagen_principal_url
         if url:
             return mark_safe(
                 f'<img src="{url}" width="80" height="80" style="object-fit:cover;border-radius:4px;" />'

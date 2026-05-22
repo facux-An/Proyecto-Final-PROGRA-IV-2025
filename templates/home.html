@@ -128,10 +128,8 @@
                 </div>
 
                 <a href="{% url 'productos:producto_detail' producto.id %}">
-                    {% if producto.portadas.all %}
-                        <img src="{{ producto.portadas.first.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
-                    {% elif producto.portada and producto.portada.url %}
-                        <img src="{{ producto.portada.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                    {% if producto.imagen_principal_url %}
+                        <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
                     {% else %}
                         <div class="img-placeholder-luxury">
                             <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
