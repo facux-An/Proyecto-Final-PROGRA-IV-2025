@@ -11,13 +11,48 @@ class MultiFileInput(forms.ClearableFileInput):
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'descripcion', 'categoria', 'precio', 'stock']
+        fields = [
+            'nombre', 'descripcion', 'categoria', 'precio', 'stock',
+            'peso_gramos', 'largo_cm', 'ancho_cm', 'alto_cm',
+        ]
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'categoria': forms.Select(attrs={'class': 'form-select'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'peso_gramos': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 500',
+                'min': '1',
+            }),
+            'largo_cm': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 30',
+                'min': '1',
+            }),
+            'ancho_cm': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 20',
+                'min': '1',
+            }),
+            'alto_cm': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 15',
+                'min': '1',
+            }),
+        }
+        labels = {
+            'peso_gramos': 'Peso (gramos)',
+            'largo_cm': 'Largo (cm)',
+            'ancho_cm': 'Ancho (cm)',
+            'alto_cm': 'Alto (cm)',
+        }
+        help_texts = {
+            'peso_gramos': '1 kilo = 1000 gramos',
+            'largo_cm': 'El lado más largo del paquete',
+            'ancho_cm': 'El lado intermedio del paquete',
+            'alto_cm': 'La altura del paquete',
         }
 
 
