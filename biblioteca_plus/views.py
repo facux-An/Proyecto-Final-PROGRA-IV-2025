@@ -20,11 +20,30 @@ def health_check(request):
 def home(request):
     """
     Vista de la página de inicio (Landing Page).
+    Carga productos destacados, kits combo y productos en oferta.
     """
-    productos_destacados = Producto.objects.filter(destacado=True).select_related('categoria').prefetch_related('portadas')[:4]
+    productos_destacados = (
+        Producto.objects.filter(destacado=True)
+        .select_related('categoria')
+        .prefetch_related('portadas')[:4]
+    )
+    
+    kits_combo = (
+        Producto.objects.filter(es_combo=True, en_oferta=True)
+        .select_related('categoria')
+        .prefetch_related('portadas')[:3]
+    )
+    
+    productos_oferta = (
+        Producto.objects.filter(en_oferta=True, es_combo=False)
+        .select_related('categoria')
+        .prefetch_related('portadas')[:8]
+    )
     
     return render(request, 'home.html', {
-        'productos_destacados': productos_destacados
+        'productos_destacados': productos_destacados,
+        'kits_combo': kits_combo,
+        'productos_oferta': productos_oferta,
     })
 
 def cerrar_sesion(request):

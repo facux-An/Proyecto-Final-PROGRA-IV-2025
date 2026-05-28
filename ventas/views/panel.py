@@ -257,4 +257,58 @@ class TicketVentaDetailView(DetailView):
         # El total ya no se calcula multiplicando porque ahora viene guardado en el pedido
         context['total'] = self.object.total
         return context
+
+@method_decorator(staff_member_required, name='dispatch')
+class GestorOfertasView(TemplateView):
+    template_name = 'ventas/gestor_ofertas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Separamos los productos para la vista
+        context['kits_carrusel'] = Producto.objects.filter(es_combo=True).order_by('-en_oferta', 'nombre')
+        context['productos_individuales'] = Producto.objects.filter(es_combo=False).order_by('-en_oferta', 'nombre')
+        return context
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        producto_id = request.POST.get('producto_id')
+        
+        if not producto_id:
+            messages.error(request, "ID de producto inválido.")
+            return self.get(request, *args, **kwargs)
+
+        try:
+            producto = Producto.objects.get(id=producto_id)
+        except Producto.DoesNotExist:
+            messages.error(request, "El producto no existe.")
+            return self.get(request, *args, **kwargs)
+
+        if action == 'update_offer':
+            # Parse checkboxes
+            en_oferta = request.POST.get('en_oferta') == 'on'
+            destacado = request.POST.get('destacado') == 'on'
+            
+            # Parse text fields
+            precio_oferta_str = request.POST.get('precio_oferta', '')
+            fecha_fin = request.POST.get('fecha_fin_oferta', '')
+            etiqueta = request.POST.get('etiqueta_oferta', '')
+            
+            producto.en_oferta = en_oferta
+            producto.destacado = destacado
+            producto.etiqueta_oferta = etiqueta
+
+            if precio_oferta_str:
+                producto.precio_oferta = precio_oferta_str.replace(',', '.')
+            else:
+                producto.precio_oferta = None
+
+            if fecha_fin:
+                producto.fecha_fin_oferta = fecha_fin
+            else:
+                producto.fecha_fin_oferta = None
+
+            producto.save()
+            messages.success(request, f"¡Oferta actualizada con éxito para {producto.nombre}! 🚀")
+
+        return self.get(request, *args, **kwargs)
         

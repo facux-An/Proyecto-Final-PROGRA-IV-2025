@@ -5,13 +5,98 @@
 
 {% block content %}
 <style>
-    /* Efectos Premium Home */
-    .hero-banner {
+    /* ===== HERO CAROUSEL ===== */
+    .hero-carousel .carousel-item {
+        min-height: 420px;
+        display: flex;
+        align-items: center;
         background-color: #FFF8F3;
-        border: 1px solid rgba(255, 102, 0, 0.1);
-        position: relative;
+        border-radius: 1.5rem;
+    }
+    .hero-carousel .carousel-inner {
+        border-radius: 1.5rem;
         overflow: hidden;
     }
+    .hero-carousel .carousel-control-prev,
+    .hero-carousel .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,102,0,0.9);
+        border-radius: 50%;
+        opacity: 1;
+        margin: 0 1rem;
+    }
+    .hero-carousel .carousel-control-prev:hover,
+    .hero-carousel .carousel-control-next:hover {
+        background: var(--brand-primary);
+    }
+    .hero-carousel .carousel-indicators [data-bs-target] {
+        background-color: var(--brand-primary);
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 6px;
+    }
+
+    /* ===== URGENCY BAR ===== */
+    .urgency-bar {
+        background: linear-gradient(90deg, #1F2937 0%, #374151 100%);
+        color: white;
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 0 rgba(255,102,0,0); }
+        50% { box-shadow: 0 0 20px rgba(255,102,0,0.3); }
+    }
+
+    /* ===== KIT CARDS ===== */
+    .kit-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid rgba(255,102,0,0.08);
+        overflow: hidden;
+    }
+    .kit-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(255,102,0,0.12) !important;
+        border-color: rgba(255,102,0,0.2);
+    }
+    .kit-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 2;
+        padding: 0.45rem 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .savings-badge {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+    .price-original {
+        text-decoration: line-through;
+        color: #9CA3AF;
+        font-size: 0.95rem;
+    }
+    .price-offer {
+        color: var(--brand-primary);
+        font-weight: 800;
+    }
+    .discount-pct {
+        background: #DC2626;
+        color: white;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    /* ===== PRODUCT CARDS ===== */
     .premium-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: 1px solid rgba(0,0,0,0.04);
@@ -30,61 +115,213 @@
         letter-spacing: 0.5px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .stars {
-        color: #F59E0B; /* Amarillo dorado */
-        font-size: 0.9rem;
-    }
-    .btn-buy-static {
+    .btn-buy {
         background-color: var(--brand-primary);
         color: white;
         transition: all 0.2s;
     }
-    .btn-buy-static:hover {
+    .btn-buy:hover {
         background-color: #e65c00;
+        color: white;
         transform: scale(1.05);
     }
-    /* Imagen Placeholder de Lujo */
     .img-placeholder-luxury {
         background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
         height: 220px;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    .stock-low {
+        color: #DC2626;
+        font-weight: 600;
+        font-size: 0.78rem;
+        animation: blink-soft 2s ease-in-out infinite;
+    }
+    @keyframes blink-soft {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* ===== COUNTDOWN ===== */
+    .countdown-box {
+        background: rgba(0,0,0,0.06);
+        border-radius: 8px;
+        padding: 0.3rem 0.6rem;
+        min-width: 45px;
+        text-align: center;
+    }
+    .countdown-number {
+        font-size: 1.4rem;
+        font-weight: 800;
+        line-height: 1.2;
+        color: #1F2937;
+    }
+    .countdown-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        color: #6B7280;
+        letter-spacing: 0.5px;
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-title {
         position: relative;
+        padding-bottom: 0.5rem;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--brand-primary);
+        border-radius: 2px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 767px) {
+        .hero-carousel .carousel-item { min-height: 320px; }
+        .hero-carousel .carousel-control-prev,
+        .hero-carousel .carousel-control-next { display: none; }
+        .countdown-number { font-size: 1.1rem; }
+        .kit-card .card-body { padding: 1rem !important; }
     }
 </style>
 
-<!-- Hero Banner Comercial -->
-<div class="hero-banner rounded-4 mb-5 shadow-sm" style="min-height: 420px; display: flex; align-items: center;">
-    <div class="container px-4 px-lg-5 position-relative z-1">
-        <div class="row align-items-center">
-            <div class="col-lg-6 py-5">
-                <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm mb-4 border" style="border-color: rgba(255,102,0,0.2) !important;">
-                    <span class="spinner-grow spinner-grow-sm text-danger me-2" role="status" style="width: 0.5rem; height: 0.5rem;"></span>
-                    <span class="fw-bold text-dark small" style="letter-spacing: 0.5px;">OFERTAS DEL MES ACTIVAS</span>
-                </div>
-                <h1 class="display-4 fw-extrabold text-dark mb-3" style="letter-spacing: -1.5px; line-height: 1.1;">
-                    El cuidado perfecto <br>
-                    <span style="color: var(--brand-primary);">para su pelaje</span>
-                </h1>
-                <p class="fs-5 text-muted mb-4 pe-lg-4">Descubrí nuestra selección premium diseñada especialmente para el bienestar y confort absoluto de tu mascota.</p>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{% url 'productos:producto_list' %}" class="btn btn-lg fw-bold px-5 rounded-pill shadow-sm" style="background-color: var(--brand-primary); color: white; border: none; font-size: 1.1rem; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                        Comprar Ahora <i class="bi bi-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block text-center position-relative">
-                <!-- Decoración -->
-                <div class="position-absolute bg-white rounded-circle opacity-50" style="width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); filter: blur(40px);"></div>
-                <i class="bi bi-shop text-dark position-relative" style="font-size: 16rem; opacity: 0.1;"></i>
-            </div>
+<!-- ============================================ -->
+<!-- 1. HERO CAROUSEL                             -->
+<!-- ============================================ -->
+<div class="hero-carousel mb-4">
+    <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="2500">
+        <div class="carousel-indicators">
+            {% for kit in kits_combo %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% empty %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            {% endfor %}
         </div>
+
+        <div class="carousel-inner">
+            {% if kits_combo %}
+                {% for kit in kits_combo %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="container px-4 px-lg-5">
+                        <div class="row align-items-center py-4 py-lg-5">
+                            <div class="col-lg-6 py-3 order-last order-lg-first">
+                                <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm mb-3 border" style="border-color: rgba(255,102,0,0.2) !important;">
+                                    <span class="spinner-grow spinner-grow-sm text-danger me-2" style="width: 0.5rem; height: 0.5rem;"></span>
+                                    <span class="fw-bold text-dark small" style="letter-spacing: 0.5px;">{{ kit.etiqueta_oferta|default:"OFERTA ESPECIAL" }}</span>
+                                </div>
+                                <h2 class="display-5 fw-bold text-dark mb-2" style="letter-spacing: -1px; line-height: 1.1;">{{ kit.nombre }}</h2>
+                                {% if kit.productos_incluidos %}
+                                <p class="text-muted mb-3">Incluye: {{ kit.productos_incluidos }}</p>
+                                {% endif %}
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    {% if kit.oferta_activa and kit.precio_oferta %}
+                                    <span class="price-original fs-5">${{ kit.precio|floatformat:0 }}</span>
+                                    <span class="price-offer fs-2">${{ kit.precio_oferta|floatformat:0 }}</span>
+                                    <span class="discount-pct">-{{ kit.porcentaje_descuento }}%</span>
+                                    {% else %}
+                                    <span class="price-offer fs-2">${{ kit.precio|floatformat:0 }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if kit.fecha_fin_oferta %}
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <i class="bi bi-clock text-muted"></i>
+                                    <span class="text-muted small">Termina en:</span>
+                                    <div class="d-flex gap-1 countdown-timer" data-end="{{ kit.fecha_fin_oferta|date:'c' }}">
+                                        <div class="countdown-box"><div class="countdown-number" data-unit="days">--</div><div class="countdown-label">Días</div></div>
+                                        <div class="countdown-box"><div class="countdown-number" data-unit="hours">--</div><div class="countdown-label">Hrs</div></div>
+                                        <div class="countdown-box"><div class="countdown-number" data-unit="minutes">--</div><div class="countdown-label">Min</div></div>
+                                        <div class="countdown-box"><div class="countdown-number" data-unit="seconds">--</div><div class="countdown-label">Seg</div></div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <a href="{% url 'productos:producto_detail' kit.id %}" class="btn btn-lg fw-bold px-5 rounded-pill shadow-sm btn-buy">
+                                    Comprar Kit <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                                {% if request.user.is_staff %}
+                                <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-sm btn-warning rounded-pill shadow-sm ms-2" title="Editar en Gestor Landing">
+                                    <i class="bi bi-megaphone-fill"></i> Editar Oferta
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="col-lg-6 text-center mt-4 mt-lg-0 order-first order-lg-last">
+                                {% if kit.imagen_principal_url %}
+                                <img src="{{ kit.imagen_principal_url }}" alt="{{ kit.nombre }}" class="img-fluid rounded-4 shadow" style="max-height: 400px; object-fit: contain;">
+                                {% else %}
+                                <div class="d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <i class="bi bi-box-seam text-dark" style="font-size: 10rem; opacity: 0.08;"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Slide por defecto cuando no hay kits -->
+                <div class="carousel-item active">
+                    <div class="container px-4 px-lg-5">
+                        <div class="row align-items-center py-5">
+                            <div class="col-lg-6 py-4">
+                                <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm mb-4 border" style="border-color: rgba(255,102,0,0.2) !important;">
+                                    <span class="spinner-grow spinner-grow-sm text-danger me-2" style="width: 0.5rem; height: 0.5rem;"></span>
+                                    <span class="fw-bold text-dark small" style="letter-spacing: 0.5px;">TIENDA PLUS</span>
+                                </div>
+                                <h1 class="display-4 fw-bold text-dark mb-3" style="letter-spacing: -1.5px; line-height: 1.1;">
+                                    El cuidado perfecto <br>
+                                    <span style="color: var(--brand-primary);">para tu gato</span>
+                                </h1>
+                                <p class="fs-5 text-muted mb-4">Descubrí nuestra selección premium diseñada especialmente para el bienestar de tu mascota.</p>
+                                <a href="{% url 'productos:producto_list' %}" class="btn btn-lg fw-bold px-5 rounded-pill shadow-sm btn-buy">
+                                    Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                            <div class="col-lg-6 d-none d-lg-block text-center position-relative">
+                                <div class="position-absolute bg-white rounded-circle opacity-50" style="width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); filter: blur(40px);"></div>
+                                <i class="bi bi-shop text-dark position-relative" style="font-size: 14rem; opacity: 0.08;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if kits_combo|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+        {% endif %}
     </div>
 </div>
 
-<!-- Beneficios (Trust bar Mobile) -->
-<div class="row text-center g-3 mb-5 d-lg-none">
+<!-- ============================================ -->
+<!-- 2. URGENCY BAR                               -->
+<!-- ============================================ -->
+{% if kits_combo %}
+<div class="urgency-bar rounded-3 px-3 py-2 mb-5 text-center">
+    <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+        <span class="fw-bold" style="font-size: 0.9rem;">🔥 OFERTAS ACTIVAS</span>
+        <span style="opacity: 0.5;">|</span>
+        <span style="font-size: 0.85rem;">¡Aprovechá los kits con descuento antes de que terminen!</span>
+        <span style="opacity: 0.5;">|</span>
+        <a href="#kits-section" class="text-white fw-bold text-decoration-none" style="font-size: 0.85rem;">Ver Kits <i class="bi bi-arrow-down"></i></a>
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================ -->
+<!-- TRUST BAR MOBILE                             -->
+<!-- ============================================ -->
+<div class="row text-center g-3 mb-4 d-lg-none">
     <div class="col-6">
         <div class="p-3 border rounded-4 bg-white shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
             <div class="bg-light rounded-circle p-2 mb-2 d-inline-block">
@@ -103,212 +340,307 @@
     </div>
 </div>
 
-<!-- Título de Sección -->
-<div class="d-flex justify-content-between align-items-end mb-4 mt-2">
-    <div>
-        <h2 class="fw-extrabold mb-1">Ofertas Destacadas</h2>
-        <p class="text-muted mb-0">Selección curada manualmente para vos. ¡Por tiempo limitado!</p>
+<!-- ============================================ -->
+<!-- 3. KITS COMBO SECTION                        -->
+<!-- ============================================ -->
+{% if kits_combo %}
+<section id="kits-section" class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold section-title mb-1">🎁 Kits Combo</h2>
+            <p class="text-muted mb-0">Ahorrá comprando en combo. ¡Descuentos exclusivos!</p>
+        </div>
     </div>
-    <a href="{% url 'productos:producto_list' %}" class="text-decoration-none fw-bold d-none d-md-block px-4 py-2 rounded-pill bg-light hover-bg-gray" style="color: var(--brand-primary); transition: 0.2s;">
-        Ver catálogo completo <i class="bi bi-arrow-right"></i>
-    </a>
-</div>
 
-<!-- Cuadrícula de Productos (Ofertas) -->
-<div class="row g-4 mb-5">
-    {% if productos_destacados %}
-        {% for producto in productos_destacados %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative">
-                
-                <div class="position-absolute top-0 start-0 m-3 z-2">
-                    <span class="badge bg-warning text-dark rounded-pill badge-premium shadow-sm">
-                        <i class="bi bi-star-fill me-1"></i> Destacado
-                    </span>
-                </div>
+    <div class="row g-4">
+        {% for kit in kits_combo %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card kit-card h-100 rounded-4 bg-white position-relative shadow-sm">
+                <!-- Badge -->
+                <span class="badge rounded-pill kit-badge" style="background: linear-gradient(135deg, var(--brand-primary), #e65c00);">
+                    {{ kit.etiqueta_oferta|default:"COMBO" }}
+                </span>
 
-                <a href="{% url 'productos:producto_detail' producto.id %}">
-                    {% if producto.imagen_principal_url %}
-                        <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                <!-- Image -->
+                <a href="{% url 'productos:producto_detail' kit.id %}">
+                    {% if kit.imagen_principal_url %}
+                    <img src="{{ kit.imagen_principal_url }}" class="card-img-top" alt="{{ kit.nombre }}" style="height: 240px; object-fit: cover;">
                     {% else %}
-                        <div class="img-placeholder-luxury">
-                            <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
-                        </div>
+                    <div class="img-placeholder-luxury">
+                        <i class="bi bi-box-seam text-muted opacity-25" style="font-size: 5rem;"></i>
+                    </div>
                     {% endif %}
                 </a>
-                
+
                 <div class="card-body d-flex flex-column p-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="stars me-2">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                    <!-- Kit name -->
+                    <h5 class="fw-bold mb-2">
+                        <a href="{% url 'productos:producto_detail' kit.id %}" class="text-decoration-none text-dark">{{ kit.nombre }}</a>
+                    </h5>
+
+                    <!-- Includes -->
+                    {% if kit.productos_incluidos %}
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-check2-circle text-success me-1"></i> {{ kit.productos_incluidos }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Pricing -->
+                    <div class="mt-auto">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            {% if kit.oferta_activa and kit.precio_oferta %}
+                            <span class="price-original">${{ kit.precio|floatformat:0 }}</span>
+                            <span class="price-offer fs-3">${{ kit.precio_oferta|floatformat:0 }}</span>
+                            <span class="discount-pct">-{{ kit.porcentaje_descuento }}%</span>
+                            {% else %}
+                            <span class="price-offer fs-3">${{ kit.precio|floatformat:0 }}</span>
+                            {% endif %}
                         </div>
-                        <span class="text-muted small">(15)</span>
-                    </div>
-                    
-                    <h6 class="card-title fw-bold mb-3" style="line-height: 1.3;">
-                        <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark hover-brand">
-                            {{ producto.nombre }}
-                        </a>
-                    </h6>
-                    
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
-                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
+
+                        {% if kit.oferta_activa and kit.precio_oferta %}
+                        <div class="mb-3">
+                            <span class="badge savings-badge rounded-pill px-3 py-1">
+                                <i class="bi bi-piggy-bank me-1"></i> Ahorrás ${{ kit.precio|floatformat:0|add:"-"|add:kit.precio_oferta|floatformat:0|default:"" }}
+                            </span>
                         </div>
-                        <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-buy-static rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Ver en catálogo">
-                            <i class="bi bi-arrow-right"></i>
+                        {% endif %}
+
+                        <!-- Countdown -->
+                        {% if kit.fecha_fin_oferta %}
+                        <div class="d-flex align-items-center gap-1 mb-3">
+                            <i class="bi bi-clock text-muted small"></i>
+                            <span class="text-muted" style="font-size: 0.75rem;">Termina en:</span>
+                            <div class="d-flex gap-1 countdown-timer" data-end="{{ kit.fecha_fin_oferta|date:'c' }}">
+                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="days" style="font-size: 1rem;">--</span><div class="countdown-label">D</div></div>
+                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="hours" style="font-size: 1rem;">--</span><div class="countdown-label">H</div></div>
+                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="minutes" style="font-size: 1rem;">--</span><div class="countdown-label">M</div></div>
+                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="seconds" style="font-size: 1rem;">--</span><div class="countdown-label">S</div></div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Stock low indicator -->
+                        {% if kit.stock > 0 and kit.stock < 10 %}
+                        <p class="stock-low mb-2"><i class="bi bi-exclamation-triangle me-1"></i> ¡Últimas {{ kit.stock }} unidades!</p>
+                        {% endif %}
+
+                        <!-- CTA -->
+                        <a href="{% url 'productos:producto_detail' kit.id %}" class="btn btn-buy fw-bold w-100 rounded-pill py-2 mb-2">
+                            <i class="bi bi-cart-plus me-2"></i> Comprar Kit
                         </a>
+                        {% if request.user.is_staff %}
+                        <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning w-100 rounded-pill py-1 btn-sm">
+                            <i class="bi bi-megaphone-fill me-1"></i> Gestor Landing
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
-    {% else %}
-        <!-- Tarjeta 1 (Placeholder) -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white">
-                <span class="badge bg-danger rounded-pill badge-premium">-20% OFF</span>
-                
-                <div class="img-placeholder-luxury">
-                    <i class="bi bi-brush text-muted opacity-50" style="font-size: 5rem;"></i>
-                </div>
-                
-                <div class="card-body d-flex flex-column p-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="stars me-2">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                        </div>
-                        <span class="text-muted small">(124)</span>
-                    </div>
-                    
-                    <h6 class="card-title fw-bold mb-3" style="line-height: 1.3;">Peine Saca Nudos Premium Acero</h6>
-                    
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
-                            <span class="text-muted text-decoration-line-through small d-block" style="line-height: 1;">$18.500</span>
-                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">$14.800</span>
-                        </div>
-                        <a href="{% url 'productos:producto_list' %}" class="btn btn-buy-static rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tarjeta 2 (Placeholder) -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white">
-                <span class="badge bg-dark rounded-pill badge-premium"><i class="bi bi-fire text-warning me-1"></i>Más Vendido</span>
-                
-                <div class="img-placeholder-luxury">
-                    <i class="bi bi-magic text-muted opacity-50" style="font-size: 5rem;"></i>
-                </div>
-                
-                <div class="card-body d-flex flex-column p-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="stars me-2">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        </div>
-                        <span class="text-muted small">(89)</span>
-                    </div>
-                    
-                    <h6 class="card-title fw-bold mb-3" style="line-height: 1.3;">Varita Mágica Atrapa Gatos</h6>
-                    
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
-                            <span class="fw-bold fs-4 text-dark">$8.200</span>
-                        </div>
-                        <a href="{% url 'productos:producto_list' %}" class="btn btn-buy-static rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tarjeta 3 (Placeholder) -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-md-block">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white">
-                <div class="img-placeholder-luxury">
-                    <i class="bi bi-bag text-muted opacity-50" style="font-size: 5rem;"></i>
-                </div>
-                
-                <div class="card-body d-flex flex-column p-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="stars me-2">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
-                        </div>
-                        <span class="text-muted small">(42)</span>
-                    </div>
-                    
-                    <h6 class="card-title fw-bold mb-3" style="line-height: 1.3;">Bolso Transportador Confort Premium</h6>
-                    
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
-                            <span class="fw-bold fs-4 text-dark">$32.000</span>
-                        </div>
-                        <a href="{% url 'productos:producto_list' %}" class="btn btn-buy-static rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
+</section>
+{% endif %}
 
-        <!-- Tarjeta 4 (Placeholder) -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-lg-block">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white">
-                <span class="badge rounded-pill badge-premium" style="background-color: #10B981;">Novedad</span>
-                
-                <div class="img-placeholder-luxury">
-                    <i class="bi bi-scissors text-muted opacity-50" style="font-size: 5rem;"></i>
+<!-- ============================================ -->
+<!-- 4. PRODUCTOS INDIVIDUALES                    -->
+<!-- ============================================ -->
+<div class="d-flex justify-content-between align-items-end mb-4 mt-2">
+    <div>
+        <h2 class="fw-bold section-title mb-1">Nuestros Productos</h2>
+        <p class="text-muted mb-0">Todo lo que tu gato necesita, en un solo lugar.</p>
+    </div>
+    <a href="{% url 'productos:producto_list' %}" class="text-decoration-none fw-bold d-none d-md-block px-4 py-2 rounded-pill bg-light" style="color: var(--brand-primary); transition: 0.2s;">
+        Ver catálogo completo <i class="bi bi-arrow-right"></i>
+    </a>
+</div>
+
+<div class="row g-4 mb-5">
+    {% if productos_destacados %}
+        {% for producto in productos_destacados %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative shadow-sm">
+                <!-- Badge -->
+                <div class="position-absolute top-0 start-0 m-3 z-2">
+                    {% if producto.oferta_activa and producto.etiqueta_oferta %}
+                    <span class="badge bg-danger rounded-pill badge-premium">{{ producto.etiqueta_oferta }}</span>
+                    {% elif producto.destacado %}
+                    <span class="badge bg-warning text-dark rounded-pill badge-premium">
+                        <i class="bi bi-star-fill me-1"></i> Destacado
+                    </span>
+                    {% endif %}
                 </div>
-                
-                <div class="card-body d-flex flex-column p-4">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="stars me-2">
-                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                        </div>
-                        <span class="text-muted small">(15)</span>
+
+                <!-- Image -->
+                <a href="{% url 'productos:producto_detail' producto.id %}">
+                    {% if producto.imagen_principal_url %}
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                    {% else %}
+                    <div class="img-placeholder-luxury">
+                        <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
                     </div>
-                    
-                    <h6 class="card-title fw-bold mb-3" style="line-height: 1.3;">Alicate Profesional de Uñas Acero Inox</h6>
-                    
+                    {% endif %}
+                </a>
+
+                <div class="card-body d-flex flex-column p-3 p-md-4">
+                    <!-- Product name -->
+                    <h6 class="card-title fw-bold mb-2" style="line-height: 1.3;">
+                        <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark">{{ producto.nombre }}</a>
+                    </h6>
+
+                    <!-- Stock low -->
+                    {% if producto.stock > 0 and producto.stock < 10 %}
+                    <p class="stock-low mb-2"><i class="bi bi-fire me-1"></i> ¡Últimas {{ producto.stock }} unidades!</p>
+                    {% endif %}
+
+                    <!-- Price -->
                     <div class="mt-auto d-flex justify-content-between align-items-end">
                         <div>
-                            <span class="fw-bold fs-4 text-dark">$6.500</span>
+                            {% if producto.oferta_activa and producto.precio_oferta %}
+                            <span class="price-original d-block" style="line-height: 1;">${{ producto.precio|floatformat:0 }}</span>
+                            <span class="fw-bold fs-4 price-offer">${{ producto.precio_oferta|floatformat:0 }}</span>
+                            {% else %}
+                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
+                            {% endif %}
                         </div>
-                        <a href="{% url 'productos:producto_list' %}" class="btn btn-buy-static rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if request.user.is_staff %}
+                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Gestor Landing">
+                                <i class="bi bi-megaphone-fill"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-buy rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Ver producto">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if productos_oferta %}
+        {% for producto in productos_oferta %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative shadow-sm">
+                <!-- Badge -->
+                <div class="position-absolute top-0 start-0 m-3 z-2">
+                    {% if producto.etiqueta_oferta %}
+                    <span class="badge bg-danger rounded-pill badge-premium">{{ producto.etiqueta_oferta }}</span>
+                    {% else %}
+                    <span class="badge bg-danger rounded-pill badge-premium">🔥 Oferta</span>
+                    {% endif %}
+                </div>
+
+                <a href="{% url 'productos:producto_detail' producto.id %}">
+                    {% if producto.imagen_principal_url %}
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                    {% else %}
+                    <div class="img-placeholder-luxury">
+                        <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
+                    </div>
+                    {% endif %}
+                </a>
+
+                <div class="card-body d-flex flex-column p-3 p-md-4">
+                    <h6 class="card-title fw-bold mb-2" style="line-height: 1.3;">
+                        <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark">{{ producto.nombre }}</a>
+                    </h6>
+
+                    {% if producto.stock > 0 and producto.stock < 10 %}
+                    <p class="stock-low mb-2"><i class="bi bi-fire me-1"></i> ¡Últimas {{ producto.stock }} unidades!</p>
+                    {% endif %}
+
+                    <div class="mt-auto d-flex justify-content-between align-items-end">
+                        <div>
+                            {% if producto.precio_oferta %}
+                            <span class="price-original d-block" style="line-height: 1;">${{ producto.precio|floatformat:0 }}</span>
+                            <span class="fw-bold fs-4 price-offer">${{ producto.precio_oferta|floatformat:0 }}</span>
+                            {% else %}
+                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if request.user.is_staff %}
+                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Gestor Landing">
+                                <i class="bi bi-megaphone-fill"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-buy rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Ver producto">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     {% endif %}
 </div>
 
+<!-- CTA Mobile -->
 <div class="text-center d-md-none mb-5">
-    <a href="{% url 'productos:producto_list' %}" class="btn fw-bold px-5 py-3 rounded-pill text-white shadow-sm" style="background-color: var(--brand-primary);">
+    <a href="{% url 'productos:producto_list' %}" class="btn fw-bold px-5 py-3 rounded-pill text-white shadow-sm btn-buy">
         Ver catálogo completo
     </a>
 </div>
 
-<!-- Banner Secundario / Confianza -->
+<!-- ============================================ -->
+<!-- 5. TRUST BANNER                              -->
+<!-- ============================================ -->
 <div class="p-4 p-md-5 bg-white border rounded-4 shadow-sm text-center my-5 position-relative overflow-hidden">
     <div class="position-relative z-1 py-3">
         <div class="d-inline-flex justify-content-center align-items-center rounded-circle mb-4" style="width: 80px; height: 80px; background-color: rgba(16, 185, 129, 0.1);">
             <i class="bi bi-shield-check text-success" style="font-size: 2.5rem;"></i>
         </div>
-        <h3 class="fw-extrabold text-dark mb-3">Compra 100% Segura</h3>
+        <h3 class="fw-bold text-dark mb-3">Compra 100% Segura</h3>
         <p class="text-muted mx-auto fs-5" style="max-width: 600px; line-height: 1.6;">
             Tu tranquilidad es nuestra prioridad. Ofrecemos protección total en tus pagos, devoluciones sin fricción y garantía directa en todos los productos del catálogo.
         </p>
     </div>
-    <!-- Decoración de fondo sutil -->
     <div class="position-absolute rounded-circle" style="width: 300px; height: 300px; top: -100px; left: -100px; background: radial-gradient(circle, rgba(255,102,0,0.05) 0%, rgba(255,255,255,0) 70%); z-index: 0;"></div>
     <div class="position-absolute rounded-circle" style="width: 400px; height: 400px; bottom: -200px; right: -100px; background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, rgba(255,255,255,0) 70%); z-index: 0;"></div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ===== COUNTDOWN TIMER =====
+(function() {
+    function updateCountdowns() {
+        document.querySelectorAll('.countdown-timer').forEach(function(timer) {
+            const endDate = new Date(timer.dataset.end);
+            const now = new Date();
+            const diff = endDate - now;
+
+            if (diff <= 0) {
+                // Offer expired
+                timer.innerHTML = '<span class="text-danger fw-bold small">¡Oferta finalizada!</span>';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const daysEl = timer.querySelector('[data-unit="days"]');
+            const hoursEl = timer.querySelector('[data-unit="hours"]');
+            const minutesEl = timer.querySelector('[data-unit="minutes"]');
+            const secondsEl = timer.querySelector('[data-unit="seconds"]');
+
+            if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+        });
+    }
+
+    // Update immediately, then every second
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+})();
+</script>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.urls import path
-from ventas.views.panel import PanelPedidosView, PedidoDeleteView, PedidoEntregarView, VentaMostradorView,ReportesVentasView, TicketVentaDetailView
+from ventas.views.panel import PanelPedidosView, PedidoDeleteView, PedidoEntregarView, VentaMostradorView,ReportesVentasView, TicketVentaDetailView, GestorOfertasView
 
 urlpatterns = [
     # Listado principal del panel
@@ -11,4 +11,7 @@ urlpatterns = [
     # Acciones sobre pedidos
     path('pedido/<int:pk>/eliminar/', PedidoDeleteView.as_view(), name='pedido_delete'),
     path('pedido/<int:pk>/entregar/', PedidoEntregarView.as_view(), name='pedido_entregar'),
+    
+    # Marketing / CMS
+    path('ofertas/', GestorOfertasView.as_view(), name='gestor_ofertas'),
 ]

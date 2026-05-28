@@ -3,7 +3,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.db.models import Sum
-from ventas.models import Pedido
+from ventas.models import Pedido, DetallePedido
 
 @login_required
 def resumen(request):
@@ -27,16 +27,17 @@ def resumen(request):
     total_pedidos = qs_user.count()
     stats_estados = {estado: qs_user.filter(estado=estado).count() for estado in estados}
 
-    # Top productos por cantidad
+    # Top productos por cantidad — ahora a través de DetallePedido
     top_productos = (
-        qs_user.values("producto__nombre")
+        DetallePedido.objects.filter(pedido__in=qs_user)
+        .values("producto__nombre")
         .annotate(total_cantidad=Sum("cantidad"))
         .order_by("-total_cantidad")[:5]
     )
 
-    # Volumen total (si tenés precio_unitario en el modelo)
+    # Volumen total usando el campo 'total' cacheado en Pedido
     volumen_total = (
-        qs_user.aggregate(monto=Sum("cantidad"))
+        qs_user.aggregate(monto=Sum("total"))
     ).get("monto") or 0
 
     context = {

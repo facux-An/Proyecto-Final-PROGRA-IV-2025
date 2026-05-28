@@ -114,7 +114,7 @@ class PedidoUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMi
     success_message = "✏️ Pedido actualizado correctamente."
 
     def get_queryset(self):
-        return Pedido.objects.select_related("producto", "usuario")
+        return Pedido.objects.select_related("usuario").prefetch_related("detalles__producto")
 
     def test_func(self):
         pedido = self.get_object()
@@ -166,8 +166,13 @@ def marcar_como_entregado(request, pk):
         messages.info(request, f"ℹ️ El pedido #{pedido.id} ya estaba entregado.")
         return redirect("panel:panel_pedidos")
 
-    if pedido.producto.stock < pedido.cantidad:
-        messages.error(request, f"❌ No hay stock suficiente para entregar el pedido #{pedido.id}.")
+    # Validar stock de todos los productos del pedido
+    sin_stock = []
+    for detalle in pedido.detalles.select_related("producto").all():
+        if detalle.producto.stock < detalle.cantidad:
+            sin_stock.append(f"{detalle.producto.nombre} (disponible: {detalle.producto.stock}, pedido: {detalle.cantidad})")
+    if sin_stock:
+        messages.error(request, f"❌ Stock insuficiente para: {', '.join(sin_stock)}")
         return redirect("panel:panel_pedidos")
 
     with transaction.atomic():
