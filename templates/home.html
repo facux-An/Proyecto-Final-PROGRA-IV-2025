@@ -8,10 +8,12 @@
     /* ===== HERO CAROUSEL ===== */
     .hero-carousel .carousel-item {
         min-height: 420px;
-        display: flex;
-        align-items: center;
         background-color: #FFF8F3;
         border-radius: 1.5rem;
+    }
+    .hero-carousel .carousel-item.active {
+        display: flex;
+        align-items: center;
     }
     .hero-carousel .carousel-inner {
         border-radius: 1.5rem;
@@ -194,7 +196,7 @@
 <!-- 1. HERO CAROUSEL                             -->
 <!-- ============================================ -->
 <div class="hero-carousel mb-4">
-    <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="2500">
+    <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="4000">
         <div class="carousel-indicators">
             {% for kit in kits_combo %}
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
@@ -642,5 +644,21 @@
     updateCountdowns();
     setInterval(updateCountdowns, 1000);
 })();
+
+// ===== CAROUSEL MANUAL INIT (FAILSAFE) =====
+document.addEventListener('DOMContentLoaded', function() {
+    var heroEl = document.getElementById('heroCarousel');
+    if (heroEl && typeof bootstrap !== 'undefined') {
+        var carousel = bootstrap.Carousel.getOrCreateInstance(heroEl, {
+            interval: 4000,
+            ride: 'carousel',
+            wrap: true
+        });
+        carousel.cycle();
+        console.log('[TiendaPlus] Carousel inicializado OK, items:', heroEl.querySelectorAll('.carousel-item').length);
+    } else {
+        console.error('[TiendaPlus] ERROR: Bootstrap no cargado o heroCarousel no existe');
+    }
+});
 </script>
 {% endblock %}
