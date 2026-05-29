@@ -134,6 +134,9 @@ class MetodoPagoView(TemplateView):
                     email_envio=datos_envio.get('email_envio', ''),
                     telefono_envio=datos_envio.get('telefono_envio', ''),
                     direccion_envio=datos_envio.get('direccion_envio', ''),
+                    numero_envio=datos_envio.get('numero_envio', ''),
+                    piso_envio=datos_envio.get('piso_envio', ''),
+                    depto_envio=datos_envio.get('depto_envio', ''),
                     ciudad_envio=datos_envio.get('ciudad_envio', ''),
                     provincia_envio=datos_envio.get('provincia_envio', ''),
                     codigo_postal_envio=datos_envio.get('codigo_postal_envio', ''),
@@ -184,6 +187,15 @@ class MetodoPagoView(TemplateView):
                     "title": detalle.producto.nombre,
                     "quantity": detalle.cantidad,
                     "unit_price": float(detalle.precio_unitario),
+                    "currency_id": "ARS",
+                })
+                
+            # ✅ Agregar el costo de envío como un ítem más si es mayor a 0
+            if pedido.costo_envio and float(pedido.costo_envio) > 0:
+                items_mp.append({
+                    "title": f"Envío: {pedido.metodo_envio}",
+                    "quantity": 1,
+                    "unit_price": float(pedido.costo_envio),
                     "currency_id": "ARS",
                 })
 

@@ -205,8 +205,16 @@
         <div class="col-lg-4">
             <div class="cart-box p-4 sticky-top" style="top: 2rem;">
                 
-                <h5 class="fw-bold mb-4">Resumen de compra</h5>
+                <h5 class="fw-bold mb-4"><i class="bi bi-receipt-cutoff me-2" style="color: var(--brand-primary);"></i>Resumen de compra</h5>
                 
+                <!-- Urgencia: Reserva temporal -->
+                <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3" style="background: linear-gradient(135deg, #FFF7ED, #FFF1E6); border: 1px solid rgba(255,102,0,0.15);">
+                    <i class="bi bi-clock-history" style="color: var(--brand-primary); font-size: 1.1rem;"></i>
+                    <span class="small fw-semibold" style="color: #92400E;">
+                        Tu carrito se reserva por <span id="timer-reserva" class="fw-bold" style="color: var(--brand-primary);">30:00</span>
+                    </span>
+                </div>
+
                 <!-- Subtotal -->
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-muted">Subtotal</span>
@@ -220,6 +228,13 @@
                     <label class="form-label fw-bold small text-uppercase text-muted mb-2" style="letter-spacing: 0.5px;">
                         <i class="bi bi-truck me-1"></i> Calcular envío
                     </label>
+                    
+                    <!-- Aviso Buenos Aires -->
+                    <div class="d-flex align-items-center gap-2 mb-2 px-2 py-1 rounded-pill" style="background: #EFF6FF; border: 1px solid #BFDBFE; width: fit-content;">
+                        <i class="bi bi-geo-alt-fill" style="color: #3B82F6; font-size: 0.75rem;"></i>
+                        <span style="font-size: 0.7rem; color: #1E40AF; font-weight: 600;">Solo envíos a Buenos Aires y CABA</span>
+                    </div>
+
                     <div class="d-flex gap-2">
                         <input type="text" id="cp-envio" class="form-control bg-light border-0 rounded-pill px-3" 
                                placeholder="Tu código postal" maxlength="5" inputmode="numeric"
@@ -243,9 +258,34 @@
                         <span class="ms-2 small text-muted">Consultando transportistas...</span>
                     </div>
 
-                    <!-- Resultados de cotización (oculto) -->
+                    <!-- Resultados de cotización con 3 categorías (oculto) -->
                     <div id="envio-resultados" class="mt-3 d-none">
-                        <!-- Se llena dinámicamente con JS -->
+                        <!-- Categoría: Más Barato -->
+                        <div id="cat-cheapest" class="d-none mb-2">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="bi bi-piggy-bank-fill" style="color: #10B981; font-size: 0.8rem;"></i>
+                                <span class="fw-bold small" style="color: #10B981; letter-spacing: 0.3px;">MÁS ECONÓMICO</span>
+                            </div>
+                            <div id="opciones-cheapest"></div>
+                        </div>
+
+                        <!-- Categoría: Más Rápido -->
+                        <div id="cat-express" class="d-none mb-2">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="bi bi-lightning-charge-fill" style="color: #F59E0B; font-size: 0.8rem;"></i>
+                                <span class="fw-bold small" style="color: #F59E0B; letter-spacing: 0.3px;">MÁS RÁPIDO</span>
+                            </div>
+                            <div id="opciones-express"></div>
+                        </div>
+
+                        <!-- Categoría: Retiro en Punto -->
+                        <div id="cat-pickup" class="d-none mb-2">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="bi bi-shop" style="color: #6366F1; font-size: 0.8rem;"></i>
+                                <span class="fw-bold small" style="color: #6366F1; letter-spacing: 0.3px;">RETIRO EN PUNTO CERCANO</span>
+                            </div>
+                            <div id="opciones-pickup"></div>
+                        </div>
                     </div>
 
                     <!-- Error (oculto) -->
@@ -260,7 +300,7 @@
                 <!-- Línea de envío (se actualiza con JS) -->
                 <div class="d-flex justify-content-between mb-3" id="envio-linea">
                     <span class="text-muted">Envío</span>
-                    <span class="text-muted small" id="envio-precio-display">Ingresá tu CP</span>
+                    <span class="text-muted small" id="envio-precio-display">Ingresá tu CP ↑</span>
                 </div>
                 
                 <hr class="mb-4" style="border-top: 2px dashed #e9ecef;">
@@ -271,25 +311,50 @@
                     <span class="fw-bold display-6" style="color: var(--brand-primary);" id="total-final">${{ carrito.total|floatformat:2 }}</span>
                 </div>
 
-                <!-- Botón Finalizar -->
+                <!-- Botón Finalizar (DESHABILITADO hasta cotizar) -->
                 <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
                     {% csrf_token %}
                     <input type="hidden" name="envio_precio" id="input-envio-precio" value="0">
                     <input type="hidden" name="envio_nombre" id="input-envio-nombre" value="">
                     
-                    <button type="submit" class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill mb-3 text-white" style="background-color: var(--brand-primary); border: none; padding: 1rem;">
-                        FINALIZAR COMPRA
+                    <!-- Botón deshabilitado por defecto -->
+                    <button type="submit" id="btn-finalizar" 
+                            class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill mb-2 text-white" 
+                            style="background-color: #C4C4C4; border: none; padding: 1rem; cursor: not-allowed; transition: all 0.4s ease;"
+                            disabled>
+                        <i class="bi bi-lock-fill me-2"></i>CALCULÁ TU ENVÍO PRIMERO
                     </button>
+
+                    <!-- Mensaje helper debajo del botón -->
+                    <p id="msg-envio-requerido" class="text-center small mb-0" style="color: #EF4444; font-weight: 600;">
+                        <i class="bi bi-arrow-up-circle me-1"></i> Ingresá tu código postal para continuar
+                    </p>
                 </form>
                 
-                <!-- Trust Badges -->
-                <div class="bg-light p-3 rounded-4 mt-4 text-center">
-                    <div class="d-flex justify-content-center align-items-center mb-2">
-                        <i class="bi bi-shield-check fs-4 me-2" style="color: #10B981;"></i>
-                        <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">Pago 100% Seguro</span>
+                <!-- Trust Badges Premium -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="row g-2 text-center">
+                        <div class="col-4">
+                            <div class="p-2 rounded-3" style="background: rgba(16, 185, 129, 0.06);">
+                                <i class="bi bi-shield-check d-block mb-1" style="color: #10B981; font-size: 1.3rem;"></i>
+                                <span class="d-block fw-bold" style="font-size: 0.6rem; color: #065F46; letter-spacing: 0.3px;">PAGO SEGURO</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded-3" style="background: rgba(99, 102, 241, 0.06);">
+                                <i class="bi bi-truck d-block mb-1" style="color: #6366F1; font-size: 1.3rem;"></i>
+                                <span class="d-block fw-bold" style="font-size: 0.6rem; color: #3730A3; letter-spacing: 0.3px;">ENVÍO ASEGURADO</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded-3" style="background: rgba(245, 158, 11, 0.06);">
+                                <i class="bi bi-arrow-repeat d-block mb-1" style="color: #F59E0B; font-size: 1.3rem;"></i>
+                                <span class="d-block fw-bold" style="font-size: 0.6rem; color: #92400E; letter-spacing: 0.3px;">DEVOLUCIÓN FÁCIL</span>
+                            </div>
+                        </div>
                     </div>
-                    <p class="small text-muted mb-0" style="font-size: 0.75rem; line-height: 1.3;">
-                        Tus datos están protegidos por encriptación SSL de extremo a extremo. Compra Protegida por Tienda Plus.
+                    <p class="small text-muted text-center mt-2 mb-0" style="font-size: 0.7rem;">
+                        <i class="bi bi-lock-fill me-1"></i>Tus datos protegidos con encriptación SSL
                     </p>
                 </div>
 
@@ -318,16 +383,53 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════ -->
-<!-- JAVASCRIPT: Motor de cotización AJAX                     -->
+<!-- JAVASCRIPT: Motor de cotización + Urgencia + Validación  -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
-    // Parseo seguro del subtotal, ya que Django puede renderizarlo con coma o punto según el locale
     const SUBTOTAL_CARRITO = parseFloat("{{ carrito.total|default:'0' }}".replace(",", "."));
     let costoEnvioSeleccionado = 0;
+    let envioSeleccionado = false;
+
+    // ===== TIMER DE RESERVA (30 min) =====
+    (function() {
+        let segsRestantes = 30 * 60; // 30 minutos
+        const timerEl = document.getElementById('timer-reserva');
+        if (!timerEl) return;
+
+        setInterval(function() {
+            segsRestantes--;
+            if (segsRestantes <= 0) {
+                timerEl.textContent = '¡Expirado!';
+                timerEl.style.color = '#EF4444';
+                return;
+            }
+            const mins = Math.floor(segsRestantes / 60);
+            const segs = segsRestantes % 60;
+            timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+            
+            // Urgencia visual cuando quedan menos de 5 min
+            if (segsRestantes < 300) {
+                timerEl.style.color = '#EF4444';
+                timerEl.parentElement.parentElement.style.borderColor = 'rgba(239,68,68,0.3)';
+                timerEl.parentElement.parentElement.style.background = 'linear-gradient(135deg, #FEF2F2, #FEE2E2)';
+            }
+        }, 1000);
+    })();
 
     // Enter = Calcular
     document.getElementById('cp-envio')?.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { e.preventDefault(); cotizarEnvio(); }
+    });
+
+    // Prevenir submit si no se cotizó envío
+    document.getElementById('form-finalizar-compra')?.addEventListener('submit', function(e) {
+        if (!envioSeleccionado) {
+            e.preventDefault();
+            mostrarError('Primero calculá tu envío ingresando tu código postal.');
+            document.getElementById('cp-envio').focus();
+            document.getElementById('cp-envio').classList.add('border', 'border-danger');
+            setTimeout(() => document.getElementById('cp-envio').classList.remove('border', 'border-danger'), 3000);
+        }
     });
 
     async function cotizarEnvio() {
@@ -347,6 +449,14 @@
         errorBox.classList.add('d-none');
         document.getElementById('btn-cotizar').disabled = true;
 
+        // Reset categorías
+        ['cat-cheapest', 'cat-express', 'cat-pickup'].forEach(id => {
+            document.getElementById(id).classList.add('d-none');
+        });
+        ['opciones-cheapest', 'opciones-express', 'opciones-pickup'].forEach(id => {
+            document.getElementById(id).innerHTML = '';
+        });
+
         try {
             const response = await fetch(`{% url 'carrito:cotizar_envio' %}?cp=${cp}`);
             const data = await response.json();
@@ -364,7 +474,7 @@
                 return;
             }
 
-            renderizarOpciones(data.opciones);
+            renderizarOpcionesCategorias(data.opciones);
 
         } catch (err) {
             loader.classList.add('d-none');
@@ -373,65 +483,143 @@
         }
     }
 
-    function renderizarOpciones(opciones) {
+    function renderizarOpcionesCategorias(opciones) {
         const container = document.getElementById('envio-resultados');
-        container.innerHTML = '';
         container.classList.remove('d-none');
 
-        opciones.forEach((op, idx) => {
-            const isCheapest = op.tags && op.tags.includes('cheapest');
-            const checked = idx === 0 ? 'checked' : '';
-            const activeClass = idx === 0 ? 'shipping-option-active' : '';
-            const badge = isCheapest ? '<span class="badge bg-success rounded-pill ms-auto" style="font-size:0.65rem;">Más barato</span>' : '';
+        // Clasificar opciones por tipo de servicio
+        let cheapest = []; 
+        let express = [];  
+        let pickup = [];   
 
-            const card = document.createElement('div');
-            card.className = `shipping-option ${activeClass} p-3 rounded-4 border mb-2`;
-            card.style.cursor = 'pointer';
-            card.onclick = () => seleccionarEnvio(idx, op.precio);
+        const homeDelivery = [];
 
-            card.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <input type="radio" name="envio-opcion" class="form-check-input me-2" ${checked} 
-                           id="envio-${idx}" style="accent-color: var(--brand-primary);">
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi ${op.icono}" style="color: var(--brand-primary);"></i>
-                            <span class="fw-bold small">${op.nombre}</span>
-                            ${badge}
-                        </div>
-                        <div class="d-flex align-items-center gap-2 mt-1">
-                            ${op.logo ? `<img src="${op.logo}" alt="" style="height:14px; opacity:0.7;">` : ''}
-                            <span class="text-muted" style="font-size:0.72rem;">${op.transportista} · ${op.plazo_min}-${op.plazo_max} días hábiles</span>
-                        </div>
-                    </div>
-                    <span class="fw-bold ms-2" style="color: var(--brand-primary); white-space: nowrap;">$${formatNumber(op.precio)}</span>
-                </div>
-            `;
-            container.appendChild(card);
+        opciones.forEach(op => {
+            if (op.servicio === 'pickup_point') {
+                pickup.push(op);
+            } else if (op.servicio === 'express_delivery') {
+                express.push(op);
+            } else {
+                homeDelivery.push(op);
+            }
         });
 
-        // Seleccionar automáticamente la primera (más barata)
-        if (opciones.length > 0) {
-            seleccionarEnvio(0, opciones[0].precio);
+        // Si tenemos homeDelivery, ordenamos por precio
+        if (homeDelivery.length > 0) {
+            homeDelivery.sort((a, b) => a.precio - b.precio);
+            
+            // El más barato a cheapest
+            cheapest.push(homeDelivery[0]);
+            
+            // Buscar si hay alguno más rápido
+            let fastestOp = null;
+            for (let i = 1; i < homeDelivery.length; i++) {
+                if (!fastestOp || homeDelivery[i].plazo_max < fastestOp.plazo_max) {
+                    fastestOp = homeDelivery[i];
+                }
+            }
+            
+            // Si el más rápido es realmente más rápido que el más barato, lo mandamos a express
+            // Si no, lo mandamos a express igual para dar alternativas si no hay nada en express aún
+            if (fastestOp && express.length === 0) {
+                express.push(fastestOp);
+            } else if (homeDelivery.length > 1 && express.length === 0) {
+                // Si no es estrictamente más rápido pero hay otra opción, lo ponemos en express para rellenar
+                express.push(homeDelivery[1]);
+            }
+        }
+
+        let globalIdx = 0;
+        let firstSelected = false;
+
+        // Renderizar cada categoría
+        if (cheapest.length > 0) {
+            document.getElementById('cat-cheapest').classList.remove('d-none');
+            cheapest.forEach(op => {
+                const isFirst = !firstSelected;
+                if (isFirst) firstSelected = true;
+                renderizarOpcion('opciones-cheapest', op, globalIdx, isFirst);
+                globalIdx++;
+            });
+        }
+
+        if (express.length > 0) {
+            document.getElementById('cat-express').classList.remove('d-none');
+            express.forEach(op => {
+                const isFirst = !firstSelected;
+                if (isFirst) firstSelected = true;
+                renderizarOpcion('opciones-express', op, globalIdx, isFirst);
+                globalIdx++;
+            });
+        }
+
+        if (pickup.length > 0) {
+            document.getElementById('cat-pickup').classList.remove('d-none');
+            pickup.forEach(op => {
+                const isFirst = !firstSelected;
+                if (isFirst) firstSelected = true;
+                renderizarOpcion('opciones-pickup', op, globalIdx, isFirst);
+                globalIdx++;
+            });
+        }
+
+        // Auto-seleccionar la primera opción (más barata)
+        const allOpciones = [...cheapest, ...express, ...pickup];
+        if (allOpciones.length > 0) {
+            seleccionarEnvio(0, allOpciones[0].precio, allOpciones[0]);
         }
     }
 
-    function seleccionarEnvio(idx, precio) {
-        costoEnvioSeleccionado = precio;
+    function renderizarOpcion(containerId, op, idx, isSelected) {
+        const container = document.getElementById(containerId);
+        const isCheapest = op.tags && op.tags.includes('cheapest');
+        const badge = isCheapest ? '<span class="badge bg-success rounded-pill ms-auto" style="font-size:0.6rem;">Mejor precio</span>' : '';
+        const activeClass = isSelected ? 'shipping-option-active' : '';
+        const checked = isSelected ? 'checked' : '';
 
-        // Marcar visualmente
-        document.querySelectorAll('.shipping-option').forEach((el, i) => {
-            el.classList.toggle('shipping-option-active', i === idx);
-            el.querySelector('input[type=radio]').checked = (i === idx);
-            
-            // Si es el seleccionado, guardamos su nombre para pasarlo al backend
-            if (i === idx) {
-                const nombre = el.querySelector('.fw-bold.small').textContent;
-                const transp = el.querySelector('.text-muted').textContent.split('·')[0].trim();
-                document.getElementById('input-envio-nombre').value = `${nombre} (${transp})`;
-                document.getElementById('input-envio-precio').value = precio;
-            }
+        const card = document.createElement('div');
+        card.className = `shipping-option ${activeClass} p-2 px-3 rounded-3 border mb-1`;
+        card.style.cursor = 'pointer';
+        card.dataset.idx = idx;
+        card.onclick = () => seleccionarEnvio(idx, op.precio, op);
+
+        card.innerHTML = `
+            <div class="d-flex align-items-center">
+                <input type="radio" name="envio-opcion" class="form-check-input me-2 flex-shrink-0" ${checked} 
+                       id="envio-${idx}" style="accent-color: var(--brand-primary);">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi ${op.icono}" style="color: var(--brand-primary); font-size: 0.8rem;"></i>
+                        <span class="fw-bold" style="font-size: 0.78rem;">${op.nombre}</span>
+                        ${badge}
+                    </div>
+                    <div class="d-flex align-items-center gap-1 mt-0">
+                        ${op.logo ? `<img src="${op.logo}" alt="" style="height:12px; opacity:0.6;">` : ''}
+                        <span class="text-muted" style="font-size:0.68rem;">${op.transportista} · ${op.plazo_min}-${op.plazo_max} días</span>
+                    </div>
+                </div>
+                <span class="fw-bold ms-2 flex-shrink-0" style="color: var(--brand-primary); font-size: 0.85rem; white-space: nowrap;">$${formatNumber(op.precio)}</span>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+
+    function seleccionarEnvio(idx, precio, opData) {
+        costoEnvioSeleccionado = precio;
+        envioSeleccionado = true;
+
+        // Marcar visualmente (en todas las categorías)
+        document.querySelectorAll('.shipping-option').forEach(el => {
+            const elIdx = parseInt(el.dataset.idx);
+            el.classList.toggle('shipping-option-active', elIdx === idx);
+            const radio = el.querySelector('input[type=radio]');
+            if (radio) radio.checked = (elIdx === idx);
         });
+
+        // Guardar datos para el backend
+        const nombre = opData ? `${opData.nombre} (${opData.transportista})` : '';
+        document.getElementById('input-envio-nombre').value = nombre;
+        document.getElementById('input-envio-precio').value = precio;
 
         // Actualizar línea de envío
         const precioDisplay = document.getElementById('envio-precio-display');
@@ -444,6 +632,27 @@
         // Actualizar total
         const nuevoTotal = SUBTOTAL_CARRITO + precio;
         document.getElementById('total-final').textContent = `$${formatNumber(nuevoTotal)}`;
+
+        // *** ACTIVAR BOTÓN DE COMPRA ***
+        activarBotonFinalizar();
+    }
+
+    function activarBotonFinalizar() {
+        const btn = document.getElementById('btn-finalizar');
+        const msg = document.getElementById('msg-envio-requerido');
+        if (!btn) return;
+
+        btn.disabled = false;
+        btn.style.backgroundColor = 'var(--brand-primary)';
+        btn.style.cursor = 'pointer';
+        btn.innerHTML = '<i class="bi bi-bag-check-fill me-2"></i>FINALIZAR COMPRA';
+        
+        // Animación de atención
+        btn.style.transform = 'scale(1.03)';
+        setTimeout(() => btn.style.transform = 'scale(1)', 300);
+        
+        // Ocultar mensaje de error
+        if (msg) msg.style.display = 'none';
     }
 
     function mostrarError(msg) {

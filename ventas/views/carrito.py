@@ -91,9 +91,15 @@ def finalizar_compra(request):
             messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
-    # ✅ Guardar selección de envío en la sesión
+    # ✅ Validar que el envío fue cotizado
     envio_precio = request.POST.get("envio_precio", 0)
     envio_nombre = request.POST.get("envio_nombre", "")
+
+    if not envio_nombre or not envio_nombre.strip():
+        messages.error(request, '🚚 Necesitás calcular el envío antes de continuar. Ingresá tu código postal.')
+        return redirect("carrito:carrito_detail")
+
+    # ✅ Guardar selección de envío en la sesión
     
     try:
         envio_precio = float(envio_precio)

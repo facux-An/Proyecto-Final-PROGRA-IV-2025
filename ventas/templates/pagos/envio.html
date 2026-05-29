@@ -82,16 +82,42 @@
                         <p class="text-muted small mb-4 ms-5">Donde recibirás tu paquete.</p>
 
                         <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Dirección completa <span class="text-danger">*</span></label>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Calle <span class="text-danger">*</span></label>
                                 {{ form.direccion_envio }}
                                 {% if form.direccion_envio.errors %}
                                     <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.direccion_envio.errors.0 }}</div>
                                 {% endif %}
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Número <span class="text-danger">*</span></label>
+                                {{ form.numero_envio }}
+                                {% if form.numero_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.numero_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Piso</label>
+                                {{ form.piso_envio }}
+                                {% if form.piso_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.piso_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Depto</label>
+                                {{ form.depto_envio }}
+                                {% if form.depto_envio.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.depto_envio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
                             <div class="col-md-5">
                                 <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.5px;">Ciudad / Localidad <span class="text-danger">*</span></label>
                                 {{ form.ciudad_envio }}
+                                <datalist id="localidades-bsas">
+                                    {% for loc in form.LOCALIDADES_BSAS %}
+                                        <option value="{{ loc }}">
+                                    {% endfor %}
+                                </datalist>
                                 {% if form.ciudad_envio.errors %}
                                     <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.ciudad_envio.errors.0 }}</div>
                                 {% endif %}

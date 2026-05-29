@@ -37,6 +37,34 @@ class DatosEnvioForm(forms.ModelForm):
         ('Tucumán', 'Tucumán'),
     ]
 
+    LOCALIDADES_BSAS = [
+        'Adrogué', 'Avellaneda', 'Banfield', 'Beccar', 'Bella Vista',
+        'Berazategui', 'Bernal', 'Boulogne', 'Burzaco', 'Caballito',
+        'Caseros', 'Castelar', 'City Bell', 'Ciudadela', 'Claypole',
+        'Del Viso', 'Don Torcuato', 'El Palomar', 'El Talar', 'Esteban Echeverría',
+        'Ezeiza', 'Florencio Varela', 'Florida', 'General Pacheco', 'General San Martín',
+        'Gerli', 'Glew', 'González Catán', 'Grand Bourg', 'Haedo',
+        'Hurlingham', 'Isidro Casanova', 'Ituzaingó', 'José C. Paz', 'José Mármol',
+        'La Lucila', 'La Matanza', 'La Plata', 'La Tablada', 'Lanús',
+        'Llavallol', 'Lomas de Zamora', 'Longchamps', 'Los Polvorines', 'Luis Guillón',
+        'Luján', 'Malvinas Argentinas', 'Mar del Plata', 'Martínez', 'Merlo',
+        'Monte Grande', 'Moreno', 'Morón', 'Muñiz', 'Munro',
+        'Olivos', 'Pablo Podestá', 'Paso del Rey', 'Pergamino', 'Pilar',
+        'Quilmes', 'Rafael Calzada', 'Ramos Mejía', 'Remedios de Escalada', 'San Antonio de Padua',
+        'San Fernando', 'San Isidro', 'San Justo', 'San Martín', 'San Miguel',
+        'San Nicolás', 'Santos Lugares', 'Sarandí', 'Temperley', 'Tigre',
+        'Tortuguitas', 'Tres de Febrero', 'Turdera', 'Vicente López', 'Villa Ballester',
+        'Villa Bosch', 'Villa Celina', 'Villa Luzuriaga', 'Villa Madero', 'Villa Martelli',
+        'Wilde', 'William Morris', 'Zárate',
+        # CABA barrios principales
+        'CABA - Palermo', 'CABA - Belgrano', 'CABA - Recoleta', 'CABA - Caballito',
+        'CABA - Flores', 'CABA - Villa Urquiza', 'CABA - Almagro', 'CABA - Barracas',
+        'CABA - Boedo', 'CABA - Colegiales', 'CABA - Devoto', 'CABA - Liniers',
+        'CABA - Mataderos', 'CABA - Nuñez', 'CABA - Once', 'CABA - Pompeya',
+        'CABA - Puerto Madero', 'CABA - Retiro', 'CABA - San Cristóbal', 'CABA - San Telmo',
+        'CABA - Villa Crespo', 'CABA - Villa del Parque', 'CABA - Villa Lugano',
+    ]
+
     class Meta:
         model = Pedido
         fields = [
@@ -44,6 +72,9 @@ class DatosEnvioForm(forms.ModelForm):
             'email_envio',
             'telefono_envio',
             'direccion_envio',
+            'numero_envio',
+            'piso_envio',
+            'depto_envio',
             'ciudad_envio',
             'provincia_envio',
             'codigo_postal_envio',
@@ -65,11 +96,25 @@ class DatosEnvioForm(forms.ModelForm):
             }),
             'direccion_envio': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
-                'placeholder': 'Calle, número, piso, depto',
+                'placeholder': 'Calle',
+            }),
+            'numero_envio': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
+                'placeholder': 'Número',
+            }),
+            'piso_envio': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
+                'placeholder': 'Piso (Opcional)',
+            }),
+            'depto_envio': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
+                'placeholder': 'Depto (Opcional)',
             }),
             'ciudad_envio': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
-                'placeholder': 'Ej: CABA, Córdoba, etc.',
+                'placeholder': 'Empezá a escribir tu localidad...',
+                'list': 'localidades-bsas',
+                'autocomplete': 'off',
             }),
             'codigo_postal_envio': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg bg-light border-0 rounded-pill px-4',
@@ -89,14 +134,21 @@ class DatosEnvioForm(forms.ModelForm):
         self.fields['email_envio'].required = True
         self.fields['telefono_envio'].required = True
         self.fields['direccion_envio'].required = True
+        self.fields['numero_envio'].required = True
+        self.fields['piso_envio'].required = False
+        self.fields['depto_envio'].required = False
         self.fields['ciudad_envio'].required = True
         self.fields['provincia_envio'].required = True
         self.fields['codigo_postal_envio'].required = True
         self.fields['notas_envio'].required = False
 
-        # Asignar las provincias al widget select
+        # Restringir provincia a Buenos Aires y CABA
         self.fields['provincia_envio'].widget = forms.Select(
-            choices=self.PROVINCIAS,
+            choices=[
+                ('', 'Seleccioná tu provincia'),
+                ('Buenos Aires', 'Buenos Aires'),
+                ('CABA', 'Ciudad Autónoma de Buenos Aires'),
+            ],
             attrs={
                 'class': 'form-select form-select-lg bg-light border-0 rounded-pill px-4',
             }
