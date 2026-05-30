@@ -130,7 +130,7 @@ class ItemCarrito(models.Model):
     @property
     def subtotal(self):
         # ESCUDO DEFENSIVO CORREGIDO: El carrito lee el precio EN VIVO del producto.
-        # Nos aseguramos de que el producto exista y tenga precio antes de multiplicar.
-        if self.cantidad is not None and self.producto and self.producto.precio is not None:
-            return self.cantidad * self.producto.precio
+        # Usa precio_display para respetar los descuentos activos.
+        if self.cantidad is not None and self.producto and self.producto.precio_display is not None:
+            return self.cantidad * self.producto.precio_display
         return 0

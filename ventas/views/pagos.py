@@ -149,7 +149,7 @@ class MetodoPagoView(TemplateView):
                         pedido=pedido,
                         producto=item.producto,
                         cantidad=item.cantidad,
-                        precio_unitario=item.producto.precio
+                        precio_unitario=item.producto.precio_display
                     )
                     # Descontar stock
                     descontar_stock(item.producto, item.cantidad)

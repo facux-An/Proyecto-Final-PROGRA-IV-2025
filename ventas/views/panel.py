@@ -81,7 +81,7 @@ class VentaMostradorView(TemplateView):
             {
                 'id': p.id,
                 'nombre': p.nombre,
-                'precio': float(p.precio), # Convertimos a float para JS
+                'precio': float(p.precio_display), # Convertimos a float para JS
                 'stock': p.stock
             }
             for p in productos
@@ -136,9 +136,9 @@ class VentaMostradorView(TemplateView):
                         pedido=pedido,
                         producto=producto,
                         cantidad=cantidad,
-                        precio_unitario=producto.precio
+                        precio_unitario=producto.precio_display
                     )
-                    total_calculado += (producto.precio * cantidad)
+                    total_calculado += (producto.precio_display * cantidad)
 
                 # 3. Cerramos el total de la cabecera
                 pedido.total = total_calculado
