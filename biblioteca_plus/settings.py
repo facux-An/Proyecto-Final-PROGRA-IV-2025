@@ -34,6 +34,12 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
 ]
 
+# Seguridad de Cookies en Producción (Evita errores de CSRF y State Mismatch con Google OAuth)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # -----------------------------------------------------------------------------
 # Apps
 # -----------------------------------------------------------------------------
@@ -169,6 +175,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "login"
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 
 # -----------------------------------------------------------------------------
 # Mensajes
