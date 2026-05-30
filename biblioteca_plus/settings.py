@@ -206,11 +206,35 @@ if CLOUDINARY_ENABLED and CLOUDINARY_URL:
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     # Static sigue con Whitenoise; media se sube a Cloudinary
     MEDIA_URL = "/media/"  # (no se usa para servir desde Cloudinary, pero mantiene compatibilidad)
-    print(f"[Cloudinary] Activado. Carpeta: {CLOUDINARY_FOLDER}")
 else:
     # Fallback a disco local
     from django.core.files.storage import FileSystemStorage
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
-    print("[Cloudinary] Desactivado. Usando FileSystemStorage local.")
+
+# -----------------------------------------------------------------------------
+# Caché en Memoria (LocMemCache)
+# -----------------------------------------------------------------------------
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "tiendaplus-cache",
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Proveedores de Autenticación Social (Allauth)
+# -----------------------------------------------------------------------------
+# Configuración declarativa para evitar depender de registros en la base de datos (SocialApp)
+# y prevenir errores "DoesNotExist" si la base de datos se limpia o migra.
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+            "key": ""  # Requerido por la especificación de allauth (puede estar vacío)
+        }
+    }
+}
+

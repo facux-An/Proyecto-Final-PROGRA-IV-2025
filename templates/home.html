@@ -4,6 +4,7 @@
 {% block title %}Inicio · Tienda Plus{% endblock %}
 
 {% block content %}
+{% load cache %}
 <style>
     /* ===== HERO CAROUSEL ===== */
     .hero-carousel .carousel-item {
@@ -195,6 +196,7 @@
 <!-- ============================================ -->
 <!-- 1. HERO CAROUSEL                             -->
 <!-- ============================================ -->
+{% cache 900 vitrina_home request.user.is_staff %}
 <div class="hero-carousel mb-4">
     <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="4000">
         <div class="carousel-indicators">
@@ -587,6 +589,7 @@
         Ver catálogo completo
     </a>
 </div>
+{% endcache %}
 
 <!-- ============================================ -->
 <!-- 5. TRUST BANNER                              -->
