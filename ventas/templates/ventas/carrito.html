@@ -6,7 +6,85 @@
 {% block content %}
 <style>
     body { background-color: #f9fafb; }
-    
+
+    /* ══════════════════════════════════ */
+    /* BARRA DE ENVÍO GRATIS             */
+    /* ══════════════════════════════════ */
+    .free-shipping-bar {
+        animation: fsbSlideIn 0.5s ease-out;
+    }
+    @keyframes fsbSlideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Estado: En progreso */
+    .fsb-progress {
+        background: linear-gradient(135deg, #FFF7ED 0%, #FFF1E3 50%, #FEF3C7 100%);
+        border: 1px solid rgba(255,102,0,0.12);
+    }
+
+    /* Estado: Logrado */
+    .fsb-achieved {
+        background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);
+        border: 1px solid rgba(16,185,129,0.3);
+        box-shadow: 0 4px 15px rgba(16,185,129,0.25);
+    }
+    .fsb-icon-achieved {
+        font-size: 1.3rem;
+        animation: fsbCelebrate 0.6s ease-in-out;
+    }
+    @keyframes fsbCelebrate {
+        0% { transform: scale(0.3) rotate(-15deg); }
+        50% { transform: scale(1.3) rotate(10deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* Track (fondo de la barra) */
+    .fsb-track {
+        height: 8px;
+        background: rgba(0,0,0,0.08);
+        position: relative;
+    }
+
+    /* Fill (progreso) */
+    .fsb-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FF8A3D, #FF6600, #FF4500);
+        transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        position: relative;
+        overflow: hidden;
+        min-width: 8px;
+    }
+    .fsb-fill-full {
+        background: linear-gradient(90deg, #34D399, #10B981, #059669) !important;
+    }
+
+    /* Shimmer brillante que recorre la barra */
+    .fsb-fill-shimmer {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: fsbShimmer 2s ease-in-out infinite;
+    }
+    @keyframes fsbShimmer {
+        0% { left: -100%; }
+        100% { left: 200%; }
+    }
+
+    /* Ícono del camión */
+    .fsb-truck-icon {
+        font-size: 1.2rem;
+        animation: fsbTruck 2.5s ease-in-out infinite;
+    }
+    @keyframes fsbTruck {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(3px); }
+        75% { transform: translateX(-2px); }
+    }
     /* Contenedores Soft */
     .cart-box {
         background: #ffffff;
@@ -137,6 +215,51 @@
     </div>
 
     {% if carrito.items.exists %}
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- BARRA DE ENVÍO GRATIS — Progress Bar Premium              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    {% if eg_activo %}
+    <div class="free-shipping-bar mb-4" id="free-shipping-bar">
+        {% if eg_alcanzado %}
+        <!-- 🎉 Estado: LOGRADO -->
+        <div class="fsb-achieved p-3 rounded-4">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                <span class="fsb-icon-achieved">🎉</span>
+                <span class="fw-bold text-white" style="font-size: 0.95rem;">{{ eg_mensaje_logrado }}</span>
+            </div>
+            <div class="fsb-track rounded-pill overflow-hidden">
+                <div class="fsb-fill fsb-fill-full rounded-pill" style="width: 100%;"></div>
+            </div>
+        </div>
+        {% else %}
+        <!-- 🚛 Estado: EN PROGRESO -->
+        <div class="fsb-progress p-3 rounded-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fsb-truck-icon">🚛</span>
+                    <span class="fw-bold" style="font-size: 0.85rem; color: #1a1a1a;">
+                        ¡Te faltan <span style="color: var(--brand-primary);" id="eg-falta-monto">${{ eg_falta|floatformat:0 }}</span> para envío <span style="color: #10B981; font-weight: 800;">GRATIS</span>!
+                    </span>
+                </div>
+                <span class="badge rounded-pill px-2 py-1" style="background: rgba(255,102,0,0.12); color: var(--brand-primary); font-size: 0.7rem; font-weight: 700;">
+                    {{ eg_porcentaje }}%
+                </span>
+            </div>
+            <div class="fsb-track rounded-pill overflow-hidden">
+                <div class="fsb-fill rounded-pill" style="width: {{ eg_porcentaje }}%;">
+                    <div class="fsb-fill-shimmer"></div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+                <span class="text-muted" style="font-size: 0.65rem;">$0</span>
+                <span class="fw-bold" style="font-size: 0.65rem; color: var(--brand-primary);">${{ eg_umbral|floatformat:0 }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="row g-4">
         
         <!-- Lista de Productos (Izquierda) -->

@@ -4,6 +4,57 @@ from django.db import models
 from django.conf import settings
 from productos.models import Producto
 
+
+# ────────────────────────────────────────────
+# ⚙️ 0. Configuración de la Tienda (Singleton)
+# ────────────────────────────────────────────
+class ConfiguracionTienda(models.Model):
+    """
+    Modelo singleton: solo existe 1 registro en la base de datos.
+    Permite al staff modificar parámetros de la tienda sin tocar código.
+    """
+    # Envío gratis
+    envio_gratis_activo = models.BooleanField(
+        "Promo envío gratis activa",
+        default=True,
+        help_text="Si está activo, se muestra la barra de progreso en el carrito."
+    )
+    envio_gratis_umbral = models.DecimalField(
+        "Monto mínimo para envío gratis ($)",
+        max_digits=10, decimal_places=2, default=29000,
+        help_text="El cliente obtiene envío gratis cuando su carrito supera este monto."
+    )
+    envio_gratis_mensaje = models.CharField(
+        "Mensaje de la barra",
+        max_length=200,
+        default="¡Envío GRATIS en compras mayores a ${umbral}!",
+        help_text="Usá {umbral} para insertar el monto. Ej: ¡Envío GRATIS en compras mayores a ${umbral}!"
+    )
+    envio_gratis_mensaje_logrado = models.CharField(
+        "Mensaje cuando se alcanza",
+        max_length=200,
+        default="🎉 ¡Desbloqueaste envío GRATIS!",
+        help_text="Lo que ve el cliente cuando alcanza el monto."
+    )
+
+    class Meta:
+        verbose_name = "Configuración de la Tienda"
+        verbose_name_plural = "Configuración de la Tienda"
+
+    def __str__(self):
+        return "Configuración General"
+
+    def save(self, *args, **kwargs):
+        # Forzar que solo exista 1 registro (singleton)
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        """Obtiene la configuración. Si no existe, la crea con valores por defecto."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
 # -------------------------------
 # 📦 1. La Cabecera: Pedido
 # -------------------------------

@@ -13,9 +13,39 @@ def ver_carrito(request):
     """
     Vista principal del carrito.
     Muestra los productos agregados por el usuario autenticado.
+    Inyecta datos de la barra de envío gratis desde ConfiguracionTienda.
     """
+    from ventas.models import ConfiguracionTienda
+
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    return render(request, "ventas/carrito.html", {"carrito": carrito})
+
+    # Datos de envío gratis (singleton del staff)
+    config = ConfiguracionTienda.get()
+    total_carrito = float(carrito.total)
+    umbral = float(config.envio_gratis_umbral)
+
+    if umbral > 0:
+        porcentaje = min(round((total_carrito / umbral) * 100, 1), 100)
+        falta = max(umbral - total_carrito, 0)
+    else:
+        porcentaje = 100
+        falta = 0
+
+    alcanzado = total_carrito >= umbral
+
+    context = {
+        "carrito": carrito,
+        # Barra de envío gratis
+        "eg_activo": config.envio_gratis_activo,
+        "eg_umbral": umbral,
+        "eg_porcentaje": porcentaje,
+        "eg_falta": falta,
+        "eg_alcanzado": alcanzado,
+        "eg_mensaje": config.envio_gratis_mensaje.replace("{umbral}", f"{umbral:,.0f}"),
+        "eg_mensaje_logrado": config.envio_gratis_mensaje_logrado,
+    }
+
+    return render(request, "ventas/carrito.html", context)
 
 
 @login_required

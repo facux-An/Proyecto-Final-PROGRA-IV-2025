@@ -1,5 +1,46 @@
 from django.contrib import admin
-from .models import Pedido, DetallePedido, Carrito, ItemCarrito, HistorialPedido, PedidoLog
+from .models import (
+    Pedido, DetallePedido, Carrito, ItemCarrito,
+    HistorialPedido, PedidoLog, ConfiguracionTienda,
+)
+
+
+# ────────────────────────────────────────────
+# ⚙️ Configuración de la Tienda (Singleton)
+# ────────────────────────────────────────────
+@admin.register(ConfiguracionTienda)
+class ConfiguracionTiendaAdmin(admin.ModelAdmin):
+    """
+    Admin singleton: no permite crear ni borrar.
+    Si no existe, lo crea automáticamente al entrar.
+    """
+    fieldsets = (
+        ('🚚 Envío Gratis — Barra de progreso en el Carrito', {
+            'fields': (
+                'envio_gratis_activo',
+                'envio_gratis_umbral',
+                'envio_gratis_mensaje',
+                'envio_gratis_mensaje_logrado',
+            ),
+            'description': (
+                'Configurá la promoción de envío gratis. El cliente ve una barra de progreso '
+                'en el carrito que se va llenando hasta alcanzar el monto mínimo.'
+            ),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # Solo puede existir 1 registro
+        return not ConfiguracionTienda.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        # Si no existe, crearlo y redirigir directo a editar
+        obj = ConfiguracionTienda.get()
+        from django.shortcuts import redirect
+        return redirect(f'/admin/ventas/configuraciontienda/{obj.pk}/change/')
 
 # 1. Creamos el "Inline" para los renglones del ticket
 class DetallePedidoInline(admin.TabularInline):
