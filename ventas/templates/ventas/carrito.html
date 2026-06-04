@@ -423,7 +423,11 @@
                 <!-- Línea de envío (se actualiza con JS) -->
                 <div class="d-flex justify-content-between mb-3" id="envio-linea">
                     <span class="text-muted">Envío</span>
+                    {% if eg_activo and eg_alcanzado %}
+                    <span class="fw-bold" style="color:#10B981;" id="envio-precio-display">¡Gratis!</span>
+                    {% else %}
                     <span class="text-muted small" id="envio-precio-display">Ingresá tu CP ↑</span>
+                    {% endif %}
                 </div>
                 
                 <hr class="mb-4" style="border-top: 2px dashed #e9ecef;">
@@ -434,24 +438,34 @@
                     <span class="fw-bold display-6" style="color: var(--brand-primary);" id="total-final">${{ carrito.total|floatformat:2 }}</span>
                 </div>
 
-                <!-- Botón Finalizar (DESHABILITADO hasta cotizar) -->
+                <!-- Botón Finalizar -->
                 <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
                     {% csrf_token %}
                     <input type="hidden" name="envio_precio" id="input-envio-precio" value="0">
-                    <input type="hidden" name="envio_nombre" id="input-envio-nombre" value="">
+                    <input type="hidden" name="envio_nombre" id="input-envio-nombre" value="{% if eg_activo and eg_alcanzado %}Envío Gratis (Promo Tienda Plus){% endif %}">
                     
-                    <!-- Botón deshabilitado por defecto -->
+                    {% if eg_activo and eg_alcanzado %}
+                    <!-- Envío gratis → botón activo directo -->
+                    <button type="submit" id="btn-finalizar" 
+                            class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill mb-2 text-white" 
+                            style="background-color: var(--brand-primary); border: none; padding: 1rem; transition: all 0.4s ease;">
+                        <i class="bi bi-bag-check-fill me-2"></i>FINALIZAR COMPRA
+                    </button>
+                    <p id="msg-envio-requerido" class="text-center small mb-0" style="color: #10B981; font-weight: 600; display: block;">
+                        <i class="bi bi-check-circle-fill me-1"></i> ¡Tu envío es gratis! Podés cotizar opciones o avanzar directo.
+                    </p>
+                    {% else %}
+                    <!-- Sin envío gratis → botón bloqueado hasta cotizar -->
                     <button type="submit" id="btn-finalizar" 
                             class="btn btn-lg w-100 fw-bold shadow-sm rounded-pill mb-2 text-white" 
                             style="background-color: #C4C4C4; border: none; padding: 1rem; cursor: not-allowed; transition: all 0.4s ease;"
                             disabled>
                         <i class="bi bi-lock-fill me-2"></i>CALCULÁ TU ENVÍO PRIMERO
                     </button>
-
-                    <!-- Mensaje helper debajo del botón -->
                     <p id="msg-envio-requerido" class="text-center small mb-0" style="color: #EF4444; font-weight: 600;">
                         <i class="bi bi-arrow-up-circle me-1"></i> Ingresá tu código postal para continuar
                     </p>
+                    {% endif %}
                 </form>
                 
                 <!-- Trust Badges Premium -->
@@ -510,8 +524,9 @@
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
     const SUBTOTAL_CARRITO = parseFloat("{{ carrito.total|default:'0' }}".replace(",", "."));
+    const ENVIO_GRATIS = {{ eg_activo|yesno:'true,false' }} && {{ eg_alcanzado|yesno:'true,false' }};
     let costoEnvioSeleccionado = 0;
-    let envioSeleccionado = false;
+    let envioSeleccionado = ENVIO_GRATIS; // Si tiene envío gratis, ya está "seleccionado"
 
     // ===== TIMER DE RESERVA (30 min) =====
     (function() {

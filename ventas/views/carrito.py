@@ -102,9 +102,12 @@ def finalizar_compra(request):
     
     - Valida que el carrito no esté vacío.
     - Verifica stock de cada producto.
+    - Aplica envío gratis si corresponde.
     - NO crea el Pedido aún (se crea al confirmar método de pago).
     - Redirige a seleccionar método de pago.
     """
+    from ventas.models import ConfiguracionTienda
+
     if request.method != "POST":
         messages.warning(request, "⚠️ Usá el botón para finalizar la compra.")
         return redirect("carrito:carrito_detail")
@@ -121,21 +124,33 @@ def finalizar_compra(request):
             messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
-    # ✅ Validar que el envío fue cotizado
-    envio_precio = request.POST.get("envio_precio", 0)
-    envio_nombre = request.POST.get("envio_nombre", "")
+    # ✅ Verificar si aplica envío gratis
+    config = ConfiguracionTienda.get()
+    total_carrito = float(carrito.total)
+    tiene_envio_gratis = (
+        config.envio_gratis_activo
+        and total_carrito >= float(config.envio_gratis_umbral)
+    )
 
-    if not envio_nombre or not envio_nombre.strip():
-        messages.error(request, '🚚 Necesitás calcular el envío antes de continuar. Ingresá tu código postal.')
-        return redirect("carrito:carrito_detail")
+    if tiene_envio_gratis:
+        # Envío gratis → forzar precio $0
+        envio_precio = 0.0
+        envio_nombre = "Envío Gratis (Promo Tienda Plus)"
+    else:
+        # Sin envío gratis → exigir que haya cotizado
+        envio_precio = request.POST.get("envio_precio", 0)
+        envio_nombre = request.POST.get("envio_nombre", "")
+
+        if not envio_nombre or not envio_nombre.strip():
+            messages.error(request, '🚚 Necesitás calcular el envío antes de continuar. Ingresá tu código postal.')
+            return redirect("carrito:carrito_detail")
+
+        try:
+            envio_precio = float(envio_precio)
+        except ValueError:
+            envio_precio = 0.0
 
     # ✅ Guardar selección de envío en la sesión
-    
-    try:
-        envio_precio = float(envio_precio)
-    except ValueError:
-        envio_precio = 0.0
-
     request.session["envio_cotizado"] = {
         "precio": envio_precio,
         "nombre": envio_nombre
