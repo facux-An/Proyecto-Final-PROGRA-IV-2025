@@ -265,8 +265,8 @@ class GestorOfertasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Separamos los productos para la vista
-        context['kits_carrusel'] = Producto.objects.filter(es_combo=True).order_by('-en_oferta', 'nombre')
-        context['productos_individuales'] = Producto.objects.filter(es_combo=False).order_by('-en_oferta', 'nombre')
+        context['kits_carrusel'] = Producto.objects.filter(en_carrusel=True).order_by('-en_oferta', 'nombre')
+        context['productos_individuales'] = Producto.objects.filter(en_carrusel=False).order_by('-en_oferta', 'nombre')
         return context
 
     def post(self, request, *args, **kwargs):
@@ -287,6 +287,7 @@ class GestorOfertasView(TemplateView):
             # Parse checkboxes
             en_oferta = request.POST.get('en_oferta') == 'on'
             destacado = request.POST.get('destacado') == 'on'
+            en_carrusel = request.POST.get('en_carrusel') == 'on'
             
             # Parse text fields
             precio_oferta_str = request.POST.get('precio_oferta', '')
@@ -295,6 +296,7 @@ class GestorOfertasView(TemplateView):
             
             producto.en_oferta = en_oferta
             producto.destacado = destacado
+            producto.en_carrusel = en_carrusel
             producto.etiqueta_oferta = etiqueta
 
             if precio_oferta_str:

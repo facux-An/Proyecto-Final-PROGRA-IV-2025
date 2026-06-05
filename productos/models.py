@@ -24,6 +24,10 @@ class Producto(models.Model):
         "En oferta", default=False,
         help_text="Activar para mostrar este producto como oferta."
     )
+    en_carrusel = models.BooleanField(
+        "Mostrar en Carrusel", default=False,
+        help_text="Activar para que el producto aparezca en el slider gigante del Home."
+    )
     fecha_fin_oferta = models.DateTimeField(
         "Oferta válida hasta", null=True, blank=True,
         help_text="Fecha y hora en que expira la oferta. Se usa para el countdown."
