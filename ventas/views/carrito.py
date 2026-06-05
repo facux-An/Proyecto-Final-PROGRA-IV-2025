@@ -85,13 +85,29 @@ def ver_carrito(request):
             candidatos_cierre_solo.sort(key=overshoot_score)
             estrella = candidatos_cierre_solo[0]
 
-            # Complementario opcional: producto barato de distinta categoría (enriquece la oferta)
+            # Complementario: enriquece la oferta visualmente.
+            # Rol: mostrar variedad, no cerrar el gap por sí solo.
+            # Prioridad 1: distinta categoría + precio <= estrella (no sobreproponer)
+            # Prioridad 2: si no hay de distinta cat, cualquier producto más barato que la estrella
+            # Prioridad 3: si tampoco, el siguiente más barato disponible
+            precio_estrella = float(estrella.precio_display)
             complementarios = [
                 p for p in candidatos
                 if p.id != estrella.id
-                and float(p.precio_display) < falta
-                and p.categoria_id != estrella.categoria_id   # distinta categoría = diversidad
+                and p.categoria_id != estrella.categoria_id
+                and float(p.precio_display) <= precio_estrella
             ]
+            if not complementarios:
+                # Fallback 2: misma categoría permitida pero precio <= estrella
+                complementarios = [
+                    p for p in candidatos
+                    if p.id != estrella.id
+                    and float(p.precio_display) <= precio_estrella
+                ]
+            if not complementarios:
+                # Fallback 3: cualquier otro producto disponible (sin restricción de precio)
+                complementarios = [p for p in candidatos if p.id != estrella.id]
+
             complementarios.sort(key=lambda p: float(p.precio_display))
             productos_recomendados = [estrella] + complementarios[:1]
             recomendacion_modo = 'solo'
