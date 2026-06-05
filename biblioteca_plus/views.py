@@ -29,7 +29,7 @@ def home(request):
     )
     
     kits_combo = (
-        Producto.objects.filter(en_carrusel=True, en_oferta=True)
+        Producto.objects.filter(en_carrusel=True)
         .select_related('categoria')
         .prefetch_related('portadas')[:5]
     )
