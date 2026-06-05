@@ -97,7 +97,19 @@
                 </div>
                 
                 <div class="d-flex align-items-center mb-4 bg-light p-3 rounded-4 border">
-                    <div class="h1 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ producto.precio|floatformat:2 }}</div>
+                    {% if producto.oferta_activa and producto.precio_oferta %}
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="h4 text-muted text-decoration-line-through mb-0">${{ producto.precio|floatformat:0 }}</span>
+                                <span class="badge bg-danger rounded-pill fw-bold shadow-sm" style="font-size: 0.75rem;">
+                                    -{{ producto.porcentaje_descuento }}% OFF
+                                </span>
+                            </div>
+                            <div class="h1 fw-extrabold mb-0 mt-1" style="color: var(--brand-primary);">${{ producto.precio_oferta|floatformat:0 }}</div>
+                        </div>
+                    {% else %}
+                        <div class="h1 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</div>
+                    {% endif %}
                     <div class="ms-auto text-end">
                         {% if producto.stock > 0 %}
                             <span class="badge bg-success text-white rounded-pill px-3 py-2 fw-bold shadow-sm d-block mb-1">
