@@ -46,35 +46,58 @@ def ver_carrito(request):
             carrito.items.values_list("producto_id", flat=True)
         )
 
+        # ── REGLA DE ORO: si el carrito ya tiene un kit/combo, NUNCA recomendar otro kit ──
+        # Lógica: ofrecer dos kits similares es incoherente y frustrante para el cliente.
+        hay_kit_en_carrito = carrito.items.filter(producto__es_combo=True).exists()
+
         candidatos = list(
             Producto.objects
             .filter(stock__gt=0)
             .exclude(id__in=ids_en_carrito)
+            .exclude(es_combo=hay_kit_en_carrito)   # excluir kits si ya hay uno en carrito
             .select_related("categoria")
             .prefetch_related("portadas")
             .order_by("precio")
         )
 
-        # ── NIVEL 1: ¿Existe un único producto que cierre la brecha solo? ──
-        # Criterio: precio_display >= falta y precio <= falta * 2.5 (no sobre-proponer)
+        # ── NIVEL 1: Producto individual que cierre la brecha con "Overshoot Gamificado" ──
+        # La estrategia psicológica es que el precio NO sea exacto al gap.
+        # El cliente tiene que sentir que "hackeó el sistema" pasando el umbral por un margen pequeño.
+        # Rango objetivo: el producto cuesta entre falta y falta * 2.0
+        # Scoring: premiamos el overshoot de 100 a 2000 pesos (la "zona dulce" psicológica).
         candidatos_cierre_solo = [
             p for p in candidatos
-            if float(p.precio_display) >= falta and float(p.precio_display) <= falta * 2.5
+            if float(p.precio_display) >= falta and float(p.precio_display) <= falta * 2.0
         ]
-        # De los que cierran solos, elegir el que tenga el menor exceso (el más justo)
+
         if candidatos_cierre_solo:
-            candidatos_cierre_solo.sort(key=lambda p: float(p.precio_display) - falta)
-            # Mostrar el "más justo" como estrella + un complementario barato si hay
+            def overshoot_score(p):
+                overshoot = float(p.precio_display) - falta
+                # Score mínimo (mejor) en el rango 100-2000 pesos de overshoot
+                # Fuera de esa zona, penalizamos progresivamente
+                if 100 <= overshoot <= 2000:
+                    return overshoot  # dentro de la zona dulce, el menor exceso gana
+                elif overshoot < 100:
+                    return 2000 + (100 - overshoot) * 5   # muy exacto: penalizar (parece armado)
+                else:
+                    return overshoot  # mucho exceso: penalizar por sobrepropuesta
+
+            candidatos_cierre_solo.sort(key=overshoot_score)
             estrella = candidatos_cierre_solo[0]
-            # Complementario: el más barato disponible (que no sea la estrella ni esté en carrito)
-            complementarios = [p for p in candidatos if p.id != estrella.id and float(p.precio_display) < falta]
+
+            # Complementario opcional: producto barato de distinta categoría (enriquece la oferta)
+            complementarios = [
+                p for p in candidatos
+                if p.id != estrella.id
+                and float(p.precio_display) < falta
+                and p.categoria_id != estrella.categoria_id   # distinta categoría = diversidad
+            ]
             complementarios.sort(key=lambda p: float(p.precio_display))
             productos_recomendados = [estrella] + complementarios[:1]
             recomendacion_modo = 'solo'
 
         else:
-            # ── NIVEL 2: No hay cierre solo → buscar el mejor par combinado ──
-            # Ordenar por precio desc para intentar pares que juntos superen la brecha
+            # ── NIVEL 2: No hay cierre solo → buscar el par combinado con menor overshoot ──
             mejor_par = None
             mejor_exceso = float('inf')
             lista = sorted(candidatos, key=lambda p: float(p.precio_display))
@@ -86,12 +109,12 @@ def ver_carrito(request):
                         if exceso < mejor_exceso:
                             mejor_exceso = exceso
                             mejor_par = [p1, p2]
-                        break  # ya encontramos el par más barato que cubre, saltar al siguiente p1
+                        break
             if mejor_par:
                 productos_recomendados = mejor_par
                 recomendacion_modo = 'combo'
             elif candidatos:
-                # ── NIVEL 3: Ningún par cubre — mostrar el más cercano ──
+                # ── NIVEL 3: Ningún par cubre — mostrar el más cercano al gap ──
                 candidatos.sort(key=lambda p: abs(float(p.precio_display) - falta))
                 productos_recomendados = candidatos[:2]
                 recomendacion_modo = 'combo_parcial'
