@@ -270,47 +270,40 @@ class GestorOfertasView(TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        action = request.POST.get('action')
-        producto_id = request.POST.get('producto_id')
-        
-        if not producto_id:
-            messages.error(request, "ID de producto inválido.")
-            return self.get(request, *args, **kwargs)
+        # 1. Manejo de bulk update vía JSON
+        if request.headers.get('Content-Type') == 'application/json':
+            try:
+                data = json.loads(request.body)
+                if data.get('action') == 'update_all':
+                    productos_data = data.get('productos', [])
+                    with transaction.atomic():
+                        for p_data in productos_data:
+                            producto = Producto.objects.get(id=p_data['id'])
+                            producto.en_oferta = p_data.get('en_oferta', False)
+                            producto.destacado = p_data.get('destacado', False)
+                            producto.en_carrusel = p_data.get('en_carrusel', False)
+                            producto.etiqueta_oferta = p_data.get('etiqueta_oferta', '')
+                            
+                            precio_str = p_data.get('precio_oferta', '')
+                            if precio_str:
+                                producto.precio_oferta = precio_str.replace(',', '.')
+                            else:
+                                producto.precio_oferta = None
+                                
+                            fecha_str = p_data.get('fecha_fin_oferta', '')
+                            if fecha_str:
+                                producto.fecha_fin_oferta = fecha_str
+                            else:
+                                producto.fecha_fin_oferta = None
+                                
+                            producto.save()
+                    
+                    messages.success(request, "¡Todas las ofertas actualizadas con éxito! 🚀 (Guardado Masivo)")
+                    return JsonResponse({'success': True})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
 
-        try:
-            producto = Producto.objects.get(id=producto_id)
-        except Producto.DoesNotExist:
-            messages.error(request, "El producto no existe.")
-            return self.get(request, *args, **kwargs)
-
-        if action == 'update_offer':
-            # Parse checkboxes
-            en_oferta = request.POST.get('en_oferta') == 'on'
-            destacado = request.POST.get('destacado') == 'on'
-            en_carrusel = request.POST.get('en_carrusel') == 'on'
-            
-            # Parse text fields
-            precio_oferta_str = request.POST.get('precio_oferta', '')
-            fecha_fin = request.POST.get('fecha_fin_oferta', '')
-            etiqueta = request.POST.get('etiqueta_oferta', '')
-            
-            producto.en_oferta = en_oferta
-            producto.destacado = destacado
-            producto.en_carrusel = en_carrusel
-            producto.etiqueta_oferta = etiqueta
-
-            if precio_oferta_str:
-                producto.precio_oferta = precio_oferta_str.replace(',', '.')
-            else:
-                producto.precio_oferta = None
-
-            if fecha_fin:
-                producto.fecha_fin_oferta = fecha_fin
-            else:
-                producto.fecha_fin_oferta = None
-
-            producto.save()
-            messages.success(request, f"¡Oferta actualizada con éxito para {producto.nombre}! 🚀")
-
+        # Si la petición no es JSON (no debería pasar ahora que quitamos los forms), devolvemos error
+        messages.error(request, "Método de guardado obsoleto. Por favor, usa el botón 'Guardar Todo'.")
         return self.get(request, *args, **kwargs)
         

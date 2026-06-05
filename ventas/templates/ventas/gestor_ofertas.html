@@ -13,11 +13,14 @@
             <p class="text-muted mb-0 fs-5">Controlá qué ven tus clientes en la Landing Page. Activá combos, ajustá contadores y detoná las ventas impulsivas.</p>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="{% url 'home' %}" class="btn btn-outline-dark btn-lg shadow-sm border-2 px-4 py-2 fw-bold" target="_blank" style="border-radius: 12px; transition: 0.3s;">
+            <button id="btn-save-all" class="btn btn-primary btn-lg shadow-sm border-2 px-4 py-2 fw-bold" style="border-radius: 12px; transition: 0.3s;" onclick="guardarTodo()">
+                <i class="bi bi-save-fill me-2"></i>Guardar Todo
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-outline-dark btn-lg shadow-sm border-2 px-4 py-2 fw-bold ms-2" target="_blank" style="border-radius: 12px; transition: 0.3s;">
                 <i class="bi bi-box-arrow-up-right me-2"></i>Ver Landing
             </a>
-            <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-light btn-lg shadow-sm border px-4 py-2 fw-bold ms-2" style="border-radius: 12px; transition: 0.3s;">
-                <i class="bi bi-arrow-left me-2"></i>Volver al Panel
+            <a href="{% url 'panel:panel_pedidos' %}" class="btn btn-light btn-lg shadow-sm border px-4 py-2 fw-bold ms-2 mt-2 mt-lg-0" style="border-radius: 12px; transition: 0.3s;">
+                <i class="bi bi-arrow-left me-2"></i>Volver
             </a>
         </div>
     </div>
@@ -52,18 +55,13 @@
                             <th class="py-3">Etiqueta Flash</th>
                             <th class="py-3">Precio Oferta ($)</th>
                             <th class="py-3">Vence el (Countdown)</th>
-                            <th class="text-center py-3">Acción</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for kit in kits_carrusel %}
                         <tr style="background-color: {% if kit.en_oferta %}#fff{% else %}#f8f9fa{% endif %};">
-                            <form method="post" action="{% url 'panel:gestor_ofertas' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_offer">
-                                <input type="hidden" name="producto_id" value="{{ kit.id }}">
-                                
                                 <td class="ps-4">
+                                    <input type="hidden" name="producto_id" value="{{ kit.id }}">
                                     <div class="d-flex align-items-center">
                                         {% if kit.portada %}
                                         <img src="{{ kit.imagen_principal_url }}" class="rounded shadow-sm me-3" style="width: 50px; height: 50px; object-fit: cover;">
@@ -113,13 +111,6 @@
                                 <td>
                                     <input type="datetime-local" class="form-control form-control-sm border-1 text-muted fw-semibold" name="fecha_fin_oferta" value="{{ kit.fecha_fin_oferta|date:'Y-m-d\TH:i' }}">
                                 </td>
-
-                                <td class="text-center">
-                                    <button type="submit" class="btn btn-dark fw-bold btn-sm px-3 py-2 rounded-pill shadow-sm" style="transition: 0.2s;">
-                                        <i class="bi bi-save2-fill me-1"></i> Guardar
-                                    </button>
-                                </td>
-                            </form>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -143,20 +134,15 @@
                             <th class="py-3">Oferta / Destacado</th>
                             <th class="py-3">Etiqueta (Badge)</th>
                             <th class="py-3">Precio Oferta ($)</th>
-                            <th class="text-center py-3">Acción</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for prod in productos_individuales %}
                         <tr style="background-color: {% if prod.en_oferta or prod.destacado %}#fff{% else %}#f8f9fa{% endif %};">
-                            <form method="post" action="{% url 'panel:gestor_ofertas' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="update_offer">
-                                <input type="hidden" name="producto_id" value="{{ prod.id }}">
-                                <!-- Ocultos para que no rompa el modelo al guardar -->
-                                <input type="hidden" name="fecha_fin_oferta" value="{{ prod.fecha_fin_oferta|date:'Y-m-d\TH:i' }}">
-                                
                                 <td class="ps-4">
+                                    <input type="hidden" name="producto_id" value="{{ prod.id }}">
+                                    <!-- Ocultos para que no rompa el modelo al guardar -->
+                                    <input type="hidden" name="fecha_fin_oferta" value="{{ prod.fecha_fin_oferta|date:'Y-m-d\TH:i' }}">
                                     <div class="d-flex align-items-center">
                                         {% if prod.portada %}
                                         <img src="{{ prod.imagen_principal_url }}" class="rounded shadow-sm me-3" style="width: 50px; height: 50px; object-fit: cover;">
@@ -202,13 +188,6 @@
                                         <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ prod.id }}', '{{ prod.precio|stringformat:"f" }}', 20)">-20%</button>
                                     </div>
                                 </td>
-
-                                <td class="text-center">
-                                    <button type="submit" class="btn btn-outline-success fw-bold btn-sm px-3 py-2 rounded-pill shadow-sm" style="transition: 0.2s;">
-                                        <i class="bi bi-check2-circle me-1"></i> Actualizar
-                                    </button>
-                                </td>
-                            </form>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -251,6 +230,71 @@
         setTimeout(() => {
             input.style.backgroundColor = originalBg;
         }, 600);
+    }
+
+    function guardarTodo() {
+        const btn = document.getElementById('btn-save-all');
+        const iconoOriginal = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+        btn.disabled = true;
+
+        const productos = [];
+        
+        // El navegador a menudo "rompe" la estructura de un <form> si está directamente dentro de un <tr>.
+        // Por eso, la forma más segura es iterar sobre las filas (<tr>) de las tablas en lugar de los formularios.
+        document.querySelectorAll('tbody tr').forEach(tr => {
+            const idInput = tr.querySelector('input[name="producto_id"]');
+            // Si la fila tiene un input con el producto_id, es una fila de producto válida
+            if (idInput) {
+                const id = idInput.value;
+                const en_oferta = tr.querySelector('input[name="en_oferta"]')?.checked || false;
+                const destacado = tr.querySelector('input[name="destacado"]')?.checked || false;
+                const en_carrusel = tr.querySelector('input[name="en_carrusel"]')?.checked || false;
+                const etiqueta_oferta = tr.querySelector('input[name="etiqueta_oferta"]')?.value || '';
+                const precio_oferta = tr.querySelector('input[name="precio_oferta"]')?.value || '';
+                const fecha_fin_oferta = tr.querySelector('input[name="fecha_fin_oferta"]')?.value || '';
+
+                productos.push({
+                    id: id,
+                    en_oferta: en_oferta,
+                    destacado: destacado,
+                    en_carrusel: en_carrusel,
+                    etiqueta_oferta: etiqueta_oferta,
+                    precio_oferta: precio_oferta,
+                    fecha_fin_oferta: fecha_fin_oferta
+                });
+            }
+        });
+
+        // Enviar vía Fetch API al backend
+        fetch("{% url 'panel:gestor_ofertas' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                action: 'update_all',
+                productos: productos
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refrescar para ver los mensajes de éxito
+                window.location.reload();
+            } else {
+                alert('Error al guardar: ' + (data.error || 'Desconocido'));
+                btn.innerHTML = iconoOriginal;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión al intentar guardar.');
+            btn.innerHTML = iconoOriginal;
+            btn.disabled = false;
+        });
     }
 </script>
 {% endblock %}
