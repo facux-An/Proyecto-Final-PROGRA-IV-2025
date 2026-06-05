@@ -33,6 +33,55 @@ def ver_carrito(request):
 
     alcanzado = total_carrito >= umbral
 
+    # ════════════════════════════════════════════════════════════════
+    # MOTOR DE RECOMENDACIONES INTELIGENTE
+    # Lógica basada en la estrategia de upsell de Tienda Plus.
+    # Objetivo: recomendar 1-2 productos que cubran la brecha al umbral
+    # de envío gratis, priorizando los que NO están ya en el carrito.
+    # ════════════════════════════════════════════════════════════════
+    productos_recomendados = []
+    if not alcanzado and config.envio_gratis_activo:
+        # IDs de los productos ya en el carrito (para excluirlos)
+        ids_en_carrito = set(
+            carrito.items.values_list("producto_id", flat=True)
+        )
+
+        # Candidatos: productos en stock, que NO estén ya en el carrito,
+        # con precio dentro de un rango razonable.
+        # Estrategia: primero intentamos cubrir la brecha exacta (precio <= falta + 20% de margen)
+        # Si no hay candidatos perfectos, mostramos los más baratos disponibles.
+        candidatos = (
+            Producto.objects
+            .filter(stock__gt=0)
+            .exclude(id__in=ids_en_carrito)
+            .select_related("categoria")
+            .prefetch_related("portadas")
+            .order_by("precio")
+        )
+
+        # Fase 1: candidatos que cubren exacto la brecha (o un poco más)
+        # Margen: el producto no debería costar más de falta + 30% (no queremos sobre-proponer)
+        margen_superior = falta * 1.30
+        candidatos_exactos = [p for p in candidatos if float(p.precio_display) <= margen_superior and float(p.precio_display) >= falta * 0.4]
+
+        # Fase 2: si no hay candidatos exactos, tomar los de menor precio disponible
+        if not candidatos_exactos:
+            candidatos_exactos = list(candidatos[:3])
+
+        # Tomar máximo 2 recomendaciones, ordenados por qué tan bien cubren la brecha
+        def score_producto(p):
+            precio = float(p.precio_display)
+            # Penalizar si el precio excede demasiado la brecha (sobrepropuesta)
+            exceso = max(0, precio - falta)
+            # Penalizar si el precio no cubre ni la mitad de la brecha
+            deficit = max(0, falta * 0.5 - precio)
+            return exceso + deficit * 2  # el deficit penaliza más
+
+        candidatos_exactos.sort(key=score_producto)
+        productos_recomendados = candidatos_exactos[:2]
+
+    alcanzado = total_carrito >= umbral
+
     context = {
         "carrito": carrito,
         # Barra de envío gratis
@@ -43,6 +92,9 @@ def ver_carrito(request):
         "eg_alcanzado": alcanzado,
         "eg_mensaje": config.envio_gratis_mensaje.replace("{umbral}", f"{umbral:,.0f}"),
         "eg_mensaje_logrado": config.envio_gratis_mensaje_logrado,
+        # Recomendaciones de upsell
+        "productos_recomendados": productos_recomendados,
+        "eg_falta_int": int(falta),
     }
 
     return render(request, "ventas/carrito.html", context)
