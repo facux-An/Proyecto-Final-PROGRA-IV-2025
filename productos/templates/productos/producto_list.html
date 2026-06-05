@@ -84,39 +84,63 @@
 </div>
 
 <!-- Barra de Filtros Premium -->
-<div class="filter-box p-3 mb-5">
-    <form method="get" class="row g-3 align-items-center">
-        <!-- Buscador -->
-        <div class="col-md-5">
-            <div class="input-group">
-                <span class="input-group-text bg-light border-0 rounded-start-pill ps-4 text-muted">
-                    <i class="bi bi-search"></i>
+<div class="filter-box p-3 mb-5 rounded-4 shadow-sm" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
+    <form method="get" class="row g-3 align-items-center m-0">
+        <!-- Mantener la búsqueda activa oculta (si vino desde la navbar) -->
+        {% if request.GET.search %}
+            <input type="hidden" name="search" value="{{ request.GET.search }}">
+            <div class="col-12 mb-0 pb-0">
+                <span class="badge bg-light text-dark border p-2 px-3 rounded-pill" style="font-size: 0.85rem;">
+                    Resultados para: <strong>"{{ request.GET.search }}"</strong>
+                    <a href="{% url 'productos:producto_list' %}?categoria={{ request.GET.categoria }}&sort={{ request.GET.sort }}" class="text-danger ms-2 text-decoration-none" title="Quitar búsqueda"><i class="bi bi-x-circle-fill"></i></a>
                 </span>
-                <input type="text" name="search" class="form-control bg-light border-0 rounded-end-pill py-2 shadow-none" placeholder="¿Qué estás buscando?" value="{{ search }}">
+            </div>
+        {% endif %}
+
+        <!-- Categorías -->
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted mb-1 ms-2">Categoría</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted">
+                    <i class="bi bi-tags"></i>
+                </span>
+                <select name="categoria" class="form-select bg-light border-0 rounded-end-pill py-2 shadow-none text-muted fw-semibold" onchange="this.form.submit()">
+                    <option value="">Todas las categorías</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == request.GET.categoria %}selected{% endif %}>
+                            {{ cat.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         
-        <!-- Categorías -->
+        <!-- Ordenar -->
         <div class="col-md-4">
-            <select name="categoria" class="form-select bg-light border-0 rounded-pill py-2 shadow-none text-muted fw-semibold">
-                <option value="">Todas las categorías</option>
-                {% for cat in categorias %}
-                    <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == categoria_id %}selected{% endif %}>
-                        {{ cat.nombre }}
-                    </option>
-                {% endfor %}
-            </select>
+            <label class="form-label small fw-bold text-muted mb-1 ms-2">Ordenar por</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted">
+                    <i class="bi bi-sort-down"></i>
+                </span>
+                <select name="sort" class="form-select bg-light border-0 rounded-end-pill py-2 shadow-none text-muted fw-semibold" onchange="this.form.submit()">
+                    <option value="">Relevancia</option>
+                    <option value="nuevos" {% if request.GET.sort == 'nuevos' %}selected{% endif %}>Más nuevos</option>
+                    <option value="precio_asc" {% if request.GET.sort == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+                    <option value="precio_desc" {% if request.GET.sort == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+                </select>
+            </div>
         </div>
         
         <!-- Botones de Acción -->
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn fw-bold w-100 rounded-pill text-white shadow-sm" style="background-color: var(--brand-primary); border: none;">
-                Filtrar
-            </button>
-            {% if search or categoria_id %}
-                <a href="{% url 'productos:producto_list' %}" class="btn btn-light text-secondary rounded-pill border fw-bold d-flex align-items-center justify-content-center px-4" title="Limpiar filtros">
-                    <i class="bi bi-x-lg"></i>
+        <div class="col-md-3 d-flex gap-2 align-items-end mt-4">
+            {% if request.GET.search or request.GET.categoria or request.GET.sort %}
+                <a href="{% url 'productos:producto_list' %}" class="btn w-100 btn-light text-secondary rounded-pill border fw-bold px-4" title="Limpiar todo">
+                    <i class="bi bi-eraser-fill me-1"></i> Limpiar
                 </a>
+            {% else %}
+                <button type="submit" class="btn w-100 fw-bold rounded-pill text-white shadow-sm" style="background-color: var(--brand-primary); border: none;">
+                    Aplicar
+                </button>
             {% endif %}
         </div>
     </form>

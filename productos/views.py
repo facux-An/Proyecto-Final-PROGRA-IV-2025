@@ -37,6 +37,14 @@ class ProductoListView(ListView):
         if stock_min:
             queryset = queryset.filter(stock__gte=stock_min)
 
+        sort = self.request.GET.get('sort')
+        if sort == 'precio_asc':
+            queryset = queryset.order_by('precio')
+        elif sort == 'precio_desc':
+            queryset = queryset.order_by('-precio')
+        elif sort == 'nuevos':
+            queryset = queryset.order_by('-id')
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -47,6 +55,7 @@ class ProductoListView(ListView):
         context['min_precio'] = self.request.GET.get('min_precio', '')
         context['max_precio'] = self.request.GET.get('max_precio', '')
         context['stock_min'] = self.request.GET.get('stock_min', '')
+        context['sort'] = self.request.GET.get('sort', '')
         return context
 
 

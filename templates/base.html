@@ -200,7 +200,7 @@
         
         <!-- Buscador -->
         <form class="search-form-container d-flex mx-lg-auto" action="{% url 'productos:producto_list' %}" method="get">
-          <input class="form-control search-input" type="search" name="q" placeholder="¿Qué estás buscando para tu gato?" aria-label="Buscar">
+          <input class="form-control search-input" type="search" name="search" placeholder="¿Qué estás buscando para tu gato?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}">
           <button class="btn search-btn" type="submit"><i class="bi bi-search"></i></button>
         </form>
 
