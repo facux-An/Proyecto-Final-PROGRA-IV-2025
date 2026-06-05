@@ -98,10 +98,16 @@
                                 </td>
 
                                 <td>
-                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group input-group-sm mb-1" style="width: 140px;">
                                         <span class="input-group-text bg-white">$</span>
-                                        <input type="number" step="0.01" class="form-control fw-bold text-danger" name="precio_oferta" value="{{ kit.precio_oferta|default:'' }}">
+                                        <input type="number" step="0.01" id="precio_oferta_{{ kit.id }}" class="form-control fw-bold text-danger" name="precio_oferta" value="{{ kit.precio_oferta|default:'' }}">
                                     </div>
+                                    <div class="d-flex gap-1" style="width: 140px;">
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ kit.id }}', '{{ kit.precio|unlocalize }}', 10)">-10%</button>
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ kit.id }}', '{{ kit.precio|unlocalize }}', 15)">-15%</button>
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ kit.id }}', '{{ kit.precio|unlocalize }}', 20)">-20%</button>
+                                    </div>
+                                    <div class="text-center mt-1"><small class="text-muted" style="font-size: 0.65rem;">Sugerido (Termina en 90)</small></div>
                                 </td>
 
                                 <td>
@@ -186,9 +192,14 @@
                                 </td>
 
                                 <td>
-                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group input-group-sm mb-1" style="width: 140px;">
                                         <span class="input-group-text bg-white">$</span>
-                                        <input type="number" step="0.01" class="form-control fw-bold text-success" name="precio_oferta" value="{{ prod.precio_oferta|default:'' }}">
+                                        <input type="number" step="0.01" id="precio_oferta_{{ prod.id }}" class="form-control fw-bold text-success" name="precio_oferta" value="{{ prod.precio_oferta|default:'' }}">
+                                    </div>
+                                    <div class="d-flex gap-1" style="width: 140px;">
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ prod.id }}', '{{ prod.precio|unlocalize }}', 10)">-10%</button>
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ prod.id }}', '{{ prod.precio|unlocalize }}', 15)">-15%</button>
+                                        <button type="button" class="btn btn-outline-secondary flex-fill" style="font-size: 0.65rem; padding: 0.15rem;" onclick="aplicarDescuento('precio_oferta_{{ prod.id }}', '{{ prod.precio|unlocalize }}', 20)">-20%</button>
                                     </div>
                                 </td>
 
@@ -212,4 +223,34 @@
     .form-check-input:checked { background-color: var(--brand-primary); border-color: var(--brand-primary); }
     .table-hover tbody tr:hover { background-color: rgba(255, 102, 0, 0.03) !important; transition: 0.2s; }
 </style>
+
+<script>
+    function aplicarDescuento(inputId, precioBaseStr, porcentaje) {
+        let input = document.getElementById(inputId);
+        // Asegurarse de que use punto para decimales (por si viene de un locale raro)
+        let precioBase = parseFloat(precioBaseStr.replace(',', '.'));
+        
+        let descuento = precioBase * (porcentaje / 100);
+        let nuevoPrecio = precioBase - descuento;
+        
+        // Estrategia de Precio Psicológico: Redondear para que termine en 90
+        // Ejemplo: Si el precio es 15640 -> 15600 - 10 = 15590
+        let precioComercial = Math.floor(nuevoPrecio / 100) * 100 - 10;
+        
+        // Si el precio es muy bajo, simplemente redondear
+        if (precioComercial < 0 || precioBase < 1000) {
+            precioComercial = Math.floor(nuevoPrecio);
+        }
+        
+        input.value = precioComercial;
+        
+        // Efecto visual para confirmar
+        let originalBg = input.style.backgroundColor;
+        input.style.backgroundColor = '#d1e7dd'; // verde claro
+        input.style.transition = 'background-color 0.3s';
+        setTimeout(() => {
+            input.style.backgroundColor = originalBg;
+        }, 600);
+    }
+</script>
 {% endblock %}
