@@ -647,7 +647,9 @@
     const SUBTOTAL_CARRITO = parseFloat("{{ carrito.total|default:'0' }}".replace(",", "."));
     const ENVIO_GRATIS = {{ eg_activo|yesno:'true,false' }} && {{ eg_alcanzado|yesno:'true,false' }};
     let costoEnvioSeleccionado = 0;
-    let envioSeleccionado = ENVIO_GRATIS; // Si tiene envío gratis, ya está "seleccionado"
+    // Con envío gratis el envío ya está "confirmado" desde el servidor.
+    // Sin envío gratis necesitamos que el cliente cotice antes de avanzar.
+    let envioSeleccionado = ENVIO_GRATIS;
 
     // ===== TIMER DE RESERVA (30 min) =====
     (function() {
@@ -746,6 +748,26 @@
         const container = document.getElementById('envio-resultados');
         container.classList.remove('d-none');
 
+        // ── Si el cliente ya tiene envío gratis, mostrar banner informativo ──
+        // Esto reemplaza el bloque de opciones por uno de "elegí donde recibir" sin costo.
+        const bannerGratis = document.getElementById('banner-gratis-opciones');
+        if (bannerGratis) bannerGratis.remove(); // limpiar banners previos
+
+        if (ENVIO_GRATIS) {
+            const banner = document.createElement('div');
+            banner.id = 'banner-gratis-opciones';
+            banner.className = 'mb-2 p-2 rounded-3 d-flex align-items-center gap-2';
+            banner.style.cssText = 'background: linear-gradient(135deg, #ECFDF5, #D1FAE5); border: 1px solid #A7F3D0;';
+            banner.innerHTML = `
+                <i class="bi bi-gift-fill" style="color:#059669; font-size:1rem;"></i>
+                <div>
+                    <span class="fw-bold" style="color:#065F46; font-size:0.8rem;">Elegí cómo recibir tu pedido — el envío corre por nuestra cuenta 🎁</span><br>
+                    <span class="text-muted" style="font-size:0.7rem;">Todas las opciones son gratis para vos.</span>
+                </div>
+            `;
+            container.prepend(banner);
+        }
+
         // Clasificar opciones por tipo de servicio
         let cheapest = []; 
         let express = [];  
@@ -836,6 +858,11 @@
         const activeClass = isSelected ? 'shipping-option-active' : '';
         const checked = isSelected ? 'checked' : '';
 
+        // ── Mostrar precio o "GRATIS" según el estado del carrito ──
+        const precioTexto = ENVIO_GRATIS
+            ? `<span class="fw-bold ms-2 flex-shrink-0" style="color:#059669; font-size:0.85rem; white-space:nowrap;">¡GRATIS!</span>`
+            : `<span class="fw-bold ms-2 flex-shrink-0" style="color: var(--brand-primary); font-size: 0.85rem; white-space: nowrap;">$${formatNumber(op.precio)}</span>`;
+
         const card = document.createElement('div');
         card.className = `shipping-option ${activeClass} p-2 px-3 rounded-3 border mb-1`;
         card.style.cursor = 'pointer';
@@ -857,14 +884,19 @@
                         <span class="text-muted" style="font-size:0.68rem;">${op.transportista} · ${op.plazo_min}-${op.plazo_max} días</span>
                     </div>
                 </div>
-                <span class="fw-bold ms-2 flex-shrink-0" style="color: var(--brand-primary); font-size: 0.85rem; white-space: nowrap;">$${formatNumber(op.precio)}</span>
+                ${precioTexto}
             </div>
         `;
         container.appendChild(card);
     }
 
-    function seleccionarEnvio(idx, precio, opData) {
-        costoEnvioSeleccionado = precio;
+    function seleccionarEnvio(idx, precioReal, opData) {
+        // ── LÓGICA CENTRAL: si el cliente ya tiene envío gratis, el costo siempre es $0 ──
+        // El precio real de Zipnova lo usamos solo para registrar qué opción eligió el cliente
+        // (domicilio vs. punto de retiro), pero nunca lo sumamos al total.
+        const precioFinal = ENVIO_GRATIS ? 0 : precioReal;
+
+        costoEnvioSeleccionado = precioFinal;
         envioSeleccionado = true;
 
         // Marcar visualmente (en todas las categorías)
@@ -878,21 +910,20 @@
         // Guardar datos para el backend
         const nombre = opData ? `${opData.nombre} (${opData.transportista})` : '';
         document.getElementById('input-envio-nombre').value = nombre;
-        document.getElementById('input-envio-precio').value = precio;
+        document.getElementById('input-envio-precio').value = precioFinal;  // siempre 0 si envío gratis
 
-        // Actualizar línea de envío
+        // Actualizar línea de envío — si es gratis, siempre muestra verde
         const precioDisplay = document.getElementById('envio-precio-display');
-        if (precio === 0) {
+        if (precioFinal === 0) {
             precioDisplay.innerHTML = '<span class="fw-bold" style="color:#10B981;">¡Gratis!</span>';
         } else {
-            precioDisplay.innerHTML = `<span class="fw-bold text-dark">$${formatNumber(precio)}</span>`;
+            precioDisplay.innerHTML = `<span class="fw-bold text-dark">$${formatNumber(precioFinal)}</span>`;
         }
 
-        // Actualizar total
-        const nuevoTotal = SUBTOTAL_CARRITO + precio;
+        // Actualizar total — si es gratis, el total nunca cambia respecto al subtotal
+        const nuevoTotal = SUBTOTAL_CARRITO + precioFinal;
         document.getElementById('total-final').textContent = `$${formatNumber(nuevoTotal)}`;
 
-        // *** ACTIVAR BOTÓN DE COMPRA ***
         activarBotonFinalizar();
     }
 
