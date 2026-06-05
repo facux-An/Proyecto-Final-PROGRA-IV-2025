@@ -139,11 +139,19 @@
                 {% endif %}
 
                 <!-- Badges / Etiquetas -->
-                <div class="position-absolute top-0 start-0 m-3 z-2">
+                <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2 z-2">
+                    {% if producto.en_oferta %}
+                        <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill fw-bold">
+                            <i class="bi bi-tag-fill me-1"></i> OFERTA
+                            {% if producto.precio_oferta and producto.precio > producto.precio_oferta %}
+                                -{{ producto.porcentaje_descuento|floatformat:0 }}%
+                            {% endif %}
+                        </span>
+                    {% endif %}
                     {% if producto.stock == 0 %}
                         <span class="badge bg-dark shadow-sm px-3 py-2 rounded-pill fw-bold">Agotado</span>
                     {% elif producto.stock < 5 %}
-                        <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill fw-bold">¡Últimos {{ producto.stock }}!</span>
+                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">¡Últimos {{ producto.stock }}!</span>
                     {% endif %}
                 </div>
             </div>
@@ -164,7 +172,14 @@
                 <!-- Precio y Acción -->
                 <div class="mt-auto d-flex align-items-end justify-content-between">
                     <div>
-                        <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
+                        {% if producto.en_oferta and producto.precio_oferta %}
+                            <div class="text-muted text-decoration-line-through mb-1" style="font-size: 0.85rem;">
+                                ${{ producto.precio|floatformat:0 }}
+                            </div>
+                            <span class="fw-bold fs-4" style="color: #DC2626;">${{ producto.precio_oferta|floatformat:0 }}</span>
+                        {% else %}
+                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
+                        {% endif %}
                     </div>
                     
                     {% if producto.stock > 0 %}
