@@ -223,6 +223,9 @@
         
         input.value = precioComercial;
         
+        // Marcar la fila como modificada
+        input.closest('tr').dataset.modified = "true";
+        
         // Efecto visual para confirmar
         let originalBg = input.style.backgroundColor;
         input.style.backgroundColor = '#d1e7dd'; // verde claro
@@ -232,6 +235,16 @@
         }, 600);
     }
 
+    // Inicializar listener para marcar filas modificadas manualmente
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('tbody tr input').forEach(el => {
+            el.addEventListener('change', (e) => {
+                const tr = e.target.closest('tr');
+                if (tr) tr.dataset.modified = "true";
+            });
+        });
+    });
+
     function guardarTodo() {
         const btn = document.getElementById('btn-save-all');
         const iconoOriginal = btn.innerHTML;
@@ -240,11 +253,18 @@
 
         const productos = [];
         
-        // El navegador a menudo "rompe" la estructura de un <form> si está directamente dentro de un <tr>.
-        // Por eso, la forma más segura es iterar sobre las filas (<tr>) de las tablas en lugar de los formularios.
-        document.querySelectorAll('tbody tr').forEach(tr => {
+        // Recorrer SOLO las filas que hayan sido modificadas
+        const filasModificadas = document.querySelectorAll('tbody tr[data-modified="true"]');
+        
+        if (filasModificadas.length === 0) {
+            btn.innerHTML = iconoOriginal;
+            btn.disabled = false;
+            // No hay nada que guardar, salimos silenciosamente o mostramos un Toast
+            return;
+        }
+
+        filasModificadas.forEach(tr => {
             const idInput = tr.querySelector('input[name="producto_id"]');
-            // Si la fila tiene un input con el producto_id, es una fila de producto válida
             if (idInput) {
                 const id = idInput.value;
                 const en_oferta = tr.querySelector('input[name="en_oferta"]')?.checked || false;
