@@ -184,12 +184,22 @@
     }
 
     /* ===== RESPONSIVE ===== */
+    .hero-carousel-img {
+        max-height: 400px;
+        object-fit: contain;
+        width: 100%;
+    }
+    
     @media (max-width: 767px) {
         .hero-carousel .carousel-item { min-height: 320px; }
         .hero-carousel .carousel-control-prev,
         .hero-carousel .carousel-control-next { display: none; }
         .countdown-number { font-size: 1.1rem; }
         .kit-card .card-body { padding: 1rem !important; }
+        .hero-carousel-img {
+            max-height: 220px; /* Constrain image height drastically on mobile to save vertical space */
+            margin-bottom: 0.5rem;
+        }
     }
 </style>
 
@@ -254,9 +264,9 @@
                                 </a>
                                 {% endif %}
                             </div>
-                            <div class="col-lg-6 text-center mt-4 mt-lg-0 order-first order-lg-last">
+                            <div class="col-lg-6 text-center mt-3 mt-lg-0 order-first order-lg-last">
                                 {% if kit.imagen_principal_url %}
-                                <img src="{{ kit.imagen_principal_url }}" alt="{{ kit.nombre }}" class="img-fluid rounded-4 shadow" style="max-height: 400px; object-fit: contain;">
+                                <img src="{{ kit.imagen_principal_url }}" alt="{{ kit.nombre }}" class="img-fluid rounded-4 shadow hero-carousel-img">
                                 {% else %}
                                 <div class="d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <i class="bi bi-box-seam text-dark" style="font-size: 10rem; opacity: 0.08;"></i>
