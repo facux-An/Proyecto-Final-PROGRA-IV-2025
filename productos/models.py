@@ -94,6 +94,13 @@ class Producto(models.Model):
         return 0
 
     @property
+    def ahorro_monetario(self):
+        """Calcula cuánto dinero se ahorra con la oferta."""
+        if self.oferta_activa and self.precio_oferta and self.precio > self.precio_oferta:
+            return self.precio - self.precio_oferta
+        return 0
+
+    @property
     def oferta_activa(self):
         """Verifica si la oferta está activa (en_oferta=True y no expirada)."""
         if not self.en_oferta:

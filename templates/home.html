@@ -404,7 +404,7 @@
                         {% if kit.oferta_activa and kit.precio_oferta %}
                         <div class="mb-3">
                             <span class="badge savings-badge rounded-pill px-3 py-1">
-                                <i class="bi bi-piggy-bank me-1"></i> Ahorrás ${{ kit.precio|floatformat:0|add:"-"|add:kit.precio_oferta|floatformat:0|default:"" }}
+                                <i class="bi bi-piggy-bank me-1"></i> Ahorrás ${{ kit.ahorro_monetario|floatformat:0 }}
                             </span>
                         </div>
                         {% endif %}

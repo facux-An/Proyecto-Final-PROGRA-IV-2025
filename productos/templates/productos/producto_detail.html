@@ -117,16 +117,7 @@
                 </div>
 
                 {% if producto.stock > 0 %}
-                    <!-- Progreso de Envío Gratis (Simulado) -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-1 small fw-bold">
-                            <span class="text-dark">Envío Gratis</span>
-                            <span class="text-success"><i class="bi bi-truck me-1"></i>¡Lo tienes!</span>
-                        </div>
-                        <div class="progress rounded-pill" style="height: 6px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </div>
+
 
                     <form method="post" action="{% url 'carrito:carrito_add' producto.id %}">
                         {% csrf_token %}
