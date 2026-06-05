@@ -7,33 +7,41 @@
 <div class="row gy-4 gx-3 gx-lg-5">
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm p-3 mb-4 rounded-4">
-            <div id="mainImageContainer" class="position-relative overflow-hidden rounded-4 mb-3" style="height: 500px;">
-                {% if portadas and portadas|length > 0 %}
-                    <img id="mainImage" src="{{ portadas.first.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.nombre }}">
-                {% elif producto.imagen_principal_url %}
-                    <img id="mainImage" src="{{ producto.imagen_principal_url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.nombre }}">
-                {% else %}
-                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
-                        <i class="bi bi-camera text-muted display-1"></i>
-                    </div>
-                {% endif %}
-                
-                {% if producto.stock == 0 %}
-                    <span class="position-absolute top-0 end-0 m-3 badge bg-danger fs-6 py-2 px-3 rounded-pill shadow-sm">Agotado</span>
-                {% elif producto.stock < 5 %}
-                    <span class="position-absolute top-0 end-0 m-3 badge bg-warning text-dark fs-6 py-2 px-3 rounded-pill shadow-sm">¡Últimos {{ producto.stock }}!</span>
-                {% endif %}
-            </div>
+            <div id="productGallery" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
+                <div class="carousel-inner position-relative overflow-hidden rounded-4 mb-3" style="height: 500px; background-color: #f8f9fa;">
+                    {% if portadas and portadas|length > 0 %}
+                        {% for portada in portadas %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %} h-100">
+                            <img src="{{ portada.imagen.url }}" class="w-100 h-100 p-2" style="object-fit: contain;" alt="{{ producto.nombre }}">
+                        </div>
+                        {% endfor %}
+                    {% elif producto.imagen_principal_url %}
+                        <div class="carousel-item active h-100">
+                            <img src="{{ producto.imagen_principal_url }}" class="w-100 h-100 p-2" style="object-fit: contain;" alt="{{ producto.nombre }}">
+                        </div>
+                    {% else %}
+                        <div class="carousel-item active h-100 d-flex align-items-center justify-content-center bg-light">
+                            <i class="bi bi-camera text-muted display-1"></i>
+                        </div>
+                    {% endif %}
+                    
+                    {% if producto.stock == 0 %}
+                        <span class="position-absolute top-0 end-0 m-3 badge bg-danger fs-6 py-2 px-3 rounded-pill shadow-sm" style="z-index: 10;">Agotado</span>
+                    {% elif producto.stock < 5 %}
+                        <span class="position-absolute top-0 end-0 m-3 badge bg-warning text-dark fs-6 py-2 px-3 rounded-pill shadow-sm" style="z-index: 10;">¡Últimos {{ producto.stock }}!</span>
+                    {% endif %}
+                </div>
 
-            {% if portadas and portadas|length > 1 %}
-            <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                {% for portada in portadas %}
-                <button onclick="changeImage('{{ portada.imagen.url }}')" class="btn p-0 border-0 rounded-3 overflow-hidden shadow-sm thumb-btn flex-shrink-0" style="width: 80px; height: 80px;">
-                    <img src="{{ portada.imagen.url }}" class="w-100 h-100 object-fit-cover opacity-75 hover-opacity-100 transition">
-                </button>
-                {% endfor %}
+                {% if portadas and portadas|length > 1 %}
+                <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
+                    {% for portada in portadas %}
+                    <button type="button" data-bs-target="#productGallery" data-bs-slide-to="{{ forloop.counter0 }}" class="btn p-0 border-0 rounded-3 overflow-hidden shadow-sm thumb-btn flex-shrink-0" style="width: 80px; height: 80px;">
+                        <img src="{{ portada.imagen.url }}" class="w-100 h-100 object-fit-cover opacity-75 hover-opacity-100 transition">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
 
         <div class="d-none d-lg-block">
@@ -124,8 +132,12 @@
                     </div>
                 </div>
 
-                <div class="d-lg-none mb-4">
-                    <p class="text-muted">{{ producto.descripcion|truncatewords:20 }}</p>
+                <div class="d-lg-none mb-4" id="mobileDescContainer">
+                    <div id="descTruncated" class="text-muted">{{ producto.descripcion|truncatewords:20 }}</div>
+                    <div id="descFull" class="text-muted d-none leading-relaxed">{{ producto.descripcion|linebreaksbr }}</div>
+                    {% if producto.descripcion|wordcount > 20 %}
+                    <button id="btnToggleDesc" onclick="toggleDescription()" class="btn btn-link p-0 text-decoration-none fw-bold mt-1" style="color: var(--brand-primary);">Ver más <i class="bi bi-chevron-down"></i></button>
+                    {% endif %}
                 </div>
 
                 {% if producto.stock > 0 %}
@@ -209,8 +221,20 @@
 </style>
 
 <script>
-    function changeImage(src) {
-        document.getElementById('mainImage').src = src;
+    function toggleDescription() {
+        const trunc = document.getElementById('descTruncated');
+        const full = document.getElementById('descFull');
+        const btn = document.getElementById('btnToggleDesc');
+        
+        if (full.classList.contains('d-none')) {
+            full.classList.remove('d-none');
+            trunc.classList.add('d-none');
+            btn.innerHTML = 'Ver menos <i class="bi bi-chevron-up"></i>';
+        } else {
+            full.classList.add('d-none');
+            trunc.classList.remove('d-none');
+            btn.innerHTML = 'Ver más <i class="bi bi-chevron-down"></i>';
+        }
     }
 </script>
 {% endblock %}

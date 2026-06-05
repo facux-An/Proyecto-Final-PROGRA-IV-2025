@@ -378,7 +378,7 @@
                 <!-- Image -->
                 <a href="{% url 'productos:producto_detail' kit.id %}">
                     {% if kit.imagen_principal_url %}
-                    <img src="{{ kit.imagen_principal_url }}" class="card-img-top" alt="{{ kit.nombre }}" style="height: 240px; object-fit: cover;">
+                    <img src="{{ kit.imagen_principal_url }}" class="card-img-top p-3" alt="{{ kit.nombre }}" style="height: 240px; object-fit: contain; background-color: #fff;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-box-seam text-muted opacity-25" style="font-size: 5rem;"></i>
@@ -488,7 +488,7 @@
                 <!-- Image -->
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" style="height: 220px; object-fit: contain; background-color: #fff;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
@@ -549,7 +549,7 @@
 
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 220px; object-fit: cover;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" style="height: 220px; object-fit: contain; background-color: #fff;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
