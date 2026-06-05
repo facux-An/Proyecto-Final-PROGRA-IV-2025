@@ -40,17 +40,13 @@ def ver_carrito(request):
     # de envío gratis, priorizando los que NO están ya en el carrito.
     # ════════════════════════════════════════════════════════════════
     productos_recomendados = []
+    recomendacion_modo = None   # 'solo' | 'combo' | 'combo_parcial'
     if not alcanzado and config.envio_gratis_activo:
-        # IDs de los productos ya en el carrito (para excluirlos)
         ids_en_carrito = set(
             carrito.items.values_list("producto_id", flat=True)
         )
 
-        # Candidatos: productos en stock, que NO estén ya en el carrito,
-        # con precio dentro de un rango razonable.
-        # Estrategia: primero intentamos cubrir la brecha exacta (precio <= falta + 20% de margen)
-        # Si no hay candidatos perfectos, mostramos los más baratos disponibles.
-        candidatos = (
+        candidatos = list(
             Producto.objects
             .filter(stock__gt=0)
             .exclude(id__in=ids_en_carrito)
@@ -59,26 +55,46 @@ def ver_carrito(request):
             .order_by("precio")
         )
 
-        # Fase 1: candidatos que cubren exacto la brecha (o un poco más)
-        # Margen: el producto no debería costar más de falta + 30% (no queremos sobre-proponer)
-        margen_superior = falta * 1.30
-        candidatos_exactos = [p for p in candidatos if float(p.precio_display) <= margen_superior and float(p.precio_display) >= falta * 0.4]
+        # ── NIVEL 1: ¿Existe un único producto que cierre la brecha solo? ──
+        # Criterio: precio_display >= falta y precio <= falta * 2.5 (no sobre-proponer)
+        candidatos_cierre_solo = [
+            p for p in candidatos
+            if float(p.precio_display) >= falta and float(p.precio_display) <= falta * 2.5
+        ]
+        # De los que cierran solos, elegir el que tenga el menor exceso (el más justo)
+        if candidatos_cierre_solo:
+            candidatos_cierre_solo.sort(key=lambda p: float(p.precio_display) - falta)
+            # Mostrar el "más justo" como estrella + un complementario barato si hay
+            estrella = candidatos_cierre_solo[0]
+            # Complementario: el más barato disponible (que no sea la estrella ni esté en carrito)
+            complementarios = [p for p in candidatos if p.id != estrella.id and float(p.precio_display) < falta]
+            complementarios.sort(key=lambda p: float(p.precio_display))
+            productos_recomendados = [estrella] + complementarios[:1]
+            recomendacion_modo = 'solo'
 
-        # Fase 2: si no hay candidatos exactos, tomar los de menor precio disponible
-        if not candidatos_exactos:
-            candidatos_exactos = list(candidatos[:3])
-
-        # Tomar máximo 2 recomendaciones, ordenados por qué tan bien cubren la brecha
-        def score_producto(p):
-            precio = float(p.precio_display)
-            # Penalizar si el precio excede demasiado la brecha (sobrepropuesta)
-            exceso = max(0, precio - falta)
-            # Penalizar si el precio no cubre ni la mitad de la brecha
-            deficit = max(0, falta * 0.5 - precio)
-            return exceso + deficit * 2  # el deficit penaliza más
-
-        candidatos_exactos.sort(key=score_producto)
-        productos_recomendados = candidatos_exactos[:2]
+        else:
+            # ── NIVEL 2: No hay cierre solo → buscar el mejor par combinado ──
+            # Ordenar por precio desc para intentar pares que juntos superen la brecha
+            mejor_par = None
+            mejor_exceso = float('inf')
+            lista = sorted(candidatos, key=lambda p: float(p.precio_display))
+            for i, p1 in enumerate(lista):
+                for p2 in lista[i+1:]:
+                    suma = float(p1.precio_display) + float(p2.precio_display)
+                    if suma >= falta:
+                        exceso = suma - falta
+                        if exceso < mejor_exceso:
+                            mejor_exceso = exceso
+                            mejor_par = [p1, p2]
+                        break  # ya encontramos el par más barato que cubre, saltar al siguiente p1
+            if mejor_par:
+                productos_recomendados = mejor_par
+                recomendacion_modo = 'combo'
+            elif candidatos:
+                # ── NIVEL 3: Ningún par cubre — mostrar el más cercano ──
+                candidatos.sort(key=lambda p: abs(float(p.precio_display) - falta))
+                productos_recomendados = candidatos[:2]
+                recomendacion_modo = 'combo_parcial'
 
     alcanzado = total_carrito >= umbral
 
@@ -94,6 +110,7 @@ def ver_carrito(request):
         "eg_mensaje_logrado": config.envio_gratis_mensaje_logrado,
         # Recomendaciones de upsell
         "productos_recomendados": productos_recomendados,
+        "recomendacion_modo": recomendacion_modo,
         "eg_falta_int": int(falta),
     }
 
