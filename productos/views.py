@@ -128,9 +128,18 @@ class ProductoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     def form_valid(self, form):
         self.object = form.save()
         files = self.request.FILES.getlist("portadas")
-        for f in files[:5]:
-            PortadaProducto.objects.create(producto=self.object, imagen=f)
-        messages.info(self.request, "✏️ Producto actualizado correctamente. Portadas agregadas si se subieron nuevas.")
+
+        if files:
+            # ── Reemplazar portadas al editar ──────────────────────────────────
+            # Si el usuario sube nuevas imágenes durante la edición, eliminamos
+            # todas las portadas anteriores y creamos las nuevas desde cero.
+            # Esto garantiza que la primera portada subida sea siempre la principal.
+            # Si NO sube nuevas imágenes, las portadas existentes se conservan intactas.
+            self.object.portadas.all().delete()
+            for f in files[:5]:
+                PortadaProducto.objects.create(producto=self.object, imagen=f)
+
+        messages.info(self.request, "✏️ Producto actualizado correctamente.")
         return super().form_valid(form)
 
 
@@ -176,3 +185,41 @@ def toggle_destacado(request, pk):
     status = "destacado" if producto.destacado else "removido de la vitrina"
     messages.success(request, f"⭐ Producto '{producto.nombre}' {status}.")
     return redirect(request.META.get('HTTP_REFERER', 'productos:producto_list'))
+
+from django.http import JsonResponse
+
+
+@staff_member_required
+@require_POST
+def eliminar_portada(request, portada_id):
+    '''
+    Elimina una PortadaProducto especifica por su ID.
+    No permite borrar si es la unica imagen del producto.
+    Responde JSON para actualizacion sin recarga de pagina.
+    '''
+    portada = get_object_or_404(PortadaProducto, id=portada_id)
+    producto = portada.producto
+    if producto.portadas.count() <= 1:
+        return JsonResponse({'ok': False, 'error': 'No podes eliminar la unica imagen del producto.'}, status=400)
+    portada.delete()
+    return JsonResponse({'ok': True, 'portadas_restantes': producto.portadas.count()})
+
+
+@staff_member_required
+@require_POST
+def portada_como_principal(request, portada_id):
+    '''
+    Establece una portada como imagen principal.
+    Estrategia: borrar todos los registros PortadaProducto del producto,
+    guardar sus URLs con la elegida al frente, y recrearlos en ese orden.
+    Asi portadas.first() devuelve siempre la principal correcta.
+    '''
+    portada = get_object_or_404(PortadaProducto, id=portada_id)
+    producto = portada.producto
+    todas = list(producto.portadas.all().order_by('id'))
+    nueva_orden = [portada] + [p for p in todas if p.id != portada.id]
+    urls_ordenadas = [p.imagen.url for p in nueva_orden]
+    producto.portadas.all().delete()
+    for url in urls_ordenadas:
+        PortadaProducto.objects.create(producto=producto, imagen=url)
+    return JsonResponse({'ok': True, 'mensaje': 'Imagen establecida como portada principal.'})

@@ -11,4 +11,7 @@ urlpatterns = [
     path("destacar/<int:pk>/", views.toggle_destacado, name="toggle_destacado"),
     path("<int:pk>/", views.ProductoDetailView.as_view(), name="producto_detail"),
     path("<int:producto_id>/subir-portada/", views.subir_portada, name="subir_portada"),
+    # ── Gestión granular de portadas (AJAX, solo staff) ──────────────────
+    path("portada/<int:portada_id>/eliminar/", views.eliminar_portada, name="eliminar_portada"),
+    path("portada/<int:portada_id>/principal/", views.portada_como_principal, name="portada_como_principal"),
 ]
