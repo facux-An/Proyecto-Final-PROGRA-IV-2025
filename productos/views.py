@@ -88,7 +88,7 @@ class ProductoDetailView(DetailView):
             context['relacionados'] = []
 
         context['portadas'] = producto.portadas.all()
-        context['portadas_count'] = len(producto.portadas.all())
+        context['portadas_count'] = len(list(producto.portadas.all()))  # list() usa el prefetch cache
         return context
 
 

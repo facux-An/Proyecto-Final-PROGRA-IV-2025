@@ -2,10 +2,16 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.db import transaction
+from django.core.cache import cache
 
 from ventas.models import Carrito, ItemCarrito, Pedido, DetallePedido
 from productos.models import Producto
 from ventas.views.helpers import descontar_stock, registrar_historial, registrar_log
+
+
+def _invalidar_cache_carrito(user_id):
+    """Borra el caché del contador del carrito para forzar una recarga inmediata."""
+    cache.delete(f"carrito_count_user_{user_id}")
 
 
 @login_required
@@ -180,6 +186,7 @@ def agregar_al_carrito(request, producto_id):
         item.cantidad += 1
         item.save()
 
+    _invalidar_cache_carrito(request.user.id)
     messages.success(request, f"✅ {producto.nombre} agregado al carrito.")
     next_url = request.META.get('HTTP_REFERER', 'productos:producto_detail')
     return redirect(next_url)
@@ -198,6 +205,7 @@ def eliminar_item(request, item_id):
 
     item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
     item.delete()
+    _invalidar_cache_carrito(request.user.id)
 
     messages.success(request, "🗑️ Producto eliminado del carrito.")
     return redirect("carrito:carrito_detail")
@@ -290,6 +298,7 @@ def modificar_cantidad(request, item_id, accion):
         if item.producto.stock > item.cantidad:
             item.cantidad += 1
             item.save()
+            _invalidar_cache_carrito(request.user.id)
             messages.success(request, f"Se agregó una unidad de {item.producto.nombre}.")
         else:
             messages.warning(request, "No hay más stock disponible.")
@@ -298,6 +307,7 @@ def modificar_cantidad(request, item_id, accion):
         if item.cantidad > 1:
             item.cantidad -= 1
             item.save()
+            _invalidar_cache_carrito(request.user.id)
             messages.info(request, f"Se quitó una unidad de {item.producto.nombre}.")
         else:
             # Si es 1 y resta, opcionalmente podrías eliminarlo o dejarlo en 1
