@@ -4,6 +4,9 @@ primary_region = "gru" # gru = São Paulo, scl = Santiago de Chile
 [build]
   dockerfile = "Dockerfile"
 
+[deploy]
+  release_command = "python manage.py migrate"
+
 [env]
   # Variables públicas (No secretas). Las secretas van en el panel web.
   PORT = "8080"
