@@ -28,6 +28,7 @@ else:
 
 CSRF_TRUSTED_ORIGINS = [
     "https://proyecto-final-progra-iv-2025.onrender.com",
+    "https://proyecto-final-progra-iv-2025.fly.dev",
     "https://tiendaplus.com.ar",
     "https://www.tiendaplus.com.ar",
     "http://127.0.0.1:8000",

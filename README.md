@@ -1,105 +1,30 @@
-# 🛒 Tienda Plus - Plataforma E-commerce & Gestión de Mostrador
+# Tienda Plus 🛒🚀
 
-![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
-![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black)
+Plataforma de E-commerce desarrollada en **Django (Python)** diseñada con una arquitectura moderna de alta escalabilidad, baja latencia y tolerancia a fallos.
 
-**Tienda Plus** es una solución integral de comercio electrónico diseñada para funcionar en dos frentes: ventas online directas al consumidor y un sistema de gestión para ventas físicas en mostrador.
+## 🌐 Arquitectura de Producción (High Performance)
 
----
+Este proyecto está desplegado en un entorno real de producción optimizado para soportar picos de tráfico (ej. campañas virales o Black Friday) minimizando los cuellos de botella.
 
-## 🏗️ Arquitectura del Sistema
+*   **Hosting Web:** Desplegado en **Fly.io** (Región: São Paulo `gru`) mediante Docker containers. El servidor utiliza **Gunicorn** configurado con 2 workers y 4 threads (`--workers 2 --threads 4 --worker-class gthread`) permitiendo concurrencia real y eliminando errores 502/504 bajo carga intensa.
+*   **Base de Datos:** **Neon Serverless Postgres** (Región: AWS sa-east-1, São Paulo). La proximidad geográfica entre la base de datos y la aplicación (ambas en São Paulo) garantiza una latencia de red de ~1 milisegundo en cada consulta SQL. Cuenta con Connection Pooling nativo (PgBouncer) activado.
+*   **Almacenamiento de Medios (CDN):** **Cloudinary**. Libera al servidor de la carga de procesar imágenes y las entrega a los usuarios de manera ultra-rápida desde los bordes de la red (Edge CDN).
 
-El proyecto utiliza una infraestructura moderna basada en servicios "Serverless" y gestión de recursos en la nube para garantizar alta disponibilidad con costo cero.
+## 🛠️ Stack Tecnológico
 
-```mermaid
-graph TD
-    User((Usuario/Vendedor)) --> Render[Render - Servidor Web Django]
-    Render --> Neon[(Neon - Postgres Serverless)]
-    Render --> Cloudinary[Cloudinary - Almacenamiento Imágenes]
-    Render --> MercadoPago[Mercado Pago - Pasarela de Pagos]
-    Uptime[UptimeRobot] -- "Keep Alive (Health Check)" --> Render
-```
+*   **Backend:** Python 3.10, Django 5.2
+*   **Base de Datos:** SQLite (Desarrollo) / PostgreSQL (Producción)
+*   **Frontend:** HTML5, CSS3 nativo, Bootstrap 5 (con `defer` y `preconnect` hints para optimizar el renderizado inicial). Javascript Vanilla para interacciones DOM y prevención de "Spam Clicks".
+*   **Integraciones:** 
+    *   **MercadoPago SDK:** Procesamiento seguro de pagos (Webhooks y API).
+    *   **Google OAuth2 (django-allauth):** Inicio de sesión con un clic (Social Login).
+    *   **Zipnova (ex Zippin):** Cotización y gestión logística de envíos en tiempo real.
 
-### Optimización de Rendimiento
-Para mitigar el *Cold Start* de los servicios gratuitos, implementamos un sistema de **Health Check**:
-*   **Endpoint:** `/ping/` (ligero, no consulta base de datos).
-*   **Keep-Alive:** UptimeRobot realiza peticiones cada 5-14 minutos para mantener el servidor web activo sin agotar las horas de cómputo de la base de datos Neon.
+## ⚡ Optimizaciones de Rendimiento Clave
 
----
-
-## 🔄 Flujos de Proceso
-
-El sistema identifica dinámicamente el rol del usuario para ofrecer la funcionalidad adecuada.
-
-### 👥 Flujo Cliente (Online)
-```mermaid
-sequenceDiagram
-    participant C as Cliente
-    participant S as Tienda Plus
-    participant P as Mercado Pago
-    C->>S: Navega Catálogo e inicia sesión (Google/Local)
-    C->>S: Agrega productos al Carrito
-    C->>S: Selecciona Método de Pago
-    S->>P: Genera preferencia de pago
-    P-->>C: Procesa Cobro
-    P->>S: Webhook: Actualiza pedido a 'Pagado'
-```
-
-### 👔 Flujo Vendedor (Staff - Mostrador)
-*   **Acceso:** Exclusivo para usuarios con rango `is_staff`.
-*   **Venta en Mostrador:** El vendedor puede generar ventas para cualquier cliente registrado o anónimo.
-*   **Trazabilidad:** El sistema registra automáticamente el perfil del staff que generó la venta para auditorías de caja y comisiones.
+1.  **Caché en Memoria RAM (`LocMemCache`):** La vista principal (Home) utiliza caché con un TTL (Time-To-Live) de 10 minutos para las consultas pesadas. El número del carrito de compras también se cachea y se invalida automáticamente usando el sistema de Signals de Django ante mutaciones (Add/Remove).
+2.  **Optimización de Queries (ORM):** Uso extensivo de `select_related` y `prefetch_related` para evitar el problema de "N+1 queries" en las vistas de listado de productos y detalles, reduciendo el tráfico de red con Neon.
+3.  **UX Anti-Spam (Frontend):** Inyección de un script global interceptor en `base.html` que desactiva botones de `submit` y muestra barras de carga al instante de hacer clic, previniendo múltiples requests simultáneos por impaciencia del usuario.
 
 ---
-
-## 🚀 Características Principales
-
-- **Gestión de Catálogo:** Administración de productos, categorías y stock en tiempo real.
-- **Doble Checkout:** Soporte para Mercado Pago (Online) y Transferencia/Efectivo (Mostrador).
-- **Escalabilidad de Imágenes:** Integración con Cloudinary para servir imágenes optimizadas.
-- **Historial de Pedidos:** Seguimiento detallado de cambios de estado (Pendiente -> Pagado -> Entregado).
-- **Seguridad:** Protección contra inyección SQL, CSRF y gestión de secretos en entorno seguro.
-
----
-
-## 🛠️ Instalación y Configuración Local
-
-1.  **Clonar y Entorno:**
-    ```bash
-    git clone [url-repo]
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
-
-2.  **Dependencias:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Variables de Entorno:**
-    Crear un archivo `.env` en la raíz con las siguientes claves:
-    ```env
-    SECRET_KEY=tu_clave_secreta
-    DATABASE_URL=postgres://... (o dejar vacio para SQLite local)
-    CLOUDINARY_URL=cloudinary://...
-    MERCADOPAGO_ACCESS_TOKEN=...
-    ```
-
-4.  **Ejecutar:**
-    ```bash
-    python manage.py migrate
-    python manage.py runserver
-    ```
-
----
-
-## 📄 Notas de Desarrollo
-Este proyecto ha sido optimizado para despliegues en **Render**. 
-- Se utiliza `WhiteNoise` con compresión Gzip para archivos estáticos.
-- La base de datos en producción utiliza **Neon Postgres** con el modo `pooler` activo para eficiencia de conexiones.
-- Las imágenes de los productos se sirven a través de la red de entrega de contenido (CDN) de **Cloudinary**.
-
----
-*Desarrollado con ❤️ para el Proyecto Final de Programación IV - 2025*
+*Desarrollado y optimizado por Facundo Andrada.*
