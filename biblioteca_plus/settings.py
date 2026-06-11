@@ -250,3 +250,15 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# -----------------------------------------------------------------------------
+# Sentry (Monitoreo de Errores)
+# -----------------------------------------------------------------------------
+import sentry_sdk
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        send_default_pii=True,
+    )
+

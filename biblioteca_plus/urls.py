@@ -13,6 +13,9 @@ urlpatterns = [
     # Health Check (para UptimeRobot)
     path('ping/', views.health_check, name='health_check'),
 
+    # Sentry Debug Route
+    path('sentry-debug/', lambda request: 1 / 0, name='sentry_debug'),
+
     # Home
     path('', views.home, name='home'),
 
