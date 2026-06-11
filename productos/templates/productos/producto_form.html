@@ -242,7 +242,7 @@
                      eliminarPortada(): POST a /productos/portada/{id}/eliminar/
                      establecerPrincipal(): POST a /productos/portada/{id}/principal/ -->
                 <script>
-                  const CSRF_TOKEN = '{{ csrf_token }}';
+                  const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
                   async function eliminarPortada(portadaId, btn) {
                     if (!confirm('¿Seguro que querés eliminar esta imagen?')) return;
