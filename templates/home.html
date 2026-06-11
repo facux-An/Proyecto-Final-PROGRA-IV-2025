@@ -210,7 +210,7 @@
 <div class="hero-carousel mb-4">
     <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="4000">
         <div class="carousel-indicators">
-            {% for kit in kits_combo %}
+            {% for kit in productos_carrusel %}
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
             {% empty %}
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
@@ -220,8 +220,8 @@
         </div>
 
         <div class="carousel-inner">
-            {% if kits_combo %}
-                {% for kit in kits_combo %}
+            {% if productos_carrusel %}
+                {% for kit in productos_carrusel %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <div class="container px-4 px-lg-5">
                         <div class="row align-items-center py-4 py-lg-5">
@@ -306,7 +306,7 @@
             {% endif %}
         </div>
 
-        {% if kits_combo|length > 1 %}
+        {% if productos_carrusel|length > 1 %}
         <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         </button>

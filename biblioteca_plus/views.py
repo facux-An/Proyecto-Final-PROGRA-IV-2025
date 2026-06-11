@@ -57,10 +57,17 @@ def home(request):
             .prefetch_related('portadas')[:8]
         )
 
+        productos_carrusel = list(
+            Producto.objects.filter(en_carrusel=True)
+            .select_related('categoria')
+            .prefetch_related('portadas')[:5]
+        )
+
         home_data = {
             'productos_destacados': productos_destacados,
             'kits_combo': kits_combo,
             'productos_oferta': productos_oferta,
+            'productos_carrusel': productos_carrusel,
         }
 
         # Guardar en caché por 10 minutos

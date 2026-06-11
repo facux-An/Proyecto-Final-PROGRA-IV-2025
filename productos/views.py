@@ -130,16 +130,14 @@ class ProductoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
         files = self.request.FILES.getlist("portadas")
 
         if files:
-            # ── Reemplazar portadas al editar ──────────────────────────────────
-            # Si el usuario sube nuevas imágenes durante la edición, eliminamos
-            # todas las portadas anteriores y creamos las nuevas desde cero.
-            # Esto garantiza que la primera portada subida sea siempre la principal.
-            # Si NO sube nuevas imágenes, las portadas existentes se conservan intactas.
-            self.object.portadas.all().delete()
-            for f in files[:5]:
+            # Calcular cuántos lugares quedan para no superar las 5 portadas
+            current_count = self.object.portadas.count()
+            slots_left = max(0, 5 - current_count)
+            
+            for f in files[:slots_left]:
                 PortadaProducto.objects.create(producto=self.object, imagen=f)
 
-        messages.info(self.request, "✏️ Producto actualizado correctamente.")
+        messages.info(self.request, "✨ Producto actualizado correctamente.")
         return super().form_valid(form)
 
 
