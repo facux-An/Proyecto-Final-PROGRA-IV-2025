@@ -21,3 +21,5 @@ primary_region = "gru" # gru = São Paulo, scl = Santiago de Chile
   auto_start_machines = true
   min_machines_running = 1
   processes = ["app"]
+
+swap_size_mb = 512

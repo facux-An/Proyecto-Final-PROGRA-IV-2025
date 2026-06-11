@@ -26,4 +26,4 @@ COPY . /code/
 RUN CLOUDINARY_URL="cloudinary://dummy:dummy@dummy" python manage.py collectstatic --noinput
 
 # Arrancar Gunicorn usando la configuración optimizada que hicimos hoy
-CMD ["gunicorn", "biblioteca_plus.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4"]
+CMD ["gunicorn", "biblioteca_plus.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "4"]
