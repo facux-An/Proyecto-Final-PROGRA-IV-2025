@@ -153,8 +153,13 @@ class PortadaProducto(models.Model):
         storage=MediaCloudinaryStorage(),
         upload_to="productos/portadas/"
     )
+    orden = models.PositiveIntegerField(
+        default=0,
+        help_text="Orden de visualización (0 es la portada principal)."
+    )
 
     class Meta:
+        ordering = ['orden', 'id']
         verbose_name = "Portada de producto"
         verbose_name_plural = "Portadas de producto"
 

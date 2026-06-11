@@ -13,5 +13,5 @@ urlpatterns = [
     path("<int:producto_id>/subir-portada/", views.subir_portada, name="subir_portada"),
     # ── Gestión granular de portadas (AJAX, solo staff) ──────────────────
     path("portada/<int:portada_id>/eliminar/", views.eliminar_portada, name="eliminar_portada"),
-    path("portada/<int:portada_id>/principal/", views.portada_como_principal, name="portada_como_principal"),
+    path("<int:producto_id>/reordenar-portadas/", views.reordenar_portadas, name="reordenar_portadas"),
 ]

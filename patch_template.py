@@ -1,177 +1,17 @@
-{% extends 'productos/base_producto.html' %}
-{% load static %}
+"""
+Script para reemplazar la galería de portadas con el nuevo sistema de reordenamiento 1-to-N
+"""
+from pathlib import Path
 
-{% block title %}Formulario de Producto · Tienda Plus{% endblock %}
+template_path = Path(r"c:\Users\fandr\Desktop\biblioteca_plus\productos\templates\productos\producto_form.html")
 
-{% block producto_content %}
-<style>
-  .form-card {
-    border: 0;
-    border-radius: 1.25rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,.08);
-    background: #fff;
-  }
-  .form-label { font-weight: 600; color: var(--text-main); }
-  .form-control, .form-select {
-    border-radius: .75rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-    transition: all 0.2s ease;
-  }
-  .form-control:focus, .form-select:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
-    background-color: #fff;
-  }
-  .preview-img {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,.08);
-    border: 3px solid white;
-  }
-  .multi-upload {
-    border: 2px dashed #ced4da;
-    border-radius: 1rem;
-    padding: 2rem 1rem;
-    text-align: center;
-    background: #f8f9fa;
-    transition: all .2s ease;
-    cursor: pointer;
-  }
-  .multi-upload:hover {
-    background: #fff;
-    border-color: var(--brand-primary);
-  }
-  .multi-upload i {
-    font-size: 2.5rem;
-    color: #adb5bd;
-    transition: color .2s ease;
-  }
-  .multi-upload:hover i {
-    color: var(--brand-primary);
-  }
-</style>
+content = template_path.read_text(encoding='utf-8')
 
-<div class="container py-5">
+# Extraer el bloque entre <div class="col-md-12 border-top pt-4 mt-2"> y el final del div de portadas
+import re
+pattern = r'(<div class="col-md-12 border-top pt-4 mt-2">\s*<label class="form-label fs-5 mb-3">Imágenes del Producto</label>).*?(</div>\s*</div>\s*<div class="d-flex flex-column flex-md-row gap-3 mt-5">)'
 
-  <div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-      
-      <div class="text-center mb-5">
-        {% if form.instance.pk %}
-          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
-            <i class="bi bi-pencil-square fs-3 text-dark"></i>
-          </div>
-          <h2 class="fw-bold text-dark">Editar Producto #{{ form.instance.pk }}</h2>
-        {% else %}
-          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px;">
-            <i class="bi bi-box-seam fs-3 text-dark"></i>
-          </div>
-          <h2 class="fw-bold text-dark">Nuevo Producto</h2>
-        {% endif %}
-        <p class="text-muted">Asegúrate de incluir buenas imágenes y una descripción clara para aumentar las ventas.</p>
-      </div>
-
-      <div class="card form-card">
-        <div class="card-body p-4 p-md-5">
-          <form method="post" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger rounded-3 d-flex align-items-center mb-4" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                {{ form.non_field_errors }}
-              </div>
-            {% endif %}
-
-            <div class="row g-4">
-              <div class="col-md-12">
-                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre del Producto</label>
-                {{ form.nombre }}
-                {% if form.nombre.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.nombre.errors|striptags }}</div>{% endif %}
-              </div>
-
-              <div class="col-md-6">
-                <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría</label>
-                {{ form.categoria }}
-                {% if form.categoria.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.categoria.errors|striptags }}</div>{% endif %}
-              </div>
-
-              <div class="col-md-3">
-                <label for="{{ form.precio.id_for_label }}" class="form-label">Precio ($)</label>
-                {{ form.precio }}
-                {% if form.precio.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.precio.errors|striptags }}</div>{% endif %}
-              </div>
-
-              <div class="col-md-3">
-                <label for="{{ form.stock.id_for_label }}" class="form-label">Stock</label>
-                {{ form.stock }}
-                {% if form.stock.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.stock.errors|striptags }}</div>{% endif %}
-              </div>
-
-              <div class="col-md-12">
-                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
-                {{ form.descripcion }}
-                {% if form.descripcion.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.descripcion.errors|striptags }}</div>{% endif %}
-              </div>
-
-              <!-- ══════════════════════════════════════════ -->
-              <!-- DATOS LOGÍSTICOS (Envío / Zipnova)        -->
-              <!-- ══════════════════════════════════════════ -->
-              <div class="col-md-12 border-top pt-4 mt-2">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                  <i class="bi bi-truck fs-5" style="color: var(--brand-primary);"></i>
-                  <label class="form-label fs-5 mb-0">Datos para Envío</label>
-                </div>
-                <p class="text-muted small mb-3" style="line-height: 1.4;">
-                  Estos datos se usan para calcular el costo del envío automáticamente.
-                  <strong>Medí el producto ya empaquetado</strong> (con su caja o bolsa).
-                </p>
-
-                <div class="row g-3">
-                  <!-- Peso -->
-                  <div class="col-md-3 col-6">
-                    <label for="{{ form.peso_gramos.id_for_label }}" class="form-label small fw-bold">
-                      <i class="bi bi-speedometer me-1"></i>{{ form.peso_gramos.label }}
-                    </label>
-                    {{ form.peso_gramos }}
-                    <div class="form-text" style="font-size: 0.7rem;">{{ form.peso_gramos.help_text }}</div>
-                    {% if form.peso_gramos.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.peso_gramos.errors|striptags }}</div>{% endif %}
-                  </div>
-                  <!-- Largo -->
-                  <div class="col-md-3 col-6">
-                    <label for="{{ form.largo_cm.id_for_label }}" class="form-label small fw-bold">
-                      <i class="bi bi-arrows me-1"></i>{{ form.largo_cm.label }}
-                    </label>
-                    {{ form.largo_cm }}
-                    <div class="form-text" style="font-size: 0.7rem;">{{ form.largo_cm.help_text }}</div>
-                    {% if form.largo_cm.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.largo_cm.errors|striptags }}</div>{% endif %}
-                  </div>
-                  <!-- Ancho -->
-                  <div class="col-md-3 col-6">
-                    <label for="{{ form.ancho_cm.id_for_label }}" class="form-label small fw-bold">
-                      <i class="bi bi-arrows me-1"></i>{{ form.ancho_cm.label }}
-                    </label>
-                    {{ form.ancho_cm }}
-                    <div class="form-text" style="font-size: 0.7rem;">{{ form.ancho_cm.help_text }}</div>
-                    {% if form.ancho_cm.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.ancho_cm.errors|striptags }}</div>{% endif %}
-                  </div>
-                  <!-- Alto -->
-                  <div class="col-md-3 col-6">
-                    <label for="{{ form.alto_cm.id_for_label }}" class="form-label small fw-bold">
-                      <i class="bi bi-arrows-vertical me-1"></i>{{ form.alto_cm.label }}
-                    </label>
-                    {{ form.alto_cm }}
-                    <div class="form-text" style="font-size: 0.7rem;">{{ form.alto_cm.help_text }}</div>
-                    {% if form.alto_cm.errors %}<div class="text-danger small mt-1 fw-bold">{{ form.alto_cm.errors|striptags }}</div>{% endif %}
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-12 border-top pt-4 mt-2">
+new_block = """<div class="col-md-12 border-top pt-4 mt-2">
                 <label class="form-label fs-5 mb-3">Imágenes del Producto</label>
 
                 {% if form.instance.pk and form.instance.portadas.all %}
@@ -391,26 +231,9 @@
                     }
                   }
                 </script>
-              </div>
-</div>
+              </div>\n"""
 
-            </div>
+new_content = re.sub(pattern, new_block + r'\2', content, flags=re.DOTALL)
 
-            <div class="d-flex flex-column flex-md-row gap-3 mt-5">
-              <a href="{% url 'productos:producto_list' %}" class="btn btn-light btn-lg rounded-pill fw-bold text-secondary px-5">
-                Cancelar
-              </a>
-              <button type="submit" class="btn btn-lg fw-bold text-white rounded-pill flex-grow-1" style="background-color: var(--brand-primary); border: none;">
-                {% if form.instance.pk %}Guardar Cambios del Producto{% else %}Crear y Publicar Producto{% endif %}
-              </button>
-            </div>
-            
-          </form>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-</div>
-{% endblock %}
+template_path.write_text(new_content, encoding='utf-8')
+print("Template updated correctly.")

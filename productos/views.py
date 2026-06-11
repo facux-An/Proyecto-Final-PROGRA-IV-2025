@@ -186,7 +186,9 @@ def toggle_destacado(request, pk):
     messages.success(request, f"⭐ Producto '{producto.nombre}' {status}.")
     return redirect(request.META.get('HTTP_REFERER', 'productos:producto_list'))
 
+import json
 from django.http import JsonResponse
+from django.db import transaction
 
 
 @staff_member_required
@@ -207,19 +209,31 @@ def eliminar_portada(request, portada_id):
 
 @staff_member_required
 @require_POST
-def portada_como_principal(request, portada_id):
+def reordenar_portadas(request, producto_id):
     '''
-    Establece una portada como imagen principal.
-    Estrategia: borrar todos los registros PortadaProducto del producto,
-    guardar sus URLs con la elegida al frente, y recrearlos en ese orden.
-    Asi portadas.first() devuelve siempre la principal correcta.
+    Recibe una lista de IDs de PortadaProducto y actualiza su campo 'orden'.
+    El payload debe ser JSON: {"orden_ids": [34, 32, 35]}
     '''
-    portada = get_object_or_404(PortadaProducto, id=portada_id)
-    producto = portada.producto
-    todas = list(producto.portadas.all().order_by('id'))
-    nueva_orden = [portada] + [p for p in todas if p.id != portada.id]
-    urls_ordenadas = [p.imagen.url for p in nueva_orden]
-    producto.portadas.all().delete()
-    for url in urls_ordenadas:
-        PortadaProducto.objects.create(producto=producto, imagen=url)
-    return JsonResponse({'ok': True, 'mensaje': 'Imagen establecida como portada principal.'})
+    producto = get_object_or_404(Producto, id=producto_id)
+    try:
+        data = json.loads(request.body)
+        orden_ids = data.get('orden_ids', [])
+        
+        if not isinstance(orden_ids, list):
+            return JsonResponse({'ok': False, 'error': 'Formato inválido.'}, status=400)
+
+        # Usar una transacción para asegurar integridad
+        with transaction.atomic():
+            for index, p_id in enumerate(orden_ids):
+                # Usar update para no emitir señales innecesarias, o save() si es necesario
+                # Para ser seguros, verificamos que la portada pertenezca al producto
+                PortadaProducto.objects.filter(id=p_id, producto=producto).update(orden=index)
+                
+            # Las portadas que no se enviaron quedarán con su orden actual,
+            # pero típicamente el frontend envía todas.
+            
+        return JsonResponse({'ok': True, 'mensaje': 'Orden guardado correctamente.'})
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'Payload inválido.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
