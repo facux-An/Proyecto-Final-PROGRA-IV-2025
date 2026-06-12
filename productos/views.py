@@ -8,6 +8,7 @@ from .forms import ProductoForm, ProductoPortadaForm, PortadasMultiplesForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import ProtectedError
 import traceback
 
 
@@ -148,8 +149,13 @@ class ProductoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
     permission_required = 'productos.delete_producto'
 
     def delete(self, request, *args, **kwargs):
-        messages.warning(self.request, "🗑️ Producto eliminado correctamente.")
-        return super().delete(request, *args, **kwargs)
+        try:
+            response = super().delete(request, *args, **kwargs)
+            messages.warning(self.request, "🗑️ Producto eliminado correctamente.")
+            return response
+        except ProtectedError:
+            messages.error(self.request, "❌ No se puede eliminar este producto porque está asociado a ventas históricas. Para ocultarlo, dejá su stock en 0.")
+            return redirect('productos:producto_list')
 
 
 def subir_portada(request, producto_id):
