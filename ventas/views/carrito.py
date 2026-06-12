@@ -40,106 +40,86 @@ def ver_carrito(request):
     alcanzado = total_carrito >= umbral
 
     # ════════════════════════════════════════════════════════════════
-    # MOTOR DE RECOMENDACIONES INTELIGENTE
-    # Lógica basada en la estrategia de upsell de Tienda Plus.
-    # Objetivo: recomendar 1-2 productos que cubran la brecha al umbral
-    # de envío gratis, priorizando los que NO están ya en el carrito.
+    # MOTOR DE RECOMENDACIONES V2 — Psicología de Bajo Roce
+    #
+    # Principio: en el carrito el usuario ya decidió comprar.
+    # Toda fricción cognitiva (pensar, comparar, dudar) aumenta
+    # el abandono. El motor trabaja con DOS slots independientes:
+    #
+    # SLOT 1 — "El Cierre" (matemático)
+    #   Busca el producto individual MÁS BARATO que supere el gap
+    #   al umbral de envío gratis. Si faltan $6.600, recomendamos
+    #   algo de $7.000 o $8.000, NUNCA el kit de $23.000.
+    #   Mensaje: "Agregá solo este y tu envío es GRATIS".
+    #
+    # SLOT 2 — "El Impulso" (anclaje de precio bajo)
+    #   Ignora el gap. Muestra el producto MÁS BARATO del catálogo
+    #   que no esté ya en el carrito ni en el Slot 1.
+    #   Psicología: "Ya que estoy pagando tanto... ¿qué son $X más?".
+    #   Aumenta el ticket promedio sin generar dudas.
+    #
+    # Reglas de exclusión globales:
+    #   - Nunca recomendar productos ya en el carrito.
+    #   - Si hay un kit en el carrito, no recomendar otro kit.
+    #   - Los dos slots siempre muestran productos DISTINTOS.
     # ════════════════════════════════════════════════════════════════
-    productos_recomendados = []
-    recomendacion_modo = None   # 'solo' | 'combo' | 'combo_parcial'
+    rec_cierre = None    # Slot 1: cierra el gap al envío gratis
+    rec_impulso = None   # Slot 2: compra por impulso, lo más barato
+
     if not alcanzado and config.envio_gratis_activo:
         ids_en_carrito = set(
             carrito.items.values_list("producto_id", flat=True)
         )
 
-        # ── REGLA DE ORO: si el carrito ya tiene un kit/combo, NUNCA recomendar otro kit ──
-        # Lógica: ofrecer dos kits similares es incoherente y frustrante para el cliente.
+        # Regla de oro: si ya hay un kit, excluir kits de candidatos
         hay_kit_en_carrito = carrito.items.filter(producto__es_combo=True).exists()
 
+        # Pool de candidatos: siempre preferir productos individuales
+        # Los kits generan fricción cognitiva (¿qué incluye?, ¿lo necesito todo?)
         candidatos = list(
             Producto.objects
             .filter(stock__gt=0)
             .exclude(id__in=ids_en_carrito)
-            .exclude(es_combo=hay_kit_en_carrito)   # excluir kits si ya hay uno en carrito
+            .exclude(es_combo=True)  # preferir individuales en ambos slots
             .select_related("categoria")
             .prefetch_related("portadas")
-            .order_by("precio")
+            .order_by("precio")  # ascendente: el más barato primero
         )
 
-        # ── NIVEL 1: Producto individual que cierre la brecha con "Overshoot Gamificado" ──
-        # La estrategia psicológica es que el precio NO sea exacto al gap.
-        # El cliente tiene que sentir que "hackeó el sistema" pasando el umbral por un margen pequeño.
-        # Rango objetivo: el producto cuesta entre falta y falta * 2.0
-        # Scoring: premiamos el overshoot de 100 a 2000 pesos (la "zona dulce" psicológica).
-        candidatos_cierre_solo = [
+        # Fallback: si no hay individuales y no hay kit en carrito, incluir kits
+        if not candidatos and not hay_kit_en_carrito:
+            candidatos = list(
+                Producto.objects
+                .filter(stock__gt=0, es_combo=True)
+                .exclude(id__in=ids_en_carrito)
+                .select_related("categoria")
+                .prefetch_related("portadas")
+                .order_by("precio")
+            )
+
+        # ── SLOT 1 — El Cierre ─────────────────────────────────────────────
+        # El producto más barato cuyo precio_display >= falta.
+        # Ordenado por precio ASC, el primero = menor costo extra para el cliente.
+        cierre_pool = [
             p for p in candidatos
-            if float(p.precio_display) >= falta and float(p.precio_display) <= falta * 2.0
+            if float(p.precio_display) >= falta
         ]
+        if cierre_pool:
+            rec_cierre = cierre_pool[0]
 
-        if candidatos_cierre_solo:
-            def overshoot_score(p):
-                overshoot = float(p.precio_display) - falta
-                # Score mínimo (mejor) en el rango 100-2000 pesos de overshoot
-                # Fuera de esa zona, penalizamos progresivamente
-                if 100 <= overshoot <= 2000:
-                    return overshoot  # dentro de la zona dulce, el menor exceso gana
-                elif overshoot < 100:
-                    return 2000 + (100 - overshoot) * 5   # muy exacto: penalizar (parece armado)
-                else:
-                    return overshoot  # mucho exceso: penalizar por sobrepropuesta
+        # ── SLOT 2 — El Impulso ────────────────────────────────────────────
+        # El producto más barato disponible, excluyendo el ya asignado al Slot 1.
+        # Si no hay Slot 1, también puede ser el más barato del pool.
+        id_cierre = rec_cierre.id if rec_cierre else None
+        impulso_pool = [p for p in candidatos if p.id != id_cierre]
+        if impulso_pool:
+            rec_impulso = impulso_pool[0]
 
-            candidatos_cierre_solo.sort(key=overshoot_score)
-            estrella = candidatos_cierre_solo[0]
-
-            # Complementario: enriquece la oferta visualmente.
-            # Rol: mostrar variedad, no cerrar el gap por sí solo.
-            # Prioridad 1: distinta categoría + precio <= estrella (no sobreproponer)
-            # Prioridad 2: si no hay de distinta cat, cualquier producto más barato que la estrella
-            # Prioridad 3: si tampoco, el siguiente más barato disponible
-            precio_estrella = float(estrella.precio_display)
-            complementarios = [
-                p for p in candidatos
-                if p.id != estrella.id
-                and p.categoria_id != estrella.categoria_id
-                and float(p.precio_display) <= precio_estrella
-            ]
-            if not complementarios:
-                # Fallback 2: misma categoría permitida pero precio <= estrella
-                complementarios = [
-                    p for p in candidatos
-                    if p.id != estrella.id
-                    and float(p.precio_display) <= precio_estrella
-                ]
-            if not complementarios:
-                # Fallback 3: cualquier otro producto disponible (sin restricción de precio)
-                complementarios = [p for p in candidatos if p.id != estrella.id]
-
-            complementarios.sort(key=lambda p: float(p.precio_display))
-            productos_recomendados = [estrella] + complementarios[:1]
-            recomendacion_modo = 'solo'
-
-        else:
-            # ── NIVEL 2: No hay cierre solo → buscar el par combinado con menor overshoot ──
-            mejor_par = None
-            mejor_exceso = float('inf')
-            lista = sorted(candidatos, key=lambda p: float(p.precio_display))
-            for i, p1 in enumerate(lista):
-                for p2 in lista[i+1:]:
-                    suma = float(p1.precio_display) + float(p2.precio_display)
-                    if suma >= falta:
-                        exceso = suma - falta
-                        if exceso < mejor_exceso:
-                            mejor_exceso = exceso
-                            mejor_par = [p1, p2]
-                        break
-            if mejor_par:
-                productos_recomendados = mejor_par
-                recomendacion_modo = 'combo'
-            elif candidatos:
-                # ── NIVEL 3: Ningún par cubre — mostrar el más cercano al gap ──
-                candidatos.sort(key=lambda p: abs(float(p.precio_display) - falta))
-                productos_recomendados = candidatos[:2]
-                recomendacion_modo = 'combo_parcial'
+    # ── Cuánto pasa del umbral si agrega el producto de cierre ─────────────
+    # Mensaje positivo: "Con este producto ya cubrís el envío y te sobran $X".
+    overshoot_cierre = 0
+    if rec_cierre:
+        overshoot_cierre = max(0, float(rec_cierre.precio_display) - falta)
 
     alcanzado = total_carrito >= umbral
 
@@ -153,9 +133,10 @@ def ver_carrito(request):
         "eg_alcanzado": alcanzado,
         "eg_mensaje": config.envio_gratis_mensaje.replace("{umbral}", f"{umbral:,.0f}"),
         "eg_mensaje_logrado": config.envio_gratis_mensaje_logrado,
-        # Recomendaciones de upsell
-        "productos_recomendados": productos_recomendados,
-        "recomendacion_modo": recomendacion_modo,
+        # Recomendaciones V2 — dos slots independientes
+        "rec_cierre": rec_cierre,
+        "rec_impulso": rec_impulso,
+        "rec_overshoot": int(overshoot_cierre),
         "eg_falta_int": int(falta),
     }
 

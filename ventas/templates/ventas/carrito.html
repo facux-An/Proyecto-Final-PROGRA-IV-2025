@@ -319,121 +319,156 @@
 
             </div>
             
-            {% if productos_recomendados and not eg_alcanzado %}
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!-- SECCIÓN DE RECOMENDACIONES INTELIGENTES DE UPSELL         -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <div class="upsell-section mt-4 p-4 rounded-4" style="background: linear-gradient(135deg, #FFF7ED 0%, #FFF1E3 100%); border: 1.5px solid rgba(255,102,0,0.2);">
-                
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span style="font-size: 1.3rem;">🚚</span>
-                    <div>
-                        {% if recomendacion_modo == 'solo' %}
-                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">
-                            ¡Agregá <u>solo este producto</u> y tu envío es <span style="color: #10B981;">GRATIS</span>!
-                        </h6>
-                        <p class="text-muted mb-0" style="font-size: 0.75rem;">
-                            Te faltan <strong style="color: var(--brand-primary);">${{ eg_falta_int|floatformat:0 }}</strong> — este producto lo cubre solo 🎯
-                        </p>
-                        {% elif recomendacion_modo == 'combo' %}
-                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">
-                            Sumando estos 2, tu envío es <span style="color: #10B981;">GRATIS</span>
-                        </h6>
-                        <p class="text-muted mb-0" style="font-size: 0.75rem;">
-                            Te faltan <strong style="color: var(--brand-primary);">${{ eg_falta_int|floatformat:0 }}</strong> — agregando ambos cubrís la diferencia
-                        </p>
-                        {% else %}
-                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">
-                            ¿Querés <span style="color: #10B981;">envío GRATIS</span>?
-                        </h6>
-                        <p class="text-muted mb-0" style="font-size: 0.75rem;">
-                            Te faltan <strong style="color: var(--brand-primary);">${{ eg_falta_int|floatformat:0 }}</strong> — estos productos te acercan al objetivo
-                        </p>
-                        {% endif %}
-                    </div>
-                </div>
+            {% if rec_cierre or rec_impulso and not eg_alcanzado %}
+            <!-- ═════════════════════════════════════════════════════════ -->
+            <!-- RECOMENDACIONES V2 — DOS SLOTS INDEPENDIENTES            -->
+            <!-- ═════════════════════════════════════════════════════════ -->
+            <div class="mt-4">
 
-                <div class="row g-3 mt-1">
-                    {% for rec in productos_recomendados %}
-                    <div class="col-sm-6">
-                        <div class="bg-white rounded-4 p-3 h-100 d-flex flex-column shadow-sm position-relative" 
-                             style="border: {% if recomendacion_modo == 'solo' and forloop.first %}2px solid var(--brand-primary){% else %}1px solid rgba(0,0,0,0.06){% endif %}; transition: transform 0.2s, box-shadow 0.2s;" 
-                             onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 25px rgba(255,102,0,0.15)'"
-                             onmouseout="this.style.transform='';this.style.boxShadow=''">
-                            
-                            <!-- Badge estrella solo para el producto principal en modo 'solo' -->
-                            {% if recomendacion_modo == 'solo' and forloop.first %}
-                            <div class="position-absolute" style="top: -10px; left: 12px; z-index: 5;">
-                                <span class="badge rounded-pill fw-bold px-2 py-1 text-white shadow-sm" style="background: var(--brand-primary); font-size: 0.65rem; letter-spacing: 0.3px;">
-                                    ⭐ CIERRA EL ENVÍO GRATIS
-                                </span>
-                            </div>
-                            {% elif recomendacion_modo == 'combo' and forloop.last %}
-                            <div class="position-absolute" style="top: -10px; left: 12px; z-index: 5;">
-                                <span class="badge rounded-pill fw-bold px-2 py-1 text-white shadow-sm" style="background: #6366F1; font-size: 0.65rem;">
-                                    + COMPLEMENTO IDEAL
-                                </span>
-                            </div>
-                            {% endif %}
+              <!-- Encabezado de sección -->
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div style="width: 3px; height: 20px; background: var(--brand-primary); border-radius: 2px;"></div>
+                <span class="fw-bold text-dark" style="font-size: 0.9rem;">Puede interesarte</span>
+              </div>
 
-                            <!-- Imagen del producto -->
-                            <div class="text-center mb-2 mt-2">
-                                {% if rec.imagen_principal_url %}
-                                <img src="{{ rec.imagen_principal_url }}" alt="{{ rec.nombre }}" style="height: 90px; object-fit: contain; width: 100%;">
-                                {% else %}
-                                <div class="d-flex align-items-center justify-content-center bg-light rounded-3" style="height: 90px;">
-                                    <i class="bi bi-box-seam text-muted fs-2"></i>
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Nombre -->
-                            <h6 class="fw-bold text-dark mb-1" style="font-size: 0.82rem; line-height: 1.3;">{{ rec.nombre }}</h6>
-                            
-                            <!-- Precio con oferta si aplica -->
-                            <div class="mt-auto">
-                                {% if rec.oferta_activa and rec.precio_oferta %}
-                                <div class="d-flex align-items-center gap-1 mb-1">
-                                    <span class="text-muted text-decoration-line-through" style="font-size: 0.75rem;">${{ rec.precio|floatformat:0 }}</span>
-                                    <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem;">-{{ rec.porcentaje_descuento }}%</span>
-                                </div>
-                                <div class="fw-bold mb-2" style="color: var(--brand-primary); font-size: 1.1rem;">${{ rec.precio_oferta|floatformat:0 }}</div>
-                                {% else %}
-                                <div class="fw-bold mb-2" style="color: var(--brand-primary); font-size: 1.1rem;">${{ rec.precio|floatformat:0 }}</div>
-                                {% endif %}
-                                
-                                <!-- Stock bajo = urgencia -->
-                                {% if rec.stock < 5 %}
-                                <p class="mb-2" style="font-size: 0.7rem; color: #DC2626; font-weight: 700;">
-                                    <i class="bi bi-fire"></i> ¡Solo quedan {{ rec.stock }}!
-                                </p>
-                                {% endif %}
-                                
-                                <!-- Botón agregar — texto honesto según modo -->
-                                <form method="post" action="{% url 'carrito:carrito_add' rec.id %}" class="mb-0">
-                                    {% csrf_token %}
-                                    {% if recomendacion_modo == 'solo' and forloop.first %}
-                                    <button type="submit" class="btn w-100 fw-bold rounded-pill py-2 text-white" 
-                                            style="background: linear-gradient(135deg, #10B981, #059669); border: none; font-size: 0.8rem;">
-                                        <i class="bi bi-gift me-1"></i>¡Agregar — Envío GRATIS!
-                                    </button>
-                                    {% elif recomendacion_modo == 'combo' %}
-                                    <button type="submit" class="btn w-100 fw-bold rounded-pill py-2 text-white" 
-                                            style="background: linear-gradient(135deg, var(--brand-primary), #e65c00); border: none; font-size: 0.8rem;">
-                                        <i class="bi bi-cart-plus me-1"></i>Agregar al combo
-                                    </button>
-                                    {% else %}
-                                    <button type="submit" class="btn w-100 fw-bold rounded-pill py-2 text-white" 
-                                            style="background: linear-gradient(135deg, var(--brand-primary), #e65c00); border: none; font-size: 0.8rem;">
-                                        <i class="bi bi-cart-plus me-1"></i>Agregar
-                                    </button>
-                                    {% endif %}
-                                </form>
-                            </div>
-                        </div>
+              <div class="row g-3">
+
+                <!-- ─── SLOT 1: EL CIERRE ─────────────────────────────── -->
+                {% if rec_cierre %}
+                <div class="col-sm-6">
+                  <div class="rounded-4 p-3 h-100 d-flex flex-column position-relative"
+                       style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 2px solid #10B981;"
+                       onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(16,185,129,0.25)'"
+                       onmouseout="this.style.transform='';this.style.boxShadow=''">
+
+                    <!-- Badge flotante -->
+                    <div class="position-absolute" style="top: -11px; left: 14px; z-index: 5;">
+                      <span class="badge fw-bold px-2 py-1 text-white shadow-sm"
+                            style="background: linear-gradient(135deg, #10B981, #059669); font-size: 0.62rem; letter-spacing: 0.4px; border-radius: 20px;">
+                        🎯 CIERRA EL ENVÍO GRATIS
+                      </span>
                     </div>
-                    {% endfor %}
+
+                    <!-- Imagen -->
+                    <div class="text-center mt-2 mb-2">
+                      {% if rec_cierre.imagen_principal_url %}
+                      <img src="{{ rec_cierre.imagen_principal_url }}" alt="{{ rec_cierre.nombre }}"
+                           style="height: 85px; object-fit: contain; width: 100%;">
+                      {% else %}
+                      <div class="d-flex align-items-center justify-content-center rounded-3 bg-white" style="height: 85px;">
+                        <i class="bi bi-box-seam text-muted fs-2"></i>
+                      </div>
+                      {% endif %}
+                    </div>
+
+                    <!-- Nombre -->
+                    <h6 class="fw-bold mb-1" style="font-size: 0.82rem; line-height: 1.3; color: #065F46;">{{ rec_cierre.nombre }}</h6>
+
+                    <!-- Micro-texto motivador -->
+                    <p class="mb-2" style="font-size: 0.7rem; color: #059669;">
+                      <i class="bi bi-check-circle-fill me-1"></i>
+                      Agregá solo este y tu envío es <strong>GRATIS</strong>
+                      {% if rec_overshoot > 0 %} — te pasarás por apenas ${{ rec_overshoot|floatformat:0 }}{% endif %}
+                    </p>
+
+                    <!-- Precio -->
+                    <div class="mt-auto">
+                      {% if rec_cierre.oferta_activa and rec_cierre.precio_oferta %}
+                      <div class="d-flex align-items-center gap-1 mb-1">
+                        <span class="text-muted text-decoration-line-through" style="font-size: 0.75rem;">${{ rec_cierre.precio|floatformat:0 }}</span>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">-{{ rec_cierre.porcentaje_descuento }}%</span>
+                      </div>
+                      <div class="fw-bold mb-2" style="color: #059669; font-size: 1.1rem;">${{ rec_cierre.precio_oferta|floatformat:0 }}</div>
+                      {% else %}
+                      <div class="fw-bold mb-2" style="color: #059669; font-size: 1.1rem;">${{ rec_cierre.precio|floatformat:0 }}</div>
+                      {% endif %}
+
+                      {% if rec_cierre.stock < 5 %}
+                      <p class="mb-2" style="font-size: 0.68rem; color: #DC2626; font-weight: 700;">
+                        <i class="bi bi-fire"></i> ¡Solo quedan {{ rec_cierre.stock }}!
+                      </p>
+                      {% endif %}
+
+                      <form method="post" action="{% url 'carrito:carrito_add' rec_cierre.id %}" class="mb-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn w-100 fw-bold rounded-pill py-2 text-white"
+                                style="background: linear-gradient(135deg, #10B981, #059669); border: none; font-size: 0.8rem;">
+                          <i class="bi bi-gift-fill me-1"></i>¡Agregar — Envío GRATIS!
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 </div>
+                {% endif %}
+
+                <!-- ─── SLOT 2: EL IMPULSO ────────────────────────────── -->
+                {% if rec_impulso %}
+                <div class="col-sm-6">
+                  <div class="bg-white rounded-4 p-3 h-100 d-flex flex-column position-relative"
+                       style="border: 1.5px solid rgba(0,0,0,0.07);"
+                       onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 30px rgba(0,0,0,0.09)'"
+                       onmouseout="this.style.transform='';this.style.boxShadow=''">
+
+                    <!-- Badge flotante -->
+                    <div class="position-absolute" style="top: -11px; left: 14px; z-index: 5;">
+                      <span class="badge fw-bold px-2 py-1 text-white shadow-sm"
+                            style="background: linear-gradient(135deg, #6366F1, #4F46E5); font-size: 0.62rem; letter-spacing: 0.4px; border-radius: 20px;">
+                        ✨ COMPLEMENTÁ TU COMPRA
+                      </span>
+                    </div>
+
+                    <!-- Imagen -->
+                    <div class="text-center mt-2 mb-2">
+                      {% if rec_impulso.imagen_principal_url %}
+                      <img src="{{ rec_impulso.imagen_principal_url }}" alt="{{ rec_impulso.nombre }}"
+                           style="height: 85px; object-fit: contain; width: 100%;">
+                      {% else %}
+                      <div class="d-flex align-items-center justify-content-center rounded-3 bg-light" style="height: 85px;">
+                        <i class="bi bi-box-seam text-muted fs-2"></i>
+                      </div>
+                      {% endif %}
+                    </div>
+
+                    <!-- Nombre -->
+                    <h6 class="fw-bold mb-1" style="font-size: 0.82rem; line-height: 1.3; color: #1F2937;">{{ rec_impulso.nombre }}</h6>
+
+                    <!-- Micro-texto anclaje de precio bajo -->
+                    <p class="mb-2" style="font-size: 0.7rem; color: #6B7280;">
+                      <i class="bi bi-star-fill me-1" style="color: #F59E0B;"></i>
+                      Producto popular a precio accesible
+                    </p>
+
+                    <!-- Precio -->
+                    <div class="mt-auto">
+                      {% if rec_impulso.oferta_activa and rec_impulso.precio_oferta %}
+                      <div class="d-flex align-items-center gap-1 mb-1">
+                        <span class="text-muted text-decoration-line-through" style="font-size: 0.75rem;">${{ rec_impulso.precio|floatformat:0 }}</span>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">-{{ rec_impulso.porcentaje_descuento }}%</span>
+                      </div>
+                      <div class="fw-bold mb-2" style="color: var(--brand-primary); font-size: 1.1rem;">${{ rec_impulso.precio_oferta|floatformat:0 }}</div>
+                      {% else %}
+                      <div class="fw-bold mb-2" style="color: var(--brand-primary); font-size: 1.1rem;">${{ rec_impulso.precio|floatformat:0 }}</div>
+                      {% endif %}
+
+                      {% if rec_impulso.stock < 5 %}
+                      <p class="mb-2" style="font-size: 0.68rem; color: #DC2626; font-weight: 700;">
+                        <i class="bi bi-fire"></i> ¡Solo quedan {{ rec_impulso.stock }}!
+                      </p>
+                      {% endif %}
+
+                      <form method="post" action="{% url 'carrito:carrito_add' rec_impulso.id %}" class="mb-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn w-100 fw-bold rounded-pill py-2 text-white"
+                                style="background: linear-gradient(135deg, var(--brand-primary), #e65c00); border: none; font-size: 0.8rem;">
+                          <i class="bi bi-cart-plus me-1"></i>Agregar
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+              </div>
             </div>
             {% endif %}
 
