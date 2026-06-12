@@ -320,6 +320,85 @@ class ConfirmacionPagoView(TemplateView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
+class ReintentarPagoMP(TemplateView):
+    """
+    Permite que un cliente reintente el pago de un pedido que quedó
+    en estado 'pendiente' con método 'Mercado Pago'.
+
+    Flujo seguro:
+      1. Verifica que el pedido exista, sea del usuario autenticado
+         y esté en estado 'pendiente' con MP como método de pago.
+      2. Construye una nueva preferencia de MP usando los DetallePedido
+         ya guardados en la base de datos (NO se toca el stock ni se
+         crea ningún pedido nuevo).
+      3. Redirige al init_point de MP, igual que en el flujo original.
+    """
+
+    def get(self, request, pedido_id, *args, **kwargs):
+        # ── Obtener y validar el pedido ──────────────────────────────────
+        pedido = get_object_or_404(
+            Pedido,
+            id=pedido_id,
+            usuario=request.user,          # Seguridad: solo el dueño
+            estado="pendiente",             # Solo pedidos aún pendientes
+            metodo_pago="Mercado Pago",    # Solo si ya había elegido MP
+        )
+
+        detalles = pedido.detalles.select_related("producto").all()
+        if not detalles.exists():
+            messages.error(request, "❌ El pedido no tiene productos. Contactá con soporte.")
+            return redirect("pedidos:list")
+
+        # ── Construir la preferencia de Mercado Pago ─────────────────────
+        try:
+            sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+            items_mp = []
+            for detalle in detalles:
+                items_mp.append({
+                    "title": detalle.producto.nombre,
+                    "quantity": detalle.cantidad,
+                    "unit_price": float(detalle.precio_unitario),
+                    "currency_id": "ARS",
+                })
+
+            # Agregar envio si aplica
+            if pedido.costo_envio and float(pedido.costo_envio) > 0:
+                items_mp.append({
+                    "title": f"Envío: {pedido.metodo_envio or 'Envío'}",
+                    "quantity": 1,
+                    "unit_price": float(pedido.costo_envio),
+                    "currency_id": "ARS",
+                })
+
+            preference_data = {
+                "items": items_mp,
+                "back_urls": {
+                    "success": f"{settings.SITE_URL}/ventas/pagos/confirmacion/?status=approved&pedido_id={pedido.id}",
+                    "failure": f"{settings.SITE_URL}/ventas/pagos/error/?status=failure&pedido_id={pedido.id}",
+                    "pending": f"{settings.SITE_URL}/ventas/pagos/pendiente/?status=pending&pedido_id={pedido.id}",
+                },
+                "auto_return": "approved",
+                "external_reference": str(pedido.id),  # El mismo pedido — el webhook lo actualizará
+            }
+
+            preference_response = sdk.preference().create(preference_data)
+            init_point = preference_response.get("response", {}).get("init_point")
+
+            if init_point:
+                registrar_log(pedido, request.user, "Reintento de pago via Mercado Pago")
+                return redirect(init_point)
+
+            messages.error(request, "❌ No se pudo conectar con Mercado Pago. Intentá más tarde.")
+            return redirect("pedidos:list")
+
+        except Exception as e:
+            logger.error(f"Error en ReintentarPagoMP (pedido {pedido.id}): {str(e)}", exc_info=True)
+            messages.error(request, f"❌ Error al reintentar el pago: {str(e)}")
+            return redirect("pedidos:list")
+
+
 @csrf_exempt
 def mercado_pago_webhook(request):
     """

@@ -5,6 +5,7 @@ from ventas.views.pagos import (
     ConfirmacionPagoView,
     PagoErrorView,
     PagoPendienteView,
+    ReintentarPagoMP,
     mercado_pago_webhook,
 )
 
@@ -16,5 +17,6 @@ urlpatterns = [
     path("confirmacion/", ConfirmacionPagoView.as_view(), name="confirmacion"),
     path("error/", PagoErrorView.as_view(), name="error"),
     path("pendiente/", PagoPendienteView.as_view(), name="pendiente"),
+    path("reintentar/<int:pedido_id>/", ReintentarPagoMP.as_view(), name="reintentar_mp"),
     path("webhook/", mercado_pago_webhook, name="webhook"),  
 ]

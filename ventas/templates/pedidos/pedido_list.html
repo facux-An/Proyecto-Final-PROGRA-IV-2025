@@ -107,31 +107,49 @@
                         {% endwith %}
                     </div>
 
-                <div class="card-footer bg-white border-top-0 p-3 ps-5 d-flex justify-content-end gap-2">
-                    <a href="{% url 'pedidos:detail' pedido.id %}" class="btn btn-light rounded-pill btn-sm px-3 fw-bold text-primary">
-                        <i class="bi bi-eye me-1"></i> Ver Detalle
+                <div class="card-footer bg-white border-top-0 p-3 ps-5 d-flex justify-content-between align-items-center gap-2 flex-wrap">
+
+                    <!-- Botón Reintentar Pago MP — solo pendiente + MP -->
+                    {% if pedido.estado == 'pendiente' and pedido.metodo_pago == 'Mercado Pago' %}
+                    <a href="{% url 'pagos:reintentar_mp' pedido.id %}"
+                       class="btn btn-reintento rounded-pill btn-sm px-3 fw-bold d-flex align-items-center gap-2"
+                       title="Retomá el pago que dejaste inconcluso">
+                        <span class="pulse-dot"></span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Mercado_Pago_logo.svg"
+                             alt="MP" style="height: 14px; filter: brightness(0) invert(1);">
+                        Reintentar Pago
                     </a>
-                    <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-outline-primary rounded-pill btn-sm px-3">
-                        <i class="bi bi-clock-history me-1"></i> Seguimiento
-                    </a>
-                    
-                    {% if request.user.is_staff %}
-                        <div class="vr mx-1"></div>
-                        {% if pedido.estado != 'entregado' %}
-                        <form action="{% url 'panel:pedido_entregar' pedido.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success rounded-circle btn-sm shadow-sm" title="Marcar Entregado">
-                                <i class="bi bi-check-lg"></i>
-                            </button>
-                        </form>
-                        {% endif %}
-                        <form action="{% url 'panel:pedido_delete' pedido.id %}" method="post" onsubmit="return confirm('¿Eliminar pedido?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger rounded-circle btn-sm shadow-sm" title="Eliminar">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                    {% else %}
+                    <div></div>  <!-- placeholder para mantener el layout flex -->
                     {% endif %}
+
+                    <!-- Acciones estándar -->
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'pedidos:detail' pedido.id %}" class="btn btn-light rounded-pill btn-sm px-3 fw-bold text-primary">
+                            <i class="bi bi-eye me-1"></i> Ver Detalle
+                        </a>
+                        <a href="{% url 'pedidos:historial' pedido.id %}" class="btn btn-outline-primary rounded-pill btn-sm px-3">
+                            <i class="bi bi-clock-history me-1"></i> Seguimiento
+                        </a>
+
+                        {% if request.user.is_staff %}
+                            <div class="vr mx-1"></div>
+                            {% if pedido.estado != 'entregado' %}
+                            <form action="{% url 'panel:pedido_entregar' pedido.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success rounded-circle btn-sm shadow-sm" title="Marcar Entregado">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form action="{% url 'panel:pedido_delete' pedido.id %}" method="post" onsubmit="return confirm('¿Eliminar pedido?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger rounded-circle btn-sm shadow-sm" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,11 +188,41 @@
     .hover-shadow:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; transform: translateY(-2px); }
     .transition { transition: all 0.3s ease; }
     .object-fit-cover { object-fit: cover; }
-    /* Ajuste de colores dinámicos para la barra lateral */
+
+    /* Colores de barra lateral según estado */
     .bg-warning { background-color: #ffc107 !important; }
     .bg-success { background-color: #198754 !important; }
-    .bg-info { background-color: #0dcaf0 !important; }
+    .bg-info    { background-color: #0dcaf0 !important; }
     .bg-secondary { background-color: #6c757d !important; }
-    .bg-danger { background-color: #dc3545 !important; }
+    .bg-danger  { background-color: #dc3545 !important; }
+
+    /* ── Botón Reintentar Pago Mercado Pago ──────────────────────────── */
+    .btn-reintento {
+        background: linear-gradient(135deg, #009EE3, #0070B5);
+        color: #fff;
+        border: none;
+        box-shadow: 0 4px 14px rgba(0, 158, 227, 0.35);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-reintento:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(0, 158, 227, 0.45);
+    }
+    /* Punto pulsante de "acción pendiente" */
+    .pulse-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #FFD200;
+        animation: pulse-ring 1.4s ease-out infinite;
+        flex-shrink: 0;
+    }
+    @keyframes pulse-ring {
+        0%   { box-shadow: 0 0 0 0 rgba(255, 210, 0, 0.7); }
+        70%  { box-shadow: 0 0 0 8px rgba(255, 210, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 210, 0, 0); }
+    }
 </style>
 {% endblock %}
