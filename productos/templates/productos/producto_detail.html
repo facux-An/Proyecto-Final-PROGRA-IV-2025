@@ -294,6 +294,36 @@
 </style>
 
 <script>
+    // ── Swipe táctil manual para el carrusel ────────────────────────────────
+    // Bootstrap a veces no captura el gesto cuando hay un card con padding
+    // intermedio. Este handler lo resuelve de forma robusta.
+    (function () {
+        const gallery = document.getElementById('productGallery');
+        if (!gallery) return;
+
+        let startX = 0;
+        const MIN_SWIPE = 50; // píxeles mínimos para registrar como swipe
+
+        gallery.addEventListener('touchstart', function (e) {
+            startX = e.changedTouches[0].clientX;
+        }, { passive: true });
+
+        gallery.addEventListener('touchend', function (e) {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > MIN_SWIPE) {
+                const carousel = bootstrap.Carousel.getOrCreateInstance(gallery);
+                diff > 0 ? carousel.next() : carousel.prev();
+            }
+        }, { passive: true });
+
+        // Sincronizar dots con el slide activo al cambiar por cualquier medio
+        gallery.addEventListener('slid.bs.carousel', function (e) {
+            document.querySelectorAll('.product-dot').forEach(function (dot, i) {
+                dot.classList.toggle('active', i === e.to);
+            });
+        });
+    })();
+
     function toggleDescription() {
         const trunc = document.getElementById('descTruncated');
         const full = document.getElementById('descFull');
