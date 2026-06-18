@@ -161,7 +161,132 @@
       .mobile-only { display: none !important; }
     }
     
-    footer { margin-top: auto; background: white; border-top: 1px solid #E5E7EB; }
+    footer { margin-top: auto; }
+
+    /* ── FOOTER PAYMENT SECTION ─────────────────────────── */
+    .footer-payments {
+        background: #fff;
+        border-top: 2px solid #F3F4F6;
+    }
+    .footer-pay-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: #9CA3AF;
+    }
+    /* Cada badge de medio de pago */
+    .pay-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        height: 40px;
+        padding: 0 0.85rem;
+        font-weight: 800;
+        border: 1.5px solid transparent;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        white-space: nowrap;
+        user-select: none;
+    }
+    .pay-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    /* Mercado Pago */
+    .pay-mp {
+        background: #009EE3;
+        border-color: #009EE3;
+        color: white;
+        font-size: 0.78rem;
+        gap: 0.4rem;
+        padding: 0 1rem;
+    }
+    /* Visa */
+    .pay-visa {
+        background: #1A1F71;
+        border-color: #1A1F71;
+        color: #F7B600;
+        font-style: italic;
+        font-size: 1.05rem;
+        letter-spacing: 1.5px;
+    }
+    /* Mastercard: dos círculos superpuestos */
+    .pay-mc {
+        background: white;
+        border-color: #E5E7EB;
+        gap: 0;
+        padding: 0 0.7rem;
+        position: relative;
+    }
+    .mc-circle {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: block;
+    }
+    .mc-red  { background: #EB001B; margin-right: -8px; }
+    .mc-yell { background: #F79E1B; opacity: 0.95; }
+    /* Amex */
+    .pay-amex {
+        background: #007BC1;
+        border-color: #007BC1;
+        color: white;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    /* Cabal */
+    .pay-cabal {
+        background: #0D4F9E;
+        border-color: #0D4F9E;
+        color: white;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    /* Efectivo (Rapipago + Pago Fácil) */
+    .pay-cash {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
+        color: #374151;
+        font-size: 0.72rem;
+        gap: 0.3rem;
+    }
+    /* Cuotas pill */
+    .cuotas-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        color: #1D4ED8;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 0.3rem 0.9rem;
+    }
+    /* Footer main */
+    .footer-main {
+        background: #1F2937;
+        color: #D1D5DB;
+    }
+    .footer-main a {
+        color: #9CA3AF;
+        text-decoration: none;
+        transition: color 0.18s;
+        font-size: 0.88rem;
+    }
+    .footer-main a:hover { color: #FF6600; }
+    .footer-brand-name {
+        color: white;
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+    .footer-bottom {
+        background: #111827;
+        font-size: 0.78rem;
+        color: #6B7280;
+        padding: 0.8rem 0;
+    }
   </style>
 </head>
 <body>
@@ -323,13 +448,153 @@
       {% block content %}{% endblock %}
   </main>
 
-  <footer class="py-5 text-center text-muted mt-5">
-    <div class="container">
-      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cat text-primary"></i> Tienda Plus</h5>
-      <p class="small mx-auto" style="max-width:400px;">El cuidado que tu mascota merece. Somos especialistas en bienestar y accesorios felinos.</p>
-      <hr class="my-4">
-      <small>© {% now "Y" %} Tienda Plus. Todos los derechos reservados.</small>
+  <footer>
+
+    <!-- ── BANDA DE MEDIOS DE PAGO ──────────────────────── -->
+    <div class="footer-payments py-4">
+      <div class="container">
+
+        <!-- Título -->
+        <p class="footer-pay-title text-center mb-3">
+          <i class="bi bi-shield-lock-fill me-1" style="color:#22C55E;"></i>
+          Medios de pago aceptados
+        </p>
+
+        <!-- Badges de pago -->
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mb-3">
+
+          <!-- Mercado Pago -->
+          <span class="pay-badge pay-mp">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+            </svg>
+            Mercado Pago
+          </span>
+
+          <!-- Visa -->
+          <span class="pay-badge pay-visa">VISA</span>
+
+          <!-- Mastercard -->
+          <span class="pay-badge pay-mc" title="Mastercard">
+            <span class="mc-circle mc-red"></span>
+            <span class="mc-circle mc-yell"></span>
+          </span>
+
+          <!-- American Express -->
+          <span class="pay-badge pay-amex">AMEX</span>
+
+          <!-- Cabal -->
+          <span class="pay-badge pay-cabal">CABAL</span>
+
+          <!-- Efectivo: Rapipago -->
+          <span class="pay-badge pay-cash">
+            <i class="bi bi-cash-coin" style="color:#DC2626;"></i>
+            Rapipago
+          </span>
+
+          <!-- Efectivo: Pago Fácil -->
+          <span class="pay-badge pay-cash">
+            <i class="bi bi-cash-coin" style="color:#F59E0B;"></i>
+            Pago Fácil
+          </span>
+
+        </div>
+
+        <!-- Cuotas + Seguridad -->
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+          <span class="cuotas-pill">
+            <i class="bi bi-credit-card-2-front-fill"></i>
+            Hasta 12 cuotas con Mercado Pago
+          </span>
+          <span class="cuotas-pill" style="background:#F0FDF4; border-color:#86EFAC; color:#15803D;">
+            <i class="bi bi-shield-check-fill"></i>
+            Tus datos siempre protegidos
+          </span>
+        </div>
+
+      </div>
     </div>
+
+    <!-- ── FOOTER PRINCIPAL ──────────────────────────────── -->
+    <div class="footer-main py-5">
+      <div class="container">
+        <div class="row g-4">
+
+          <!-- Columna: Marca -->
+          <div class="col-12 col-md-4">
+            <p class="footer-brand-name mb-2">🐱 Tienda Plus</p>
+            <p class="small mb-3" style="color:#9CA3AF; line-height:1.6;">
+              Productos para gatos testeados por los verdaderos expertos:<br>
+              <em>nuestros propios gatos.</em>
+            </p>
+            <!-- Redes sociales -->
+            <div class="d-flex gap-3">
+              <a href="https://www.instagram.com/tiendaplusoficial" target="_blank" rel="noopener noreferrer"
+                 class="d-flex align-items-center justify-content-center rounded-circle"
+                 style="width:38px;height:38px;background:rgba(255,255,255,0.08);color:#D1D5DB;font-size:1.1rem;transition:background 0.2s;"
+                 title="Instagram">
+                <i class="bi bi-instagram"></i>
+              </a>
+              <a href="https://www.tiktok.com/@tiendaplusoficial" target="_blank" rel="noopener noreferrer"
+                 class="d-flex align-items-center justify-content-center rounded-circle"
+                 style="width:38px;height:38px;background:rgba(255,255,255,0.08);color:#D1D5DB;font-size:1.1rem;transition:background 0.2s;"
+                 title="TikTok">
+                <i class="bi bi-tiktok"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Columna: Navegación -->
+          <div class="col-6 col-md-4">
+            <p class="fw-bold text-white mb-3" style="font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;">Navegación</p>
+            <ul class="list-unstyled d-flex flex-column gap-2">
+              <li><a href="{% url 'home' %}">Inicio</a></li>
+              <li><a href="{% url 'productos:producto_list' %}">Catálogo</a></li>
+              <li><a href="{% url 'categorias:categoria_list' %}">Categorías</a></li>
+              {% if user.is_authenticated %}
+              <li><a href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <!-- Columna: Contacto / Confianza -->
+          <div class="col-6 col-md-4">
+            <p class="fw-bold text-white mb-3" style="font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;">Garantías</p>
+            <ul class="list-unstyled d-flex flex-column gap-2 small">
+              <li class="d-flex align-items-center gap-2">
+                <i class="bi bi-truck" style="color:#60A5FA;"></i>
+                Envíos a todo el país
+              </li>
+              <li class="d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-counterclockwise" style="color:#34D399;"></i>
+                Devoluciones sin fricción
+              </li>
+              <li class="d-flex align-items-center gap-2">
+                <i class="bi bi-headset" style="color:#FBBF24;"></i>
+                Atención por Instagram / TikTok
+              </li>
+              <li class="d-flex align-items-center gap-2">
+                <i class="bi bi-patch-check-fill" style="color:#FF6600;"></i>
+                Productos testeados por gatos reales
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COPYRIGHT ────────────────────────────────────── -->
+    <div class="footer-bottom">
+      <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span>© {% now "Y" %} Tienda Plus. Todos los derechos reservados.</span>
+        <span class="d-flex align-items-center gap-1">
+          <i class="bi bi-shield-lock-fill" style="color:#22C55E;"></i>
+          Sitio seguro · SSL
+        </span>
+      </div>
+    </div>
+
   </footer>
 
   <!-- Bootstrap JS: defer evita que bloquee el renderizado del HTML -->
