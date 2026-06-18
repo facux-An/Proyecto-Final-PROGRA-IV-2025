@@ -202,6 +202,65 @@
         }
     }
 
+    /* ===== ¿QUIÉNES SOMOS? ===== */
+    .quienes-section {
+        background: linear-gradient(135deg, #FFF8F3 0%, #FFFBF5 100%);
+        border: 1px solid rgba(255,102,0,0.1);
+    }
+    .who-eyebrow {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--brand-primary);
+        margin-bottom: 0.5rem;
+    }
+    .founder-photo-wrap {
+        position: relative;
+        width: 170px;
+        height: 170px;
+    }
+    .founder-photo {
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center 20%;
+        border: 4px solid white;
+        box-shadow: 0 8px 30px rgba(255,102,0,0.22);
+    }
+    .founder-badge {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--brand-primary);
+        color: white;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.75rem;
+        border-radius: 20px;
+        white-space: nowrap;
+        box-shadow: 0 4px 10px rgba(255,102,0,0.35);
+    }
+    .who-item {
+        background: white;
+        border-radius: 14px;
+        padding: 0.9rem 1.1rem;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .who-item:hover {
+        box-shadow: 0 6px 20px rgba(255,102,0,0.1);
+        transform: translateY(-2px);
+    }
+    .who-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
     /* ===== REDES SOCIALES ===== */
     .social-section {
         background: #F9FAFB;
@@ -648,7 +707,65 @@
 
 
 <!-- ============================================ -->
-<!-- 5. REDES SOCIALES                            -->
+<!-- 5. ¿QUIÉNES SOMOS?                          -->
+<!-- ============================================ -->
+<section class="quienes-section rounded-4 p-4 p-md-5 my-5">
+    <div class="row align-items-center g-4 g-lg-5">
+
+        <!-- Foto fundador -->
+        <div class="col-12 col-md-4 text-center">
+            <div class="founder-photo-wrap mx-auto">
+                <img src="{% static 'img/founder.jpg' %}"
+                     alt="Fundador de Tienda Plus"
+                     class="founder-photo">
+                <span class="founder-badge">🐾 Fundador</span>
+            </div>
+        </div>
+
+        <!-- Texto -->
+        <div class="col-12 col-md-8">
+            <p class="who-eyebrow">🐱 ¿Quiénes somos?</p>
+            <h2 class="fw-bold text-dark mb-3" style="font-size: 1.6rem; line-height: 1.2;">
+                Gatos que aprueban.<br>
+                <span style="color: var(--brand-primary);">Nosotros que vendemos.</span>
+            </h2>
+            <p class="text-muted mb-4" style="line-height: 1.75;">
+                Siempre viví con gatos y sé de <em>primera pata</em> lo que necesitan.
+                Por eso nació <strong>Tienda Plus</strong>: una tienda donde nada llega
+                al catálogo sin pasar por el juicio más exigente del mundo —
+                nuestros propios gatos.
+            </p>
+
+            <div class="d-flex flex-column gap-3">
+                <div class="who-item d-flex align-items-start gap-3">
+                    <span class="who-icon">🔬</span>
+                    <div>
+                        <strong>Testeado por los profesionales gatunos</strong>
+                        <p class="text-muted mb-0 small mt-1">Cada producto pasa por un equipo de expertos muy exigentes (y muy peludos) antes de llegar a vos.</p>
+                    </div>
+                </div>
+                <div class="who-item d-flex align-items-start gap-3">
+                    <span class="who-icon">📦</span>
+                    <div>
+                        <strong>¿Querés que probemos algo?</strong>
+                        <p class="text-muted mb-0 small mt-1">Pedinos un producto, lo mandamos a testeo gatuno. Si los gatos lo aprueban, entra al catálogo.</p>
+                    </div>
+                </div>
+                <div class="who-item d-flex align-items-start gap-3">
+                    <span class="who-icon">❤️</span>
+                    <div>
+                        <strong>Una persona real detrás de cada venta</strong>
+                        <p class="text-muted mb-0 small mt-1">No somos un algoritmo. Somos amantes de los gatos con ganas de darte siempre lo mejor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- 6. REDES SOCIALES                            -->
 <!-- ============================================ -->
 <div class="social-section rounded-4 p-4 p-md-5 my-5 text-center">
     <p class="social-eyebrow mb-2">📱 ¿Ya nos seguís?</p>
