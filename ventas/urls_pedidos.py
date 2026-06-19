@@ -1,9 +1,11 @@
 from django.urls import path
 from ventas.views import pedidos
 
+from django.views.generic.base import RedirectView
+
 urlpatterns = [
-    # Listado de mis pedidos
-    path('', pedidos.PedidoListView.as_view(), name='list'),
+    # Redirigir el listado viejo a la nueva vista de Mi Cuenta unificada
+    path('', RedirectView.as_view(url='/usuarios/mi-cuenta/', permanent=False), name='list'),
     
     # Crear nuevo pedido (si aplica)
     path('nuevo/', pedidos.PedidoCreateView.as_view(), name='create'),

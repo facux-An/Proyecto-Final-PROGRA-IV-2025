@@ -394,7 +394,7 @@
             
             <!-- Desktop: User Dropdown -->
             <li class="nav-item dropdown d-none d-lg-block ms-2">
-              <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" style="text-decoration: none;">
+              <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="{% url 'usuarios:mi_cuenta' %}" role="button" data-bs-toggle="dropdown" style="text-decoration: none;">
                 <i class="bi bi-person-circle fs-5"></i>
                 <div class="d-flex flex-column text-start" style="line-height: 1;">
                   <span style="font-size: 0.7rem; font-weight: normal; opacity: 0.9;">¡Hola, {{ user.username }}!</span>
@@ -402,6 +402,7 @@
                 </div>
               </a>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                <li><a class="dropdown-item fw-medium" href="{% url 'usuarios:mi_cuenta' %}"><i class="bi bi-person me-2"></i>Mi Cuenta</a></li>
                 <li>
                   <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
@@ -462,8 +463,8 @@
             {% endif %}
             {% if user.is_authenticated %}
             <li>
-              <a href="{% url 'pedidos:list' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded" style="font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
-                <i class="bi bi-box-seam fs-5 text-muted"></i> Mis Pedidos
+              <a href="{% url 'usuarios:mi_cuenta' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded" style="font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                <i class="bi bi-person-circle fs-5 text-muted"></i> Mi Cuenta
               </a>
             </li>
             {% endif %}
