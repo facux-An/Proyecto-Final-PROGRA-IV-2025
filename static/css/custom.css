@@ -1,0 +1,48 @@
+/* Custom styles for Tienda Plus */
+
+/* Category cards */
+.category-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.category-card .card-img-top {
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #fff;
+}
+
+/* Offer cards (premium) */
+.premium-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+.premium-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Placeholder styling */
+.img-placeholder-luxury {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    color: #9ca3af;
+}
+
+/* Grid spacing adjustments */
+.categories-section .row > div,
+.offers-section .row > div {
+    padding-bottom: 1rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .category-card .card-body h6,
+    .premium-card .card-body h6 {
+        font-size: 0.9rem;
+    }
+}

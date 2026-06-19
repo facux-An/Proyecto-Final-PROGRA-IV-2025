@@ -431,135 +431,16 @@
         <span class="fw-bold" style="font-size: 0.9rem;">🔥 OFERTAS ACTIVAS</span>
         <span style="opacity: 0.5;">|</span>
         <span style="font-size: 0.85rem;">¡Aprovechá los kits con descuento antes de que terminen!</span>
-        <span style="opacity: 0.5;">|</span>
-        <a href="#kits-section" class="text-white fw-bold text-decoration-none" style="font-size: 0.85rem;">Ver Kits <i class="bi bi-arrow-down"></i></a>
     </div>
 </div>
 {% endif %}
 
-<!-- ============================================ -->
-<!-- TRUST BAR MOBILE                             -->
-<!-- ============================================ -->
-<div class="row text-center g-3 mb-4 d-lg-none">
-    <div class="col-6">
-        <div class="p-3 border rounded-4 bg-white shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
-            <div class="bg-light rounded-circle p-2 mb-2 d-inline-block">
-                <i class="bi bi-truck fs-3 text-primary"></i>
-            </div>
-            <h6 class="fw-bold mb-0" style="font-size: 0.85rem;">Envíos a todo el país</h6>
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="p-3 border rounded-4 bg-white shadow-sm h-100 d-flex flex-column justify-content-center align-items-center">
-            <div class="bg-light rounded-circle p-2 mb-2 d-inline-block">
-                <i class="bi bi-shield-check fs-3 text-success"></i>
-            </div>
-            <h6 class="fw-bold mb-0" style="font-size: 0.85rem;">Compra Protegida</h6>
-        </div>
-    </div>
-</div>
+
 
 <!-- ============================================ -->
 <!-- 3. KITS COMBO SECTION                        -->
 <!-- ============================================ -->
-{% if kits_combo %}
-<section id="kits-section" class="mb-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold section-title mb-1">🎁 Kits Combo</h2>
-            <p class="text-muted mb-0">Ahorrá comprando en combo. ¡Descuentos exclusivos!</p>
-        </div>
-    </div>
 
-    <div class="row g-4">
-        {% for kit in kits_combo %}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card kit-card h-100 rounded-4 bg-white position-relative shadow-sm">
-                <!-- Badge -->
-                <span class="badge rounded-pill kit-badge" style="background: linear-gradient(135deg, var(--brand-primary), #e65c00);">
-                    {{ kit.etiqueta_oferta|default:"COMBO" }}
-                </span>
-
-                <!-- Image -->
-                <a href="{% url 'productos:producto_detail' kit.id %}">
-                    {% if kit.imagen_principal_url %}
-                    <img src="{{ kit.imagen_principal_url }}" class="card-img-top p-3" alt="{{ kit.nombre }}" style="height: 240px; object-fit: contain; background-color: #fff;">
-                    {% else %}
-                    <div class="img-placeholder-luxury">
-                        <i class="bi bi-box-seam text-muted opacity-25" style="font-size: 5rem;"></i>
-                    </div>
-                    {% endif %}
-                </a>
-
-                <div class="card-body d-flex flex-column p-4">
-                    <!-- Kit name -->
-                    <h5 class="fw-bold mb-2">
-                        <a href="{% url 'productos:producto_detail' kit.id %}" class="text-decoration-none text-dark">{{ kit.nombre }}</a>
-                    </h5>
-
-                    <!-- Includes -->
-                    {% if kit.productos_incluidos %}
-                    <p class="text-muted small mb-3">
-                        <i class="bi bi-check2-circle text-success me-1"></i> {{ kit.productos_incluidos }}
-                    </p>
-                    {% endif %}
-
-                    <!-- Pricing -->
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            {% if kit.oferta_activa and kit.precio_oferta %}
-                            <span class="price-original">${{ kit.precio|floatformat:0 }}</span>
-                            <span class="price-offer fs-3">${{ kit.precio_oferta|floatformat:0 }}</span>
-                            <span class="discount-pct">-{{ kit.porcentaje_descuento }}%</span>
-                            {% else %}
-                            <span class="price-offer fs-3">${{ kit.precio|floatformat:0 }}</span>
-                            {% endif %}
-                        </div>
-
-                        {% if kit.oferta_activa and kit.precio_oferta %}
-                        <div class="mb-3">
-                            <span class="badge savings-badge rounded-pill px-3 py-1">
-                                <i class="bi bi-piggy-bank me-1"></i> Ahorrás ${{ kit.ahorro_monetario|floatformat:0 }}
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        <!-- Countdown -->
-                        {% if kit.fecha_fin_oferta %}
-                        <div class="d-flex align-items-center gap-1 mb-3">
-                            <i class="bi bi-clock text-muted small"></i>
-                            <span class="text-muted" style="font-size: 0.75rem;">Termina en:</span>
-                            <div class="d-flex gap-1 countdown-timer" data-end="{{ kit.fecha_fin_oferta|date:'c' }}">
-                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="days" style="font-size: 1rem;">--</span><div class="countdown-label">D</div></div>
-                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="hours" style="font-size: 1rem;">--</span><div class="countdown-label">H</div></div>
-                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="minutes" style="font-size: 1rem;">--</span><div class="countdown-label">M</div></div>
-                                <div class="countdown-box" style="padding: 0.2rem 0.4rem;"><span class="countdown-number" data-unit="seconds" style="font-size: 1rem;">--</span><div class="countdown-label">S</div></div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Stock low indicator -->
-                        {% if kit.stock > 0 and kit.stock < 10 %}
-                        <p class="stock-low mb-2"><i class="bi bi-exclamation-triangle me-1"></i> ¡Últimas {{ kit.stock }} unidades!</p>
-                        {% endif %}
-
-                        <!-- CTA -->
-                        <a href="{% url 'productos:producto_detail' kit.id %}" class="btn btn-buy fw-bold w-100 rounded-pill py-2 mb-2">
-                            <i class="bi bi-cart-plus me-2"></i> Comprar Kit
-                        </a>
-                        {% if request.user.is_staff %}
-                        <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning w-100 rounded-pill py-1 btn-sm">
-                            <i class="bi bi-megaphone-fill me-1"></i> Gestor Landing
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
 
 <!-- ============================================ -->
 <!-- 4. PRODUCTOS INDIVIDUALES                    -->
@@ -569,9 +450,6 @@
         <h2 class="fw-bold section-title mb-1">Nuestros Productos</h2>
         <p class="text-muted mb-0">Todo lo que tu gato necesita, en un solo lugar.</p>
     </div>
-    <a href="{% url 'productos:producto_list' %}" class="text-decoration-none fw-bold d-none d-md-block px-4 py-2 rounded-pill bg-light" style="color: var(--brand-primary); transition: 0.2s;">
-        Ver catálogo completo <i class="bi bi-arrow-right"></i>
-    </a>
 </div>
 
 <div class="row g-4 mb-5">
@@ -639,7 +517,54 @@
         {% endfor %}
     {% endif %}
 
-    {% if productos_oferta %}
+    {% comment %} Categories Section Placeholder {% endcomment %}
+    {% if request.user.is_staff %}
+<section class="categories-section mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold section-title mb-1">🐾 Categorías</h2>
+            <p class="text-muted mb-0">Explorá nuestras categorías premium.</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        {% if categorias %}
+        {% for cat in categorias %}
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card category-card h-100 rounded-4 bg-white shadow-sm">
+                <a href="{% url 'productos:producto_list' %}?cat={{ cat.id }}">
+                    {% if cat.imagen %}
+                    <img src="{{ cat.imagen.url }}" class="card-img-top p-3" alt="{{ cat.nombre }}" style="height:120px;object-fit:contain;background:#fff;">
+                    {% else %}
+                    <div class="img-placeholder-luxury d-flex align-items-center justify-content-center" style="height:120px;background:#f5f5f5;">
+                        <i class="bi bi-folder2-open text-muted" style="font-size:2.5rem;"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="card-body text-center p-3">
+                    <h6 class="fw-bold mb-0">{{ cat.nombre }}</h6>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        {% for i in "123456" %}
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card category-card h-100 rounded-4 bg-white shadow-sm">
+                <div class="img-placeholder-luxury d-flex align-items-center justify-content-center" style="height:120px;background:#f5f5f5;">
+                    <i class="bi bi-folder2-open text-muted" style="font-size:2.5rem;"></i>
+                </div>
+                <div class="card-body text-center p-3">
+                    <h6 class="fw-bold mb-0">Categoría {{ forloop.counter }}</h6>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</section>
+    {% endif %}
+
+{% if productos_oferta %}
         {% for producto in productos_oferta %}
         <div class="col-6 col-md-4 col-lg-3">
             <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative shadow-sm">
@@ -698,12 +623,25 @@
     {% endif %}
 </div>
 
-<!-- CTA Mobile -->
-<div class="text-center d-md-none mb-5">
-    <a href="{% url 'productos:producto_list' %}" class="btn fw-bold px-5 py-3 rounded-pill text-white shadow-sm btn-buy">
-        Ver catálogo completo
-    </a>
-</div>
+<!-- CTA Banner -->
+<section class="cta-banner rounded-4 my-5 position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, var(--brand-primary) 0%, #e65c00 100%);">
+    <!-- Círculos concéntricos decorativos -->
+    <div class="position-absolute" style="top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div class="position-absolute" style="top: -30%; right: -5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div class="position-absolute" style="top: -10%; right: 0%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+
+    <div class="position-relative z-1 p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <div class="text-white mb-4 mb-md-0 text-center text-md-start">
+            <h2 class="fw-bold mb-2" style="font-size: 2.5rem; letter-spacing: -0.5px;">Descubre todo nuestro catálogo.</h2>
+            <p class="mb-0 opacity-75" style="font-size: 1.1rem;">Tu gato se merece lo mejor, y nosotros lo tenemos.</p>
+        </div>
+        <div>
+            <a href="{% url 'productos:producto_list' %}" class="btn btn-dark rounded-pill px-5 py-3 fw-bold shadow-lg d-flex align-items-center gap-2" style="font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">
+                Ver catálogo <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
 
 
 <!-- ============================================ -->

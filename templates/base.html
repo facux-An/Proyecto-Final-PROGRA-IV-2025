@@ -31,6 +31,7 @@
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}">
   <style>
     :root {
       --brand-primary: #FF6600; /* Naranja vibrante */
@@ -313,25 +314,58 @@
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container flex-wrap">
       
-      <!-- Logo y Toggler para Mobile -->
-      <div class="mobile-navbar-top d-lg-none">
-        <button class="navbar-toggler border-0 text-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+      <!-- Toggler, Logo y Iconos Mobile -->
+      <div class="mobile-navbar-top d-lg-none d-flex justify-content-between align-items-center w-100 pb-2">
+        <!-- Hamburguesa -->
+        <button class="navbar-toggler border-0 text-white shadow-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
           <i class="bi bi-list fs-1"></i>
         </button>
 
-        <a class="navbar-brand-text d-flex align-items-center mx-auto" href="{% url 'home' %}">
-          <img src="{% static 'img/logo_tienda.png' %}" alt="Tienda Plus Logo" height="50" style="object-fit: contain;">
+        <!-- Logo Centro -->
+        <a class="navbar-brand-text mx-auto" href="{% url 'home' %}">
+          <img src="{% static 'img/logo_tienda.png' %}" alt="Tienda Plus Logo" height="45" style="object-fit: contain;">
         </a>
 
-        <!-- Icono Carrito Mobile a la derecha -->
-        <div class="d-flex align-items-center">
-          <a href="{% url 'carrito:carrito_detail' %}" class="nav-icon-link btn-cart-nav">
+        <!-- Iconos Derecha: Usuario y Carrito -->
+        <div class="d-flex align-items-center gap-3">
+          <!-- Usuario Mobile Dropdown -->
+          <div class="dropdown">
+            <a href="#" role="button" data-bs-toggle="dropdown" class="text-white text-decoration-none">
+              <i class="bi bi-person fs-3"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" style="min-width: 150px;">
+              {% if user.is_authenticated %}
+                <li><span class="dropdown-item-text text-muted small text-center d-block w-100">Hola, {{ user.username }}</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item fw-bold text-center" style="font-size: 0.9rem;" href="{% url 'pedidos:list' %}">Mi Cuenta</a></li>
+                <li>
+                  <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-danger fw-bold text-center w-100" style="font-size: 0.9rem;">Cerrar Sesión</button>
+                  </form>
+                </li>
+              {% else %}
+                <li><a class="dropdown-item fw-bold text-center" style="font-size: 0.9rem;" href="{% url 'login' %}">Ingresar / Registro</a></li>
+              {% endif %}
+            </ul>
+          </div>
+          
+          <!-- Carrito -->
+          <a href="{% url 'carrito:carrito_detail' %}" class="position-relative text-white text-decoration-none me-1">
             <i class="bi bi-basket2 fs-3"></i>
             {% if carrito_count and carrito_count > 0 %}
-              <span class="cart-badge">{{ carrito_count }}</span>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-success border border-2 border-white" style="font-size: 0.65rem; padding: 0.35em 0.5em;">{{ carrito_count }}</span>
             {% endif %}
           </a>
         </div>
+      </div>
+
+      <!-- Buscador Mobile (Ancho completo) -->
+      <div class="w-100 d-lg-none mt-1 mb-2 px-1">
+        <form class="d-flex" action="{% url 'productos:producto_list' %}" method="get">
+          <input class="form-control rounded-0 rounded-start" type="search" name="search" placeholder="¿Qué estás buscando?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}" style="border: none; padding-left: 1rem;">
+          <button class="btn bg-white rounded-0 rounded-end text-dark px-3" type="submit" style="border: none;"><i class="bi bi-search fs-5"></i></button>
+        </form>
       </div>
 
       <!-- Desktop Brand (Hidden on Mobile) -->
@@ -342,19 +376,21 @@
       <!-- Menú principal colapsable -->
       <div class="collapse navbar-collapse" id="mobileMenu">
         
-        <!-- Buscador -->
-        <form class="search-form-container d-flex mx-lg-auto" action="{% url 'productos:producto_list' %}" method="get">
+        <!-- Buscador Desktop -->
+        <form class="search-form-container d-none d-lg-flex mx-lg-auto" action="{% url 'productos:producto_list' %}" method="get">
           <input class="form-control search-input" type="search" name="search" placeholder="¿Qué estás buscando para tu gato?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}">
           <button class="btn search-btn" type="submit"><i class="bi bi-search"></i></button>
         </form>
 
-        <ul class="navbar-nav align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
+        <!-- Desktop Nav -->
+        <ul class="navbar-nav align-items-lg-center gap-lg-1 mb-2 mb-lg-0 d-none d-lg-flex">
           <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'productos:producto_list' %}">Catálogo</a></li>
+          {% if user.is_staff %}
           <li class="nav-item"><a class="nav-link" href="{% url 'categorias:categoria_list' %}">Categorías</a></li>
+          {% endif %}
           
           {% if user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
             
             <!-- Desktop: User Dropdown -->
             <li class="nav-item dropdown d-none d-lg-block ms-2">
@@ -374,14 +410,6 @@
                 </li>
               </ul>
             </li>
-            
-            <!-- Mobile: Logout Text -->
-            <li class="nav-item d-lg-none mt-2">
-              <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-link text-decoration-none btn-logout-mobile w-100"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</button>
-              </form>
-            </li>
           {% else %}
             <!-- Desktop: Login -->
             <li class="nav-item d-none d-lg-block ms-2">
@@ -392,10 +420,6 @@
                   <span style="font-size: 0.85rem; font-weight: 700;">Ingresar</span>
                 </div>
               </a>
-            </li>
-            <!-- Mobile: Login -->
-            <li class="nav-item d-lg-none mt-3">
-              <a class="btn btn-primary w-100 rounded-pill fw-bold" href="{% url 'login' %}">Ingresar / Registro</a>
             </li>
           {% endif %}
 
@@ -409,22 +433,82 @@
             </a>
           </li>
         </ul>
+
+        <!-- Mobile Menu Redesign (Psicología de compra impulsiva) -->
+        <div class="d-lg-none mt-2 px-3 pb-3">
+          <p class="text-muted fw-bold mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">NAVEGACIÓN</p>
+          <ul class="list-unstyled d-flex flex-column gap-1 mb-3">
+            <li>
+              <a href="{% url 'home' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded" style="font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                <i class="bi bi-house-door fs-5 text-muted"></i> Inicio
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded" style="font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                <i class="bi bi-grid fs-5 text-muted"></i> Catálogo Completo
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'productos:producto_list' %}" class="text-decoration-none fw-bold d-flex align-items-center gap-3 py-2 px-3 rounded mt-1 shadow-sm" style="font-size: 0.95rem; color: var(--brand-primary); background-color: #FFF5F0; border: 1px solid #FFE4D6;">
+                <i class="bi bi-fire fs-5"></i> ¡Ver Ofertas!
+              </a>
+            </li>
+            {% if user.is_staff %}
+            <li>
+              <a href="{% url 'categorias:categoria_list' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded mt-2 border-top pt-2" style="font-size: 0.95rem;">
+                <i class="bi bi-tags fs-5 text-muted"></i> Categorías (Admin)
+              </a>
+            </li>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <li>
+              <a href="{% url 'pedidos:list' %}" class="text-decoration-none text-dark fw-bold d-flex align-items-center gap-3 py-2 px-2 rounded" style="font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                <i class="bi bi-box-seam fs-5 text-muted"></i> Mis Pedidos
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+
+          <!-- Trust Box dentro del menú -->
+          <div class="p-2 rounded-3 mt-1" style="background-color: #fcfcfc; border: 1px solid #f0f0f0;">
+            <p class="fw-bold mb-1 text-dark" style="font-size: 0.8rem;">¿Por qué elegirnos?</p>
+            <div class="d-flex flex-column gap-1" style="font-size: 0.75rem; color: #666;">
+              <span class="d-flex align-items-center gap-2"><i class="bi bi-patch-check-fill text-success"></i> Calidad garantizada</span>
+              <span class="d-flex align-items-center gap-2"><i class="bi bi-shield-lock-fill text-success"></i> Pago 100% seguro</span>
+              <span class="d-flex align-items-center gap-2"><i class="bi bi-truck text-success"></i> Envíos a todo el país</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- Sub-barra de Enlaces y Beneficios -->
+  <!-- Barra de Beneficios Desktop -->
   <div class="benefits-bar d-none d-lg-block shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
       <div class="d-flex gap-4">
         <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-dark hover-primary">CATÁLOGO</a>
+        {% if user.is_staff %}
         <a href="{% url 'categorias:categoria_list' %}" class="text-decoration-none text-dark hover-primary">CATEGORÍAS</a>
         <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-danger fw-bold">OFERTAS 🔥</a>
+        {% endif %}
       </div>
       <div class="d-flex gap-4 text-muted" style="font-size: 0.8rem;">
         <div class="benefit-item"><i class="bi bi-truck fs-5 text-primary"></i> ENVÍOS A TODO EL PAÍS</div>
         <div class="benefit-item"><i class="bi bi-shield-check fs-5 text-success"></i> COMPRA SEGURA</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Barra de Beneficios Mobile (Alpina style) -->
+  <div class="d-flex d-lg-none bg-light border-bottom" style="font-size: 0.7rem; font-weight: 800; color: #333;">
+    <div class="col-6 d-flex align-items-center justify-content-center p-2 border-end text-center">
+      <i class="bi bi-truck fs-3 text-secondary me-2"></i> 
+      <span class="text-start lh-sm">ENVÍOS A<br>TODO EL PAÍS</span>
+    </div>
+    <div class="col-6 d-flex align-items-center justify-content-center p-2 text-center">
+      <i class="bi bi-shield-check fs-3 text-secondary me-2"></i> 
+      <span class="text-start lh-sm">COMPRA<br>SEGURA</span>
     </div>
   </div>
 
