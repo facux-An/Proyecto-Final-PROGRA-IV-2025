@@ -94,6 +94,7 @@ class MetodoPagoView(TemplateView):
         context["subtotal"] = subtotal
         context["costo_envio"] = costo_envio
         context["total_a_pagar"] = float(subtotal) + float(costo_envio)
+        context["total_con_descuento"] = round((float(subtotal) + float(costo_envio)) * 0.90, 2)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -120,7 +121,13 @@ class MetodoPagoView(TemplateView):
                 costo_envio = envio_cotizado.get("precio", 0.0)
                 metodo_envio = envio_cotizado.get("nombre", "")
                 
-                total_final = float(subtotal) + float(costo_envio)
+                total_base = float(subtotal) + float(costo_envio)
+
+                # Aplicar descuento del 10% si el cliente eligió transferencia bancaria
+                if metodo.lower() == "transferencia":
+                    total_final = round(total_base * 0.90, 2)
+                else:
+                    total_final = total_base
                 
                 # Crear cabecera (Pedido)
                 pedido = Pedido.objects.create(

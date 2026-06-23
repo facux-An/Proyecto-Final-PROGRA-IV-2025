@@ -589,10 +589,65 @@
                 <hr class="mb-4" style="border-top: 2px dashed #e9ecef;">
                 
                 <!-- Total Gigante -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
                     <span class="fw-bold fs-5">Total</span>
-                    <span class="fw-bold display-6" style="color: var(--brand-primary);" id="total-final">${{ carrito.total|floatformat:2 }}</span>
+                    <div class="text-end">
+                        <!-- data-total guarda el valor numérico limpio para que JS no tenga que parsear strings con formato -->
+                        <span class="fw-bold display-6" style="color: var(--brand-primary);"
+                              id="total-final"
+                              data-total="{{ carrito.total|floatformat:2 }}">
+                            ${{ carrito.total|floatformat:2 }}
+                        </span>
+                        <div style="font-size: 0.82rem; color: #16a34a; font-weight: 600; margin-top: 2px;">
+                            💳 O <span id="monto-transferencia"></span> con Transferencia
+                        </div>
+                    </div>
                 </div>
+                <div class="mb-4"></div>
+
+                <!-- Motor de precios de transferencia: lee data-total (valor limpio), nunca parsea el texto visible -->
+                <script>
+                    function actualizarPrecioTransferencia() {
+                        var elTotal = document.getElementById('total-final');
+                        var elMonto = document.getElementById('monto-transferencia');
+                        if (!elTotal || !elMonto) return;
+
+                        // Leer desde data-total (siempre es un número limpio ej: "23500.00")
+                        var rawTotal = elTotal.dataset.total || '0';
+                        // Reemplazar coma decimal si Django lo formatea con coma
+                        var total = parseFloat(rawTotal.replace(',', '.'));
+
+                        if (isNaN(total)) return;
+
+                        var conDesc = total * 0.90;
+                        elMonto.textContent = '$' + conDesc.toLocaleString('es-AR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                    }
+
+                    // Ejecutar al cargar
+                    actualizarPrecioTransferencia();
+
+                    // Observar cambios en total-final (cuando JS de envío lo actualiza)
+                    var observer = new MutationObserver(function() {
+                        // Cuando el texto cambia, sincronizar data-total y recalcular
+                        var elTotal = document.getElementById('total-final');
+                        if (elTotal) {
+                            var textoActual = elTotal.textContent.replace('$', '').trim();
+                            // Convertir formato es-AR "23.500,00" → número
+                            var numLimpio = textoActual.replace(/\./g, '').replace(',', '.');
+                            elTotal.dataset.total = numLimpio;
+                        }
+                        actualizarPrecioTransferencia();
+                    });
+
+                    var totalEl = document.getElementById('total-final');
+                    if (totalEl) {
+                        observer.observe(totalEl, { childList: true, subtree: true, characterData: true });
+                    }
+                </script>
+
 
                 <!-- Botón Finalizar -->
                 <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
@@ -958,6 +1013,14 @@
         // Actualizar total — si es gratis, el total nunca cambia respecto al subtotal
         const nuevoTotal = SUBTOTAL_CARRITO + precioFinal;
         document.getElementById('total-final').textContent = `$${formatNumber(nuevoTotal)}`;
+
+        // Actualizar precio de transferencia (10% de descuento)
+        const montoTransferencia = nuevoTotal * 0.90;
+        const spanTransferencia = document.getElementById('monto-transferencia');
+        if (spanTransferencia) {
+            spanTransferencia.textContent = `$${formatNumber(montoTransferencia)}`;
+        }
+
 
         activarBotonFinalizar();
     }

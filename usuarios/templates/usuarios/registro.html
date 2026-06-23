@@ -46,25 +46,29 @@
   <div class="card split-card w-100">
     <div class="row g-0">
       
-      <!-- Mitad Izquierda (Branding) -->
+      <!-- Mitad Izquierda (Branding + Beneficio 10% OFF) -->
       <div class="col-lg-5 d-none d-lg-flex split-left align-items-center p-5 text-center">
         <div>
-          <i class="bi bi-star-fill display-1 mb-4 text-white"></i>
-          <h2 class="fw-bold display-6 mb-3">Unite a la familia</h2>
-          <p class="fs-5 opacity-75">Creá tu cuenta hoy y empezá a disfrutar de una experiencia de compra diseñada especialmente para el bienestar de tu mascota.</p>
+          <!-- Beneficio principal: la razón por la que el cliente hizo clic -->
+          <div class="mb-4 d-inline-block px-4 py-3 rounded-4" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);">
+            <div style="font-size: 2.5rem; font-weight: 900; color: #FFD700; line-height: 1;">10% OFF</div>
+            <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 4px;">pagando con Transferencia Bancaria</div>
+          </div>
+          <h2 class="fw-bold fs-4 mb-3 mt-3">Creá tu cuenta y aplicá el descuento</h2>
+          <p class="opacity-75" style="font-size: 0.9rem;">Solo los clientes registrados acceden al precio con transferencia. ¡Son menos de 30 segundos!</p>
           
-          <div class="mt-5 text-start">
+          <div class="mt-4 text-start">
             <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
-              <span>Proceso de pago rápido y seguro</span>
+              <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+              <span style="font-size: 0.88rem;">Descuento inmediato en tu primera compra</span>
             </div>
             <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
-              <span>Historial de todos tus pedidos</span>
+              <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+              <span style="font-size: 0.88rem;">Historial completo de tus pedidos</span>
             </div>
             <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-check-circle-fill fs-4 me-3"></i>
-              <span>Guarda tus productos favoritos</span>
+              <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+              <span style="font-size: 0.88rem;">Tus datos de envío guardados para siempre</span>
             </div>
           </div>
         </div>
@@ -73,9 +77,9 @@
       <!-- Mitad Derecha (Formulario) -->
       <div class="col-lg-7 split-right d-flex flex-column justify-content-center">
         
-        <div class="mb-5 text-center text-lg-start">
-          <h3 class="fw-bold text-dark mb-2">Crear cuenta gratis</h3>
-          <p class="text-muted">Llená el formulario y empezá a explorar.</p>
+        <div class="mb-4 text-center text-lg-start">
+          <h3 class="fw-bold text-dark mb-1">Crear cuenta gratis</h3>
+          <p class="text-muted mb-0">Llená el formulario y accedé a tu <strong style="color: #16a34a;">10% de descuento</strong> pagando con transferencia.</p>
         </div>
 
         <form method="post" novalidate>
@@ -103,7 +107,7 @@
           </div>
           
           <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-3 mb-4" style="background-color: var(--brand-primary); border: none;">
-            Crear mi cuenta
+            <i class="bi bi-person-check-fill me-2"></i>Crear mi cuenta y obtener 10% OFF
           </button>
         </form>
 

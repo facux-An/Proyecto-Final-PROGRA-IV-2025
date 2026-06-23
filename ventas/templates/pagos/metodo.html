@@ -53,8 +53,9 @@
                                 <h6 class="mb-0 fw-bold">Mercado Pago</h6>
                                 <small class="text-muted d-none d-md-block">Tarjetas de crédito, débito o dinero en cuenta. Pago instantáneo.</small>
                             </div>
-                            <div class="ms-auto d-none d-md-block">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Mercado_Pago_logo.svg" alt="Mercado Pago" style="height: 18px;">
+                            <div class="ms-auto text-end">
+                                <div class="fw-bold text-dark" id="total-mp">${{ total_a_pagar|floatformat:2 }}</div>
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Mercado_Pago_logo.svg" alt="Mercado Pago" style="height: 14px;" class="d-none d-md-inline">
                             </div>
                         </div>
                     </div>
@@ -70,7 +71,13 @@
                                 <h6 class="mb-0 fw-bold text-dark">Transferencia Bancaria</h6>
                                 <small class="text-muted d-none d-md-block">Transferí desde tu banco o billetera virtual. Te damos el CVU al confirmar.</small>
                             </div>
-                            <i class="bi bi-chevron-right text-muted opacity-50 d-none d-md-block"></i>
+                            <!-- Badge destacado con precio descontado -->
+                            <div class="ms-auto text-end">
+                                <span class="badge rounded-pill fw-bold px-2 py-1" style="background-color: #111; color: #FFD700; font-size: 0.75rem;">
+                                    PAGÁS $<span id="total-transferencia">{{ total_con_descuento|floatformat:2 }}</span>
+                                </span>
+                                <div style="font-size: 0.68rem; color: #16a34a; font-weight: 700; margin-top: 3px;">10% OFF incluido</div>
+                            </div>
                         </div>
                     </div>
 
@@ -101,12 +108,24 @@
                                 <span class="fw-semibold text-success">¡Gratis!</span>
                             {% endif %}
                         </div>
+                        <!-- Fila de descuento (se muestra al seleccionar transferencia) -->
+                        <div class="d-flex justify-content-between mb-2 small" id="fila-descuento" style="display: none !important;">
+                            <span style="color: #16a34a; font-weight: 700;">💳 Descuento Transferencia (10%):</span>
+                            <span style="color: #16a34a; font-weight: 700;">- $<span id="monto-descuento">0</span></span>
+                        </div>
                         <hr class="my-2 opacity-25">
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <span class="text-muted fw-bold">Total a pagar:</span>
-                            <span class="h4 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ total_a_pagar|floatformat:2 }}</span>
+                            <!-- data-total: valor numérico limpio, sin formato de locale -->
+                            <span class="h4 fw-extrabold mb-0" style="color: var(--brand-primary);"
+                                  id="resumen-total"
+                                  data-total="{{ total_a_pagar }}"
+                                  data-total-desc="{{ total_con_descuento }}">
+                                ${{ total_a_pagar|floatformat:2 }}
+                            </span>
                         </div>
                     </div>
+
 
                     <button type="submit" id="btn-finalizar" class="btn btn-secondary btn-lg w-100 py-3 fw-bold shadow-sm rounded-pill" style="border: none;" disabled>
                         Elegí un método
@@ -177,6 +196,15 @@
 </style>
 
 <script>
+    // Leer desde data-total: siempre es un número limpio generado por Django (float, sin separadores)
+    const elResumen = document.getElementById('resumen-total');
+    const TOTAL_ORIGINAL = parseFloat(elResumen ? elResumen.dataset.total : '0') || 0;
+    const TOTAL_TRANSFERENCIA = parseFloat(elResumen ? elResumen.dataset.totalDesc : '0') || (TOTAL_ORIGINAL * 0.90);
+
+    function formatNum(n) {
+        return n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function seleccionarMetodo(metodo, elemento) {
         const todasLasTarjetas = document.querySelectorAll('.payment-card');
         todasLasTarjetas.forEach(t => t.classList.remove('active'));
@@ -188,14 +216,29 @@
         const btn = document.getElementById('btn-finalizar');
         btn.disabled = false;
 
+        const filaDescuento = document.getElementById('fila-descuento');
+        const montoDescuento = document.getElementById('monto-descuento');
+        const resumenTotal = document.getElementById('resumen-total');
+
         if (metodo === 'mercadopago') {
             btn.innerHTML = '<i class="bi bi-credit-card-fill me-2"></i> Pagar con Mercado Pago';
             btn.className = 'btn text-white btn-lg w-100 py-3 fw-bold shadow-sm rounded-pill';
             btn.style.backgroundColor = 'var(--brand-primary)';
+
+            // Resumen normal
+            if (filaDescuento) filaDescuento.style.display = 'none';
+            if (resumenTotal) resumenTotal.textContent = `$${formatNum(TOTAL_ORIGINAL)}`;
+
         } else {
             btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Confirmar Mi Pedido';
             btn.className = 'btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm rounded-pill';
             btn.style.backgroundColor = '';
+
+            // Resumen con descuento
+            const descuentoMonto = TOTAL_ORIGINAL - TOTAL_TRANSFERENCIA;
+            if (filaDescuento) filaDescuento.style.display = 'flex';
+            if (montoDescuento) montoDescuento.textContent = formatNum(descuentoMonto);
+            if (resumenTotal) resumenTotal.textContent = `$${formatNum(TOTAL_TRANSFERENCIA)}`;
         }
     }
 </script>

@@ -306,10 +306,19 @@
   </div>
   {% endif %}
 
-  <!-- Topbar institucional opcional -->
-  <div class="text-white text-center py-1" style="background-color: var(--text-main); font-size: 0.75rem; letter-spacing: 1px;">
-    SOMOS EXPERTOS EN EL CUIDADO FELINO
+  <!-- Topbar: Anzuelo psicológico descuento transferencia -->
+  {% if not user.is_authenticated %}
+  <div class="text-white text-center py-2" style="background-color: #111111; font-size: 0.78rem; letter-spacing: 0.5px;">
+    <a href="{% url 'usuarios:registro' %}" class="text-white text-decoration-none d-inline-flex align-items-center gap-2 fw-bold" style="letter-spacing: 0.3px;">
+      🔥 <span>Creá tu cuenta <strong>gratis</strong> hoy y recibí un <span style="color: #FFD700;">10% de DESCUENTO</span> pagando con transferencia</span>
+      <span class="badge rounded-pill text-dark ms-1" style="background-color: #FFD700; font-size: 0.7rem; padding: 0.3em 0.75em;">REGISTRATE →</span>
+    </a>
   </div>
+  {% else %}
+  <div class="text-white text-center py-1" style="background-color: #111111; font-size: 0.75rem; letter-spacing: 0.5px;">
+    🏷️ Recordá: <strong>10% OFF pagando con transferencia</strong> en tu próximo pedido
+  </div>
+  {% endif %}
    
   <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container flex-wrap">
