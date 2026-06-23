@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm
+from .forms import CustomUserCreationForm, UserForm, PerfilForm
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 class RegistroView(CreateView):
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = 'usuarios/registro.html'
     success_url = reverse_lazy('login')
 
