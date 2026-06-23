@@ -27,28 +27,31 @@
   @media (max-width: 768px) {
     .split-right { padding: 2rem; }
   }
+  .form-label { font-weight: 600; color: #4b5563; font-size: 0.85rem; letter-spacing: 0.2px;}
   .form-control {
-    border-radius: .75rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.2rem;
+    border: 1px solid transparent;
+    background-color: #f3f4f6;
     transition: all 0.2s ease;
+    font-size: 0.95rem;
   }
   .form-control:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
-    background-color: #fff;
+    border-color: rgba(255, 102, 0, 0.4);
+    box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.1);
+    background-color: #ffffff;
   }
-  .btn-google {
-    border: 1px solid #dee2e6;
-    background: #fff;
-    color: #495057;
-    transition: all 0.2s;
+  .btn-google-premium {
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
+    font-weight: 500;
+    transition: all 0.2s ease;
   }
-  .btn-google:hover {
-    background: #f8f9fa;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.05);
+  .btn-google-premium:hover {
+    box-shadow: 0 1px 3px 1px rgba(60,64,67,0.15), 0 1px 2px 0 rgba(60,64,67,0.3);
+    background-color: #f8f9fa;
   }
 </style>
 
@@ -57,67 +60,101 @@
   <div class="card split-card w-100">
     <div class="row g-0">
       
-      <!-- Mitad Izquierda (Branding) -->
+      <!-- Mitad Izquierda (Branding de Beneficios) -->
       <div class="col-lg-5 d-none d-lg-flex split-left align-items-center p-5 text-center">
         <div>
-          <i class="bi bi-bag-heart-fill display-1 mb-4"></i>
-          <h2 class="fw-bold display-6 mb-3">¡Qué bueno verte de nuevo!</h2>
-          <p class="fs-5 opacity-75">Iniciá sesión para continuar tus compras, ver tus pedidos y acceder a ofertas exclusivas para tus mascotas.</p>
+          <div class="mb-4 d-inline-block px-3 py-2 rounded-4" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);">
+            <i class="bi bi-shield-check me-2 text-warning"></i><span class="fw-bold">Acceso Seguro</span>
+          </div>
+          <h2 class="fw-bold fs-3 mb-3">Tu cuenta Tienda Plus</h2>
+          <p class="opacity-75" style="font-size: 0.9rem;">Continuá disfrutando de la mejor experiencia para vos y tu mascota.</p>
+          
+          <div class="mt-4 text-start">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-5 me-3" style="color: #FFD700;"></i>
+              <span style="font-size: 0.88rem;">Checkout en 1 paso con tus datos guardados</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-5 me-3" style="color: #FFD700;"></i>
+              <span style="font-size: 0.88rem;">10% OFF permanente pagando con transferencia</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-check-circle-fill fs-5 me-3" style="color: #FFD700;"></i>
+              <span style="font-size: 0.88rem;">Seguimiento en vivo de tus pedidos</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Mitad Derecha (Formulario) -->
+      <!-- Mitad Derecha (Formulario Mobile-First) -->
       <div class="col-lg-7 split-right d-flex flex-column justify-content-center">
         
-        <div class="mb-5 text-center text-lg-start">
-          <h3 class="fw-bold text-dark mb-2">Ingresar a tu cuenta</h3>
-          <p class="text-muted">Completá tus datos para acceder.</p>
+        <div class="text-center text-lg-start mb-4">
+          <h3 class="fw-bold text-dark mb-1">Ingresar a tu cuenta</h3>
+          
+          <!-- Beneficios Mobile Only -->
+          <div class="d-lg-none mt-3 mb-2 px-3 py-2 rounded-3 bg-light border text-start" style="font-size: 0.8rem; color: #4b5563;">
+            <div class="d-flex align-items-center mb-1"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Checkout rápido y seguro</div>
+            <div class="d-flex align-items-center"><i class="bi bi-tag-fill text-success me-2"></i>10% OFF pagando con transferencia</div>
+          </div>
         </div>
 
         {% if form.errors %}
           <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center mb-4" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-            <div>Usuario o contraseña incorrectos. Verificá tus datos.</div>
+            <div style="font-size: 0.85rem;">Usuario o contraseña incorrectos.</div>
           </div>
         {% endif %}
 
-        <form method="post">
+        <!-- BOTÓN GOOGLE PRIMERO Y OFICIAL -->
+        <form action="{% provider_login_url 'google' %}" method="post" class="mb-4">
           {% csrf_token %}
-          <div class="mb-4">
-            <label class="form-label fw-bold small text-muted mb-2">USUARIO O EMAIL</label>
-            {{ form.username }} 
-          </div>
-          <div class="mb-4">
-            <div class="d-flex justify-content-between">
-              <label class="form-label fw-bold small text-muted mb-2">CONTRASEÑA</label>
-              <a href="#" class="small text-decoration-none fw-bold" style="color: var(--brand-primary);">¿Olvidaste tu clave?</a>
-            </div>
-            {{ form.password }}
-          </div>
-          
-          <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mb-4" style="background-color: var(--brand-primary); border: none;">
-            Iniciar Sesión
+          <button type="submit" class="btn btn-google-premium w-100 rounded-pill d-flex align-items-center justify-content-center" style="height: 50px;">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="me-2" style="width: 20px; height: 20px;">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.7 17.74 9.5 24 9.5z"></path>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+              <path fill="none" d="M0 0h48v48H0z"></path>
+            </svg>
+            Ingresar con Google
           </button>
         </form>
 
         <div class="d-flex align-items-center mb-4">
           <hr class="flex-grow-1 border-secondary opacity-25">
-          <span class="mx-3 text-muted small fw-bold">O INGRESÁ CON</span>
+          <span class="mx-3 text-muted fw-bold" style="font-size: 0.75rem;">O CON TU EMAIL</span>
           <hr class="flex-grow-1 border-secondary opacity-25">
         </div>
 
-        <form action="{% provider_login_url 'google' %}" method="post">
+        <form method="post">
           {% csrf_token %}
-          <button type="submit" class="btn btn-google btn-lg w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-google me-2 text-danger" viewBox="0 0 16 16">
-              <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
-            </svg>
-            Continuar con Google
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.75rem;">USUARIO O EMAIL</label>
+            {{ form.username }} 
+          </div>
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-end mb-1">
+              <label class="form-label fw-bold text-muted mb-0" style="font-size: 0.75rem;">CONTRASEÑA</label>
+              <a href="#" class="text-decoration-none fw-bold" style="color: var(--brand-primary); font-size: 0.75rem;">¿Olvidaste tu clave?</a>
+            </div>
+            {{ form.password }}
+          </div>
+          
+          <button type="submit" class="btn w-100 rounded-pill fw-bold text-white shadow-sm mb-3" style="background-color: var(--brand-primary); border: none; height: 50px;">
+            Iniciar Sesión
           </button>
+          
+          <!-- TRUST BADGE -->
+          <div class="text-center opacity-75 mb-2">
+            <p class="small text-muted mb-0" style="font-size: 0.75rem;">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i> Tu conexión es segura.
+            </p>
+          </div>
         </form>
 
-        <div class="text-center mt-5">
-          <p class="text-muted mb-0">¿No tenés una cuenta? <a href="{% url 'usuarios:registro' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Registrate gratis</a></p>
+        <div class="text-center mt-4">
+          <p class="text-muted mb-0" style="font-size: 0.85rem;">¿No tenés cuenta? <a href="{% url 'usuarios:registro' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Registrate gratis</a></p>
         </div>
 
       </div>

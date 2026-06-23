@@ -1,5 +1,6 @@
 {% extends 'ventas/base_ventas.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}Crear Cuenta · Tienda Plus{% endblock %}
 
@@ -26,18 +27,31 @@
   @media (max-width: 768px) {
     .split-right { padding: 2rem; }
   }
-  .form-label { font-weight: 600; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;}
+  .form-label { font-weight: 600; color: #4b5563; font-size: 0.85rem; letter-spacing: 0.2px;}
   .form-control {
-    border-radius: .75rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.2rem;
+    border: 1px solid transparent;
+    background-color: #f3f4f6;
     transition: all 0.2s ease;
+    font-size: 0.95rem;
   }
   .form-control:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 .25rem rgba(255, 102, 0, 0.15);
-    background-color: #fff;
+    border-color: rgba(255, 102, 0, 0.4);
+    box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.1);
+    background-color: #ffffff;
+  }
+  .btn-google-premium {
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-google-premium:hover {
+    box-shadow: 0 1px 3px 1px rgba(60,64,67,0.15), 0 1px 2px 0 rgba(60,64,67,0.3);
+    background-color: #f8f9fa;
   }
 </style>
 
@@ -79,7 +93,35 @@
         
         <div class="mb-4 text-center text-lg-start">
           <h3 class="fw-bold text-dark mb-1">Crear cuenta gratis</h3>
-          <p class="text-muted mb-0">Llená el formulario y accedé a tu <strong style="color: #16a34a;">10% de descuento</strong> pagando con transferencia.</p>
+          
+          <!-- Beneficios Mobile Only -->
+          <div class="d-lg-none mt-3 mb-2 px-3 py-2 rounded-3 bg-light border text-start" style="font-size: 0.8rem; color: #4b5563;">
+            <div class="d-flex align-items-center mb-1"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Checkout rápido y seguro</div>
+            <div class="d-flex align-items-center"><i class="bi bi-tag-fill text-success me-2"></i>10% OFF pagando con transferencia</div>
+          </div>
+          
+          <p class="text-muted mb-0 d-none d-lg-block">Llená el formulario y accedé a tu <strong style="color: #16a34a;">10% de descuento</strong> pagando con transferencia.</p>
+        </div>
+
+        <!-- BOTÓN GOOGLE PRIMERO Y OFICIAL -->
+        <form action="{% provider_login_url 'google' %}" method="post" class="mb-4">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-google-premium w-100 rounded-pill d-flex align-items-center justify-content-center" style="height: 50px;">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="me-2" style="width: 20px; height: 20px;">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.7 17.74 9.5 24 9.5z"></path>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+              <path fill="none" d="M0 0h48v48H0z"></path>
+            </svg>
+            Continuar con Google
+          </button>
+        </form>
+
+        <div class="d-flex align-items-center mb-4">
+          <hr class="flex-grow-1 border-secondary opacity-25">
+          <span class="mx-3 text-muted fw-bold" style="font-size: 0.75rem;">O CON TU EMAIL</span>
+          <hr class="flex-grow-1 border-secondary opacity-25">
         </div>
 
         <form method="post" novalidate>
@@ -106,13 +148,20 @@
             {% endfor %}
           </div>
           
-          <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-3 mb-4" style="background-color: var(--brand-primary); border: none;">
+          <button type="submit" class="btn btn-lg w-100 rounded-pill fw-bold text-white shadow-sm mt-3 mb-3" style="background-color: var(--brand-primary); border: none;">
             <i class="bi bi-person-check-fill me-2"></i>Crear mi cuenta y obtener 10% OFF
           </button>
+          
+          <!-- TRUST BADGE -->
+          <div class="text-center opacity-75 mb-2">
+            <p class="small text-muted mb-0" style="font-size: 0.75rem;">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i> Tus datos están protegidos. Nunca enviamos spam.
+            </p>
+          </div>
         </form>
 
         <div class="text-center mt-3">
-          <p class="text-muted mb-0">¿Ya tenés una cuenta? <a href="{% url 'login' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Iniciá sesión aquí</a></p>
+          <p class="text-muted mb-0" style="font-size: 0.9rem;">¿Ya tenés una cuenta? <a href="{% url 'login' %}" class="fw-bold text-decoration-none ms-1" style="color: var(--brand-primary);">Iniciá sesión aquí</a></p>
         </div>
 
       </div>
