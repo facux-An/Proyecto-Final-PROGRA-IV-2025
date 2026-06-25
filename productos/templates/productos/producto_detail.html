@@ -7,7 +7,7 @@
 <!-- ═══ CABECERA MOBILE: título + stock (solo visible en mobile) ═══ -->
 <div class="d-block d-lg-none mb-2 px-1">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-2 small fw-semibold text-uppercase"
+        <ol class="breadcrumb mb-1 small fw-semibold text-uppercase"
             style="letter-spacing: 1px; font-size: 0.72rem;">
             <li class="breadcrumb-item">
                 <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-muted">Catálogo</a>
@@ -17,16 +17,16 @@
             </li>
         </ol>
     </nav>
-    <h1 class="fw-extrabold mb-2 text-dark" style="font-size: 1.55rem; line-height: 1.15;">
+    <h1 class="fw-extrabold mb-1 text-dark" style="font-size: 1.35rem; line-height: 1.15;">
         {{ producto.nombre }}
     </h1>
     {% if producto.stock > 0 %}
-    <span class="badge rounded-pill px-3 py-2 fw-semibold mb-3 d-inline-flex align-items-center"
+    <span class="badge rounded-pill px-3 py-1 fw-semibold mb-2 d-inline-flex align-items-center"
           style="background-color: #DCFCE7; color: #16A34A; font-size: 0.8rem;">
         <i class="bi bi-check-circle-fill me-1"></i>Stock disponible
     </span>
     {% else %}
-    <span class="badge rounded-pill px-3 py-2 fw-semibold mb-3 d-inline-flex align-items-center"
+    <span class="badge rounded-pill px-3 py-1 fw-semibold mb-2 d-inline-flex align-items-center"
           style="background-color: #FEE2E2; color: #DC2626; font-size: 0.8rem;">
         <i class="bi bi-x-circle-fill me-1"></i>Agotado
     </span>
@@ -35,9 +35,9 @@
 
 <div class="row gy-4 gx-3 gx-lg-5">
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm p-3 mb-4 rounded-4">
+        <div class="card border-0 shadow-sm p-2 p-lg-3 mb-3 mb-lg-4 rounded-4">
             <div id="productGallery" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
-                <div class="carousel-inner product-gallery-inner position-relative overflow-hidden rounded-4 mb-3" style="background-color: #f8f9fa;">
+                <div class="carousel-inner product-gallery-inner position-relative overflow-hidden rounded-4 mb-2 mb-lg-3" style="background-color: #f8f9fa;">
                     {% if portadas and portadas|length > 0 %}
                         {% for portada in portadas %}
                         <div class="carousel-item {% if forloop.first %}active{% endif %} h-100">
@@ -184,7 +184,7 @@
                 </div>
 
                 <!-- Precio con Transferencia en Detalle -->
-                <div class="mb-4 px-1">
+                <div class="mb-2 px-1">
                     {% if producto.oferta_activa and producto.precio_oferta %}
                         <div style="font-size: 0.9rem; color: #16a34a; font-weight: 700; display: flex; align-items: center; gap: 6px;">
                             💳 <span>${% widthratio producto.precio_oferta 10 9 %}</span> <span class="text-muted fw-normal" style="font-size: 0.82rem;">pagando con Transferencia Bancaria</span>
@@ -196,7 +196,7 @@
                     {% endif %}
                 </div>
 
-                <div class="d-lg-none mb-4" id="mobileDescContainer">
+                <div class="d-lg-none mb-2" id="mobileDescContainer">
                     <div id="descTruncated" class="text-muted">{{ producto.descripcion|truncatewords:20 }}</div>
                     <div id="descFull" class="text-muted d-none leading-relaxed">{{ producto.descripcion|linebreaksbr }}</div>
                     {% if producto.descripcion|wordcount > 20 %}
@@ -286,7 +286,7 @@
     /* ── Galería: altura adaptativa por pantalla ────────────────────────── */
     .product-gallery-inner { aspect-ratio: 1 / 1; height: auto; }
     @media (max-width: 991.98px) {
-        .product-gallery-inner { aspect-ratio: 1 / 1; height: auto; }
+        .product-gallery-inner { height: 240px; aspect-ratio: auto; }
     }
 
     /* ── Dots circulares azules (mobile) ───────────────────────────── */

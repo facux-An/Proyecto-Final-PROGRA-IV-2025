@@ -308,10 +308,10 @@
 
   <!-- Topbar: Anzuelo psicológico descuento transferencia -->
   {% if not user.is_authenticated %}
-  <div class="text-white text-center py-2" style="background-color: #111111; font-size: 0.78rem; letter-spacing: 0.5px;">
+  <div class="text-white text-center py-1" style="background-color: #111111; font-size: 0.75rem; letter-spacing: 0.5px;">
     <a href="{% url 'usuarios:registro' %}" class="text-white text-decoration-none d-inline-flex align-items-center gap-2 fw-bold" style="letter-spacing: 0.3px;">
-      🔥 <span>Creá tu cuenta <strong>gratis</strong> hoy y recibí un <span style="color: #FFD700;">10% de DESCUENTO</span> pagando con transferencia</span>
-      <span class="badge rounded-pill text-dark ms-1" style="background-color: #FFD700; font-size: 0.7rem; padding: 0.3em 0.75em;">REGISTRATE →</span>
+      🔥 <span>Creá tu cuenta <strong>gratis</strong> y recibí <span style="color: #FFD700;">10% OFF</span> con transferencia</span>
+      <span class="badge rounded-pill text-dark ms-1 d-none d-sm-inline" style="background-color: #FFD700; font-size: 0.7rem; padding: 0.3em 0.75em;">REGISTRATE →</span>
     </a>
   </div>
   {% else %}
@@ -397,10 +397,10 @@
       </div>
 
       <!-- Buscador Mobile (Ancho completo) -->
-      <div class="w-100 d-lg-none mt-1 mb-2 px-1">
+      <div class="w-100 d-lg-none mt-0 mb-1 px-1">
         <form class="d-flex" action="{% url 'productos:producto_list' %}" method="get">
-          <input class="form-control rounded-0 rounded-start" type="search" name="search" placeholder="¿Qué estás buscando?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}" style="border: none; padding-left: 1rem;">
-          <button class="btn bg-white rounded-0 rounded-end text-dark px-3" type="submit" style="border: none;"><i class="bi bi-search fs-5"></i></button>
+          <input class="form-control rounded-0 rounded-start py-1" type="search" name="search" placeholder="¿Qué estás buscando?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}" style="border: none; padding-left: 1rem; font-size: 0.9rem;">
+          <button class="btn bg-white rounded-0 rounded-end text-dark px-3 py-1" type="submit" style="border: none;"><i class="bi bi-search fs-6"></i></button>
         </form>
       </div>
 
@@ -539,13 +539,13 @@
   </div>
 
   <!-- Barra de Beneficios Mobile (Alpina style) -->
-  <div class="d-flex d-lg-none bg-light border-bottom" style="font-size: 0.7rem; font-weight: 800; color: #333;">
-    <div class="col-6 d-flex align-items-center justify-content-center p-2 border-end text-center">
-      <i class="bi bi-truck fs-3 text-secondary me-2"></i> 
+  <div class="d-flex d-lg-none bg-light border-bottom" style="font-size: 0.65rem; font-weight: 800; color: #333;">
+    <div class="col-6 d-flex align-items-center justify-content-center py-1 px-2 border-end text-center">
+      <i class="bi bi-truck fs-4 text-secondary me-2"></i> 
       <span class="text-start lh-sm">ENVÍOS A<br>TODO EL PAÍS</span>
     </div>
-    <div class="col-6 d-flex align-items-center justify-content-center p-2 text-center">
-      <i class="bi bi-shield-check fs-3 text-secondary me-2"></i> 
+    <div class="col-6 d-flex align-items-center justify-content-center py-1 px-2 text-center">
+      <i class="bi bi-shield-check fs-4 text-secondary me-2"></i> 
       <span class="text-start lh-sm">COMPRA<br>SEGURA</span>
     </div>
   </div>
@@ -566,7 +566,7 @@
     {% endif %}
   </div>
 
-  <main class="container py-4">
+  <main class="container py-2 py-lg-4">
       {% block content %}{% endblock %}
   </main>
 
