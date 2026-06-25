@@ -126,7 +126,7 @@
             </div>
             {% endif %}
 
-            <div class="card border-0 shadow-lg p-4 p-lg-5 rounded-4 w-100 overflow-hidden bg-white">
+            <div class="card border-0 shadow-lg p-3 p-lg-4 rounded-4 w-100 overflow-hidden bg-white">
 
                 <!-- Breadcrumb + título + stock: SOLO en desktop -->
                 <div class="d-none d-lg-block">
@@ -244,7 +244,7 @@
     </div>
 </div>
 
-<div class="mt-5 pt-5 border-top">
+<div class="mt-4 pt-3 border-top">
     <h3 class="fw-bold mb-4">También te podría interesar</h3>
     <div class="row g-4">
         {% for rel in relacionados %}
@@ -284,9 +284,9 @@
     .leading-relaxed { line-height: 1.8; }
 
     /* ── Galería: altura adaptativa por pantalla ────────────────────────── */
-    .product-gallery-inner { height: 500px; }
+    .product-gallery-inner { aspect-ratio: 1 / 1; height: auto; }
     @media (max-width: 991.98px) {
-        .product-gallery-inner { height: 320px; }
+        .product-gallery-inner { aspect-ratio: 1 / 1; height: auto; }
     }
 
     /* ── Dots circulares azules (mobile) ───────────────────────────── */
