@@ -24,7 +24,7 @@ class ProductoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Información del Producto', {
-            'fields': ('nombre', 'descripcion', 'categoria', 'precio', 'stock', 'destacado', 'portada'),
+            'fields': ('nombre', 'descripcion', 'categoria', 'precio', 'stock', 'destacado', 'portada', 'video_tiktok_url'),
         }),
         ('🏷️ Ofertas y Kits', {
             'fields': ('en_oferta', 'precio_oferta', 'fecha_fin_oferta', 'etiqueta_oferta', 'es_combo', 'productos_incluidos'),

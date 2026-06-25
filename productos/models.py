@@ -54,6 +54,12 @@ class Producto(models.Model):
     ancho_cm = models.PositiveIntegerField("Ancho (cm)", default=15)
     alto_cm = models.PositiveIntegerField("Alto (cm)", default=10)
 
+    # ----- VIDEOS -----
+    video_tiktok_url = models.URLField(
+        "Enlace de TikTok", blank=True, null=True,
+        help_text="Pega el enlace del video de TikTok (Ej: https://www.tiktok.com/@usuario/video/1234567)"
+    )
+
     # Portada principal existente (opcional, la podés seguir usando)
     portada = models.ImageField(
         storage=MediaCloudinaryStorage(),
@@ -130,6 +136,16 @@ class Producto(models.Model):
             return primera.imagen.url
         if self.portada:
             return self.portada.url
+        return None
+
+    @property
+    def tiktok_video_id(self):
+        """Extrae el ID numérico del video desde el enlace completo de TikTok."""
+        if self.video_tiktok_url:
+            import re
+            match = re.search(r'/video/(\d+)', self.video_tiktok_url)
+            if match:
+                return match.group(1)
         return None
 
     def portada_preview(self):
