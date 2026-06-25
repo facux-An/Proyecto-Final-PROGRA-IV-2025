@@ -265,7 +265,7 @@ if SENTRY_DSN:
 # -----------------------------------------------------------------------------
 # Configuración de Correo (Zoho Mail SMTP)
 # -----------------------------------------------------------------------------
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 465))
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "True").lower() == "true"

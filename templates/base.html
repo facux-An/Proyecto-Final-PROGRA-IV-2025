@@ -331,8 +331,9 @@
         </button>
 
         <!-- Logo Centro -->
-        <a class="navbar-brand-text mx-auto" href="{% url 'home' %}">
-          <img src="{% static 'img/logo_tienda.png' %}" alt="Tienda Plus Logo" height="45" style="object-fit: contain;">
+        <a class="navbar-brand-text mx-auto d-flex align-items-center text-decoration-none" href="{% url 'home' %}">
+          <img src="{% static 'img/logo_tienda.png' %}?v=3" alt="Tienda Plus Logo" height="45" class="me-2" style="object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+          <span class="text-white mb-0" style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;">Tienda Plus</span>
         </a>
 
         <!-- Iconos Derecha: Usuario y Carrito -->
@@ -378,8 +379,9 @@
       </div>
 
       <!-- Desktop Brand (Hidden on Mobile) -->
-      <a class="navbar-brand-text d-none d-lg-flex align-items-center me-4" href="{% url 'home' %}">
-        <img src="{% static 'img/logo_tienda.png' %}" alt="Tienda Plus Logo" height="50" style="object-fit: contain;">
+      <a class="navbar-brand-text d-none d-lg-flex align-items-center me-4 text-decoration-none" href="{% url 'home' %}">
+        <img src="{% static 'img/logo_tienda.png' %}?v=3" alt="Tienda Plus Logo" height="55" class="me-2" style="object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <span class="text-white mb-0" style="font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;">Tienda Plus</span>
       </a>
 
       <!-- Menú principal colapsable -->
