@@ -9,7 +9,7 @@
     /* ===== HERO CAROUSEL ===== */
     .hero-carousel .carousel-item {
         min-height: 420px;
-        background-color: #FFF8F3;
+        background: linear-gradient(160deg, #1a1511 0%, #2D2A26 50%, #1a1511 100%);
         border-radius: 1.5rem;
     }
     .hero-carousel .carousel-item.active {
@@ -91,8 +91,8 @@
         font-weight: 800;
     }
     .discount-pct {
-        background: #DC2626;
-        color: white;
+        background: linear-gradient(135deg, #FFD700, #FFC107);
+        color: #1a1511;
         font-weight: 700;
         font-size: 0.75rem;
         padding: 0.15rem 0.5rem;
@@ -148,22 +148,23 @@
 
     /* ===== COUNTDOWN ===== */
     .countdown-box {
-        background: rgba(0,0,0,0.06);
+        background: rgba(255,255,255,0.10);
         border-radius: 8px;
         padding: 0.3rem 0.6rem;
         min-width: 45px;
         text-align: center;
+        border: 1px solid rgba(255,255,255,0.08);
     }
     .countdown-number {
         font-size: 1.4rem;
         font-weight: 800;
         line-height: 1.2;
-        color: #1F2937;
+        color: white;
     }
     .countdown-label {
         font-size: 0.6rem;
         text-transform: uppercase;
-        color: #6B7280;
+        color: rgba(255,255,255,0.6);
         letter-spacing: 0.5px;
     }
 
@@ -200,6 +201,103 @@
             max-height: 220px;
             margin-bottom: 0.5rem;
         }
+    }
+
+    /* ===== HERO VIDEO SLIDE ===== */
+    .hero-video-slide {
+        min-height: 65vh !important;
+        background: #1a1511;
+        padding: 0 !important;
+    }
+    .hero-video-slide.active {
+        display: block !important;
+    }
+    .hero-video-container {
+        position: relative;
+        width: 100%;
+        height: 65vh;
+        overflow: hidden;
+    }
+    .hero-bg-video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: 100%;
+        object-fit: cover;
+    }
+    .hero-video-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to bottom,
+            rgba(0,0,0,0.10) 0%,
+            rgba(0,0,0,0.25) 40%,
+            rgba(0,0,0,0.65) 100%
+        );
+        z-index: 1;
+    }
+    .hero-video-content {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 1.5rem 2.5rem;
+        text-align: center;
+        color: white;
+    }
+    .hero-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.85;
+        margin-bottom: 0.5rem;
+    }
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+        font-weight: 400;
+        opacity: 0.85;
+        margin-bottom: 1.2rem;
+        max-width: 400px;
+    }
+    .hero-cta {
+        background: var(--accent-warm);
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        border: none;
+        box-shadow: 0 8px 24px rgba(255,140,66,0.35);
+        transition: all 0.3s ease;
+    }
+    .hero-cta:hover {
+        background: var(--brand-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(255,102,0,0.45);
+    }
+    @media (min-width: 768px) {
+        .hero-video-slide { min-height: 500px !important; }
+        .hero-video-container { height: 500px; }
+        .hero-title { font-size: 2.8rem; }
+        .hero-subtitle { font-size: 1.1rem; }
+        .hero-video-content { padding-bottom: 4rem; }
     }
 
     /* ===== ¿QUIÉNES SOMOS? ===== */
@@ -313,112 +411,26 @@
 <!-- ============================================ -->
 
 <div class="hero-carousel mb-4">
-    <div id="heroCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="4000">
-        <div class="carousel-indicators">
-            {% for kit in productos_carrusel %}
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
-            {% empty %}
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
-            {% endfor %}
-        </div>
-
-        <div class="carousel-inner">
-            {% if productos_carrusel %}
-                {% for kit in productos_carrusel %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="container px-4 px-lg-5">
-                        <div class="row align-items-center py-4 py-lg-5">
-                            <div class="col-lg-6 py-3 order-last order-lg-first">
-                                <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm mb-3 border" style="border-color: rgba(255,102,0,0.2) !important;">
-                                    <span class="spinner-grow spinner-grow-sm text-danger me-2" style="width: 0.5rem; height: 0.5rem;"></span>
-                                    <span class="fw-bold text-dark small" style="letter-spacing: 0.5px;">{{ kit.etiqueta_oferta|default:"OFERTA ESPECIAL" }}</span>
-                                </div>
-                                <h2 class="display-5 fw-bold text-dark mb-2" style="letter-spacing: -1px; line-height: 1.1;">{{ kit.nombre }}</h2>
-                                {% if kit.productos_incluidos %}
-                                <p class="text-muted mb-3">Incluye: {{ kit.productos_incluidos }}</p>
-                                {% endif %}
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    {% if kit.oferta_activa and kit.precio_oferta %}
-                                    <span class="price-original fs-5">${{ kit.precio|floatformat:0 }}</span>
-                                    <span class="price-offer fs-2">${{ kit.precio_oferta|floatformat:0 }}</span>
-                                    <span class="discount-pct">-{{ kit.porcentaje_descuento }}%</span>
-                                    {% else %}
-                                    <span class="price-offer fs-2">${{ kit.precio|floatformat:0 }}</span>
-                                    {% endif %}
-                                </div>
-                                {% if kit.fecha_fin_oferta %}
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <i class="bi bi-clock text-muted"></i>
-                                    <span class="text-muted small">Termina en:</span>
-                                    <div class="d-flex gap-1 countdown-timer" data-end="{{ kit.fecha_fin_oferta|date:'c' }}">
-                                        <div class="countdown-box"><div class="countdown-number" data-unit="days">--</div><div class="countdown-label">Días</div></div>
-                                        <div class="countdown-box"><div class="countdown-number" data-unit="hours">--</div><div class="countdown-label">Hrs</div></div>
-                                        <div class="countdown-box"><div class="countdown-number" data-unit="minutes">--</div><div class="countdown-label">Min</div></div>
-                                        <div class="countdown-box"><div class="countdown-number" data-unit="seconds">--</div><div class="countdown-label">Seg</div></div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                <a href="{% url 'productos:producto_detail' kit.id %}" class="btn btn-lg fw-bold px-5 rounded-pill shadow-sm btn-buy">
-                                    Comprar Kit <i class="bi bi-arrow-right ms-2"></i>
-                                </a>
-                                {% if request.user.is_staff %}
-                                <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-sm btn-warning rounded-pill shadow-sm ms-2" title="Editar en Gestor Landing">
-                                    <i class="bi bi-megaphone-fill"></i> Editar Oferta
-                                </a>
-                                {% endif %}
-                            </div>
-                            <div class="col-lg-6 text-center mt-3 mt-lg-0 order-first order-lg-last">
-                                {% if kit.imagen_principal_url %}
-                                <img src="{{ kit.imagen_principal_url }}" alt="{{ kit.nombre }}" class="img-fluid rounded-4 shadow hero-carousel-img">
-                                {% else %}
-                                <div class="d-flex align-items-center justify-content-center" style="height: 300px;">
-                                    <i class="bi bi-box-seam text-dark" style="font-size: 10rem; opacity: 0.08;"></i>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+    <div id="heroCarousel" class="rounded-4 overflow-hidden">
+        <!-- HERO VIDEO: Solo el video emocional de la gata -->
+        <div class="hero-video-slide" style="display: block;">
+            <div class="hero-video-container">
+                <video autoplay muted loop playsinline preload="none" poster="{% static 'img/hero-gata-poster.jpg' %}" class="hero-bg-video">
+                    <source src="{% static 'img/hero-gata-vapor.mp4' %}" type="video/mp4">
+                </video>
+                <div class="hero-video-overlay"></div>
+                <div class="hero-video-content">
+                    <span class="hero-eyebrow">🐱 TIENDA PLUS</span>
+                    <h1 class="hero-title">El alivio del caos,<br>un ronroneo a la vez</h1>
+                    <p class="hero-subtitle">Productos pensados para hogares con gatos reales</p>
+                    <a href="{% url 'productos:producto_list' %}" class="btn hero-cta">
+                        Ver Colección <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
                 </div>
-                {% endfor %}
-            {% else %}
-                <!-- Slide por defecto cuando no hay kits -->
-                <div class="carousel-item active">
-                    <div class="container px-4 px-lg-5">
-                        <div class="row align-items-center py-5">
-                            <div class="col-lg-6 py-4">
-                                <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm mb-4 border" style="border-color: rgba(255,102,0,0.2) !important;">
-                                    <span class="spinner-grow spinner-grow-sm text-danger me-2" style="width: 0.5rem; height: 0.5rem;"></span>
-                                    <span class="fw-bold text-dark small" style="letter-spacing: 0.5px;">TIENDA PLUS</span>
-                                </div>
-                                <h1 class="display-4 fw-bold text-dark mb-3" style="letter-spacing: -1.5px; line-height: 1.1;">
-                                    El cuidado perfecto <br>
-                                    <span style="color: var(--brand-primary);">para tu gato</span>
-                                </h1>
-                                <p class="fs-5 text-muted mb-4">Descubrí nuestra selección premium diseñada especialmente para el bienestar de tu mascota.</p>
-                                <a href="{% url 'productos:producto_list' %}" class="btn btn-lg fw-bold px-5 rounded-pill shadow-sm btn-buy">
-                                    Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
-                                </a>
-                            </div>
-                            <div class="col-lg-6 d-none d-lg-block text-center position-relative">
-                                <div class="position-absolute bg-white rounded-circle opacity-50" style="width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); filter: blur(40px);"></div>
-                                <i class="bi bi-shop text-dark position-relative" style="font-size: 14rem; opacity: 0.08;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            </div>
         </div>
-
-        {% if productos_carrusel|length > 1 %}
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        </button>
-        {% endif %}
+        <!-- TODO FUTURO: Reactivar slides de kits cuando tengas videos/fotos reales de cada producto.
+             Volver a usar Bootstrap Carousel con data-bs-ride="carousel" e inyectar los kits desde el gestor de landing. -->
     </div>
 </div>
 
