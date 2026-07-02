@@ -6,17 +6,6 @@
 {% block content %}
 <!-- ═══ CABECERA MOBILE: título + stock (solo visible en mobile) ═══ -->
 <div class="d-block d-lg-none mb-2 px-1">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-1 small fw-semibold text-uppercase"
-            style="letter-spacing: 1px; font-size: 0.72rem;">
-            <li class="breadcrumb-item">
-                <a href="{% url 'productos:producto_list' %}" class="text-decoration-none text-muted">Catálogo</a>
-            </li>
-            <li class="breadcrumb-item" style="color: var(--brand-primary);">
-                {{ producto.categoria.nombre|default:"General" }}
-            </li>
-        </ol>
-    </nav>
     <h1 class="fw-extrabold mb-1 text-dark" style="font-size: 1.35rem; line-height: 1.15;">
         {{ producto.nombre }}
     </h1>
@@ -153,20 +142,26 @@
                     </div>
                 </div>
                 
-                <div class="d-flex align-items-center mb-2 bg-light p-3 rounded-4 border">
+                <div class="d-flex align-items-center mb-3 p-3 rounded-4" style="background-color: #FDFAF6; border: 1px solid rgba(255,140,66,0.1);">
                     {% if producto.oferta_activa and producto.precio_oferta %}
                         <div class="d-flex flex-column">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="h4 text-muted text-decoration-line-through mb-0">${{ producto.precio|floatformat:0 }}</span>
-                                <span class="badge bg-danger rounded-pill fw-bold shadow-sm" style="font-size: 0.75rem;">
-                                    -{{ producto.porcentaje_descuento }}% OFF
+                                <span class="h5 text-muted text-decoration-line-through mb-0">${{ producto.precio|floatformat:0 }}</span>
+                                <span class="badge bg-danger rounded-pill fw-bold shadow-sm" style="font-size: 0.7rem;">
+                                    -{{ producto.porcentaje_descuento }}%
                                 </span>
                             </div>
                             <div class="h1 fw-extrabold mb-0 mt-1" style="color: var(--brand-primary);">${{ producto.precio_oferta|floatformat:0 }}</div>
+                            <div style="font-size: 0.85rem; color: #16a34a; font-weight: 600; margin-top: 4px;">
+                                💳 ${% widthratio producto.precio_oferta 10 9 %} <span class="text-muted fw-normal" style="font-size: 0.8rem;">con Transferencia</span>
+                            </div>
                         </div>
                     {% else %}
                         <div class="d-flex flex-column">
                             <div class="h1 fw-extrabold mb-0" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</div>
+                            <div style="font-size: 0.85rem; color: #16a34a; font-weight: 600; margin-top: 4px;">
+                                💳 ${% widthratio producto.precio 10 9 %} <span class="text-muted fw-normal" style="font-size: 0.8rem;">con Transferencia</span>
+                            </div>
                         </div>
                     {% endif %}
                     <div class="ms-auto text-end">
@@ -181,19 +176,6 @@
                             </span>
                         {% endif %}
                     </div>
-                </div>
-
-                <!-- Precio con Transferencia en Detalle -->
-                <div class="mb-2 px-1">
-                    {% if producto.oferta_activa and producto.precio_oferta %}
-                        <div style="font-size: 0.9rem; color: #16a34a; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                            💳 <span>${% widthratio producto.precio_oferta 10 9 %}</span> <span class="text-muted fw-normal" style="font-size: 0.82rem;">pagando con Transferencia Bancaria</span>
-                        </div>
-                    {% else %}
-                        <div style="font-size: 0.9rem; color: #16a34a; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                            💳 <span>${% widthratio producto.precio 10 9 %}</span> <span class="text-muted fw-normal" style="font-size: 0.82rem;">pagando con Transferencia Bancaria</span>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <div class="d-lg-none mb-2" id="mobileDescContainer">
@@ -232,11 +214,11 @@
                     </div>
 
                     <!-- Confianza personal -->
-                    <div class="text-center px-1 mb-1">
-                        <p class="small text-muted mb-0" style="font-size: 0.78rem; line-height: 1.4;">
-                            🐱 <em>Mis propias gatas usan este producto todos los días.</em><br>
-                            <span style="color: var(--text-soft);">Pago seguro · Envío a todo el país</span>
+                    <div class="text-center p-3 mb-2 mt-2 rounded-4" style="background-color: #FDFAF6; border: 1px dashed rgba(255,140,66,0.3);">
+                        <p class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #4a4a4a; line-height: 1.4;">
+                            🐱 <em>"Mis propias gatas usan este producto todos los días."</em>
                         </p>
+                        <span style="font-size: 0.75rem; color: var(--text-soft);"><i class="bi bi-shield-check text-success"></i> Pago seguro · Envío a todo el país</span>
                     </div>
 
                 {% else %}
