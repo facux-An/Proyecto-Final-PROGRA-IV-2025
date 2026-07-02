@@ -146,6 +146,19 @@
         color: white;
         transform: scale(1.05);
     }
+    /* CTA textual c\u00e1lido \u2014 reemplaza el bot\u00f3n redondo fr\u00edo */
+    .card-cta-link {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--brand-primary);
+        text-decoration: none;
+        letter-spacing: 0.2px;
+        transition: color 0.2s ease, letter-spacing 0.2s ease;
+    }
+    .card-cta-link:hover {
+        color: var(--brand-secondary);
+        letter-spacing: 0.5px;
+    }
     .img-placeholder-luxury {
         background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
         height: 220px;
@@ -445,18 +458,7 @@
     </div>
 </div>
 
-<!-- ============================================ -->
-<!-- 2. URGENCY BAR                               -->
-<!-- ============================================ -->
-{% if kits_combo %}
-<div class="urgency-bar rounded-3 px-3 py-2 mb-5 text-center">
-    <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-        <span class="fw-bold" style="font-size: 0.9rem; color: var(--accent-warm);">✨ SOLUCIONES REALES</span>
-        <span style="opacity: 0.3;">|</span>
-        <span style="font-size: 0.85rem; font-weight: 500;">Kits pensados para el bienestar de tu hogar.</span>
-    </div>
-</div>
-{% endif %}
+<!-- Banner de urgencia eliminado — la sección de productos habla sola -->
 
 
 
@@ -479,14 +481,14 @@
     {% if productos_destacados %}
         {% for producto in productos_destacados %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative shadow-sm">
+            <div class="card premium-card h-100 rounded-4 overflow-hidden position-relative shadow-sm" style="background-color: #FDFAF6;">
                 <!-- Badge -->
                 <div class="position-absolute top-0 start-0 m-3 z-2">
                     {% if producto.oferta_activa and producto.etiqueta_oferta %}
                     <span class="badge rounded-pill badge-premium">{{ producto.etiqueta_oferta }}</span>
                     {% elif producto.destacado %}
                     <span class="badge rounded-pill badge-premium">
-                        <i class="bi bi-star-fill me-1" style="color: #FFD700;"></i> Destacado
+                        ❤️ Lo aman mis gatos
                     </span>
                     {% endif %}
                 </div>
@@ -494,7 +496,7 @@
                 <!-- Image -->
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" style="height: 220px; object-fit: contain; background-color: #fff;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" loading="lazy" style="height: 220px; object-fit: contain; background-color: #FDFAF6;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
@@ -513,9 +515,9 @@
                     <p class="stock-low mb-2"><i class="bi bi-fire me-1"></i> ¡Últimas {{ producto.stock }} unidades!</p>
                     {% endif %}
 
-                    <!-- Price -->
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
+                    <!-- Price + CTA -->
+                    <div class="mt-auto">
+                        <div class="mb-2">
                             {% if producto.oferta_activa and producto.precio_oferta %}
                             <span class="price-original d-block" style="line-height: 1;">${{ producto.precio|floatformat:0 }}</span>
                             <span class="fw-bold fs-4 price-offer">${{ producto.precio_oferta|floatformat:0 }}</span>
@@ -523,15 +525,13 @@
                             <span class="fw-bold fs-4 text-dark">${{ producto.precio|floatformat:0 }}</span>
                             {% endif %}
                         </div>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="{% url 'productos:producto_detail' producto.id %}" class="card-cta-link">Ver producto →</a>
                             {% if request.user.is_staff %}
-                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Gestor Landing">
+                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning btn-sm rounded-pill" title="Gestor Landing">
                                 <i class="bi bi-megaphone-fill"></i>
                             </a>
                             {% endif %}
-                            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-buy rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Ver producto">
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -590,7 +590,7 @@
 {% if productos_oferta %}
         {% for producto in productos_oferta %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card premium-card h-100 rounded-4 overflow-hidden bg-white position-relative shadow-sm">
+            <div class="card premium-card h-100 rounded-4 overflow-hidden position-relative shadow-sm" style="background-color: #FDFAF6;">
                 <!-- Badge -->
                 <div class="position-absolute top-0 start-0 m-3 z-2">
                     {% if producto.etiqueta_oferta %}
@@ -602,7 +602,7 @@
 
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" style="height: 220px; object-fit: contain; background-color: #fff;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" loading="lazy" style="height: 220px; object-fit: contain; background-color: #FDFAF6;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
@@ -619,8 +619,8 @@
                     <p class="stock-low mb-2"><i class="bi bi-fire me-1"></i> ¡Últimas {{ producto.stock }} unidades!</p>
                     {% endif %}
 
-                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                        <div>
+                    <div class="mt-auto">
+                        <div class="mb-2">
                             {% if producto.precio_oferta %}
                             <span class="price-original d-block" style="line-height: 1;">${{ producto.precio|floatformat:0 }}</span>
                             <span class="fw-bold fs-4 price-offer">${{ producto.precio_oferta|floatformat:0 }}</span>
@@ -628,15 +628,13 @@
                             <span class="fw-bold fs-4 text-dark">${{ producto.precio|floatformat:0 }}</span>
                             {% endif %}
                         </div>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="{% url 'productos:producto_detail' producto.id %}" class="card-cta-link">Ver producto →</a>
                             {% if request.user.is_staff %}
-                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Gestor Landing">
+                            <a href="{% url 'panel:gestor_ofertas' %}" class="btn btn-warning btn-sm rounded-pill" title="Gestor Landing">
                                 <i class="bi bi-megaphone-fill"></i>
                             </a>
                             {% endif %}
-                            <a href="{% url 'productos:producto_detail' producto.id %}" class="btn btn-buy rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="Ver producto">
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
                         </div>
                     </div>
                 </div>
