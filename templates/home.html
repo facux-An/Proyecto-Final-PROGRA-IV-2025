@@ -496,7 +496,7 @@
                 <!-- Image -->
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" loading="lazy" style="height: 220px; object-fit: contain; background-color: #FDFAF6;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" loading="lazy" style="height: 260px; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
@@ -602,7 +602,7 @@
 
                 <a href="{% url 'productos:producto_detail' producto.id %}">
                     {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top p-3" alt="{{ producto.nombre }}" loading="lazy" style="height: 220px; object-fit: contain; background-color: #FDFAF6;">
+                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top" alt="{{ producto.nombre }}" loading="lazy" style="height: 260px; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
                     {% else %}
                     <div class="img-placeholder-luxury">
                         <i class="bi bi-image text-muted opacity-25" style="font-size: 5rem;"></i>
