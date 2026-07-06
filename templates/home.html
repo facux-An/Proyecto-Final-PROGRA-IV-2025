@@ -645,20 +645,19 @@
 </div>
 
 <!-- CTA Banner -->
-<section class="cta-banner rounded-4 my-5 position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, var(--brand-primary) 0%, #e65c00 100%);">
-    <!-- Círculos concéntricos decorativos -->
-    <div class="position-absolute" style="top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
-    <div class="position-absolute" style="top: -30%; right: -5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
-    <div class="position-absolute" style="top: -10%; right: 0%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
-
-    <div class="position-relative z-1 p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="text-white mb-4 mb-md-0 text-center text-md-start">
-            <h2 class="fw-bold mb-2" style="font-size: 2.5rem; letter-spacing: -0.5px;">Descubre todo nuestro catálogo.</h2>
-            <p class="mb-0 opacity-75" style="font-size: 1.1rem;">Tu gato se merece lo mejor, y nosotros lo tenemos.</p>
+<section class="cta-banner rounded-4 my-5 position-relative shadow-sm" style="background-color: #FDFAF6; border: 1px dashed rgba(255,102,0,0.4);">
+    <div class="p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between text-center text-md-start">
+        <div class="mb-4 mb-md-0" style="color: var(--text-main);">
+            <h2 class="fw-bold mb-2" style="font-size: 2.2rem; letter-spacing: -0.5px;">
+                🐱 Mirá todo lo que preparamos para ellos
+            </h2>
+            <p class="mb-0 text-muted" style="font-size: 1.1rem;">
+                Porque vos y yo sabemos que merecen ser malcriados todos los días.
+            </p>
         </div>
         <div>
-            <a href="{% url 'productos:producto_list' %}" class="btn btn-dark rounded-pill px-5 py-3 fw-bold shadow-lg d-flex align-items-center gap-2" style="font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">
-                Ver catálogo <i class="bi bi-arrow-right"></i>
+            <a href="{% url 'productos:producto_list' %}" class="btn rounded-pill px-5 py-3 fw-bold text-white d-flex align-items-center gap-2" style="background-color: var(--brand-primary); font-size: 1.1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 20px rgba(255,102,0,0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                Explorar catálogo <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>

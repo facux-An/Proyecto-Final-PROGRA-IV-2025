@@ -53,10 +53,11 @@
     
     /* Navbar Profesional Alpina Style */
     .navbar-custom {
-      background-color: var(--brand-primary);
+      background-color: var(--bg-body);
       padding: 0.8rem 0;
+      border-bottom: 1px solid #E5E7EB;
     }
-    .navbar-brand-text { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; color: white; text-decoration: none;}
+    .navbar-brand-text { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; color: var(--brand-primary); text-decoration: none;}
     
     /* Buscador Central */
     .search-form-container {
@@ -116,18 +117,13 @@
 
     /* Menú Colapsable (Desktop & Mobile) */
     .navbar-nav .nav-link {
-      color: white;
-      font-weight: 500;
+      color: var(--text-main);
+      font-weight: 600;
       padding: 0.5rem 1rem;
       transition: all 0.2s;
     }
     .navbar-nav .nav-link:hover {
-      color: white;
-      opacity: 0.9;
-      text-decoration: underline;
-      text-decoration-color: rgba(255, 255, 255, 0.5);
-      text-decoration-thickness: 2px;
-      text-underline-offset: 4px;
+      color: var(--brand-primary);
     }
     
     @media (max-width: 991px) {
@@ -329,21 +325,21 @@
       <!-- Toggler, Logo y Iconos Mobile -->
       <div class="mobile-navbar-top d-lg-none d-flex justify-content-between align-items-center w-100 pb-2">
         <!-- Hamburguesa -->
-        <button class="navbar-toggler border-0 text-white shadow-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+        <button class="navbar-toggler border-0 shadow-none p-0" style="color: var(--text-main);" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
           <i class="bi bi-list fs-1"></i>
         </button>
 
         <!-- Logo Centro -->
         <a class="navbar-brand-text mx-auto d-flex align-items-center text-decoration-none" href="{% url 'home' %}">
           <img src="{% static 'img/logo_tienda.png' %}?v=4" alt="Tienda Plus Logo" height="55" class="me-2" style="object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
-          <span class="text-white mb-0" style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;">Tienda Plus</span>
+          <span class="mb-0" style="color: var(--brand-primary); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;">Tienda Plus</span>
         </a>
 
         <!-- Iconos Derecha: Usuario y Carrito -->
         <div class="d-flex align-items-center gap-3">
           <!-- Usuario Mobile Dropdown -->
           <div class="dropdown">
-            <a href="#" role="button" data-bs-toggle="dropdown" class="text-white text-decoration-none">
+            <a href="#" role="button" data-bs-toggle="dropdown" class="text-decoration-none" style="color: var(--text-main);">
               <i class="bi bi-person fs-3"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-4" style="min-width: 220px; padding: 0.5rem 0;">
@@ -390,10 +386,10 @@
           </div>
           
           <!-- Carrito -->
-          <a href="{% url 'carrito:carrito_detail' %}" class="position-relative text-white text-decoration-none me-1">
+          <a href="{% url 'carrito:carrito_detail' %}" class="position-relative text-decoration-none me-1" style="color: var(--text-main);">
             <i class="bi bi-basket2 fs-3"></i>
             {% if carrito_count and carrito_count > 0 %}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-success border border-2 border-white" style="font-size: 0.65rem; padding: 0.35em 0.5em;">{{ carrito_count }}</span>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle border border-2 border-white text-white" style="background-color: var(--brand-primary); font-size: 0.65rem; padding: 0.35em 0.5em;">{{ carrito_count }}</span>
             {% endif %}
           </a>
         </div>
@@ -402,15 +398,15 @@
       <!-- Buscador Mobile (Ancho completo) -->
       <div class="w-100 d-lg-none mt-0 mb-1 px-1">
         <form class="d-flex" action="{% url 'productos:producto_list' %}" method="get">
-          <input class="form-control rounded-0 rounded-start py-1" type="search" name="search" placeholder="¿Qué estás buscando?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}" style="border: none; padding-left: 1rem; font-size: 0.9rem;">
-          <button class="btn bg-white rounded-0 rounded-end text-dark px-3 py-1" type="submit" style="border: none;"><i class="bi bi-search fs-6"></i></button>
+          <input class="form-control rounded-0 rounded-start py-1" type="search" name="search" placeholder="¿Qué estás buscando?" aria-label="Buscar" value="{{ request.GET.search|default:'' }}" style="border: 1px solid #E5E7EB; padding-left: 1rem; font-size: 0.9rem; background-color: white;">
+          <button class="btn bg-white rounded-0 rounded-end text-dark px-3 py-1" type="submit" style="border: 1px solid #E5E7EB; border-left: none;"><i class="bi bi-search fs-6"></i></button>
         </form>
       </div>
 
       <!-- Desktop Brand (Hidden on Mobile) -->
       <a class="navbar-brand-text d-none d-lg-flex align-items-center me-4 text-decoration-none" href="{% url 'home' %}">
         <img src="{% static 'img/logo_tienda.png' %}?v=4" alt="Tienda Plus Logo" height="65" class="me-2" style="object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        <span class="text-white mb-0" style="font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;">Tienda Plus</span>
+        <span class="mb-0" style="color: var(--brand-primary); font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;">Tienda Plus</span>
       </a>
 
       <!-- Menú principal colapsable -->
