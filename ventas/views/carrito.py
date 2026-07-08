@@ -5,7 +5,7 @@ from django.db import transaction
 from django.core.cache import cache
 
 from ventas.models import Carrito, ItemCarrito, Pedido, DetallePedido
-from productos.models import Producto
+from productos.models import Producto, CodigoDescuento
 from ventas.views.helpers import descontar_stock, registrar_historial, registrar_log
 
 
@@ -123,6 +123,27 @@ def ver_carrito(request):
 
     alcanzado = total_carrito >= umbral
 
+    # ── Cupón de descuento (guardado en sesión) ─────────────────────────────
+    # Leer el código guardado en sesión (si el usuario ya lo aplicó antes)
+    cupon_codigo = request.session.get('cupon_codigo')
+    cupon_aplicado = None
+    descuento_cupon = 0
+
+    if cupon_codigo:
+        try:
+            cupon = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
+            if cupon.es_valido:
+                cupon_aplicado = cupon
+                descuento_cupon = float(cupon.calcular_descuento(total_carrito))
+            else:
+                # El cupón expió o se agotó desde que lo guardó: limpiar sesión
+                del request.session['cupon_codigo']
+                messages.warning(request, "🎟️ El cupón ya no es válido y fue eliminado.")
+        except CodigoDescuento.DoesNotExist:
+            del request.session['cupon_codigo']
+
+    total_con_descuento = max(total_carrito - descuento_cupon, 0)
+
     context = {
         "carrito": carrito,
         # Barra de envío gratis
@@ -138,6 +159,10 @@ def ver_carrito(request):
         "rec_impulso": rec_impulso,
         "rec_overshoot": int(overshoot_cierre),
         "eg_falta_int": int(falta),
+        # Cupón de descuento
+        "cupon_aplicado": cupon_aplicado,
+        "descuento_cupon": descuento_cupon,
+        "total_con_descuento": total_con_descuento,
     }
 
     return render(request, "ventas/carrito.html", context)
@@ -355,3 +380,49 @@ def api_cotizar_envio(request):
             "ok": False,
             "error": "Ocurrió un error interno al cotizar el envío. Por favor intentá de nuevo.",
         })
+
+
+# ──────────────────────────────────────────────
+# 🎟️ Motor de Cupones: Aplicar / Quitar
+# ──────────────────────────────────────────────
+@login_required
+def aplicar_cupon(request):
+    """
+    Recibe un código de cupón vía POST y lo valida.
+    Si es válido, lo guarda en la sesión para aplicarlo al total del carrito.
+    NO incrementa usos_actuales aquí; eso se hace al confirmar la compra.
+    """
+    if request.method != 'POST':
+        return redirect('carrito:carrito_detail')
+
+    codigo = request.POST.get('cupon_codigo', '').strip().upper()
+
+    if not codigo:
+        messages.warning(request, "🎟️ Ingresá un código de cupón.")
+        return redirect('carrito:carrito_detail')
+
+    try:
+        cupon = CodigoDescuento.objects.get(codigo__iexact=codigo)
+    except CodigoDescuento.DoesNotExist:
+        messages.error(request, "❌ El código de cupón no existe.")
+        return redirect('carrito:carrito_detail')
+
+    if not cupon.es_valido:
+        messages.error(request, "❌ El cupón no es válido (puede estar expirado, agotado o desactivado).")
+        return redirect('carrito:carrito_detail')
+
+    # Guardar el código en sesión para aplicarlo en la vista del carrito y al checkout
+    request.session['cupon_codigo'] = cupon.codigo
+    messages.success(request, f"🎉 ¡Cupón {cupon.codigo} aplicado! Descuento de {cupon.get_tipo_descuento_display()} por {cupon.valor}.")
+    return redirect('carrito:carrito_detail')
+
+
+@login_required
+def quitar_cupon(request):
+    """
+    Elimina el cupón activo de la sesión.
+    """
+    if 'cupon_codigo' in request.session:
+        del request.session['cupon_codigo']
+        messages.info(request, "🔄 Cupón eliminado del carrito.")
+    return redirect('carrito:carrito_detail')

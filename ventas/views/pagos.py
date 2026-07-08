@@ -17,6 +17,7 @@ import logging
 from ventas.models import Carrito, Pedido, DetallePedido
 from ventas.views.helpers import descontar_stock, registrar_historial, registrar_log
 from ventas.forms import DatosEnvioForm
+from productos.models import CodigoDescuento
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +44,32 @@ class DatosEnvioView(TemplateView):
         costo_envio = envio_cotizado.get('precio', 0.0)
         subtotal = sum(item.subtotal for item in carrito.items.all())
 
+        # ── Cupón de descuento (Fantasma B resuelto) ──
+        cupon_codigo = self.request.session.get('cupon_codigo')
+        descuento_cupon = 0
+        cupon_aplicado = None
+
+        if cupon_codigo:
+            try:
+                from productos.models import CodigoDescuento
+                cupon_obj = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
+                if cupon_obj.es_valido:
+                    descuento_cupon = float(cupon_obj.calcular_descuento(subtotal))
+                    cupon_aplicado = cupon_obj
+                else:
+                    del self.request.session['cupon_codigo']
+            except CodigoDescuento.DoesNotExist:
+                del self.request.session['cupon_codigo']
+
+        total_base = float(subtotal) - descuento_cupon + float(costo_envio)
+
         context['form'] = form
         context['carrito'] = carrito
         context['subtotal'] = subtotal
         context['costo_envio'] = costo_envio
-        context['total_a_pagar'] = float(subtotal) + float(costo_envio)
+        context['descuento_cupon'] = descuento_cupon
+        context['cupon_aplicado'] = cupon_aplicado
+        context['total_a_pagar'] = max(total_base, 0)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -91,10 +113,32 @@ class MetodoPagoView(TemplateView):
         envio_cotizado = self.request.session.get("envio_cotizado", {})
         costo_envio = envio_cotizado.get("precio", 0.0)
         
+        # ── Cupón de descuento (Fantasma B resuelto) ──
+        cupon_codigo = self.request.session.get('cupon_codigo')
+        descuento_cupon = 0
+        cupon_aplicado = None
+
+        if cupon_codigo:
+            try:
+                from productos.models import CodigoDescuento
+                cupon_obj = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
+                if cupon_obj.es_valido:
+                    descuento_cupon = float(cupon_obj.calcular_descuento(subtotal))
+                    cupon_aplicado = cupon_obj
+                else:
+                    del self.request.session['cupon_codigo']
+            except CodigoDescuento.DoesNotExist:
+                del self.request.session['cupon_codigo']
+
+        total_base = float(subtotal) - descuento_cupon + float(costo_envio)
+        total_a_pagar = max(total_base, 0)
+
         context["subtotal"] = subtotal
         context["costo_envio"] = costo_envio
-        context["total_a_pagar"] = float(subtotal) + float(costo_envio)
-        context["total_con_descuento"] = round((float(subtotal) + float(costo_envio)) * 0.90, 2)
+        context['descuento_cupon'] = descuento_cupon
+        context['cupon_aplicado'] = cupon_aplicado
+        context["total_a_pagar"] = total_a_pagar
+        context["total_con_descuento"] = round(total_a_pagar * 0.90, 2)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -129,6 +173,24 @@ class MetodoPagoView(TemplateView):
                 else:
                     total_final = total_base
                 
+                # ── Cupón de descuento ────────────────────────────────
+                # Leer el cupón de la sesión y aplicar el descuento antes
+                # de crear el Pedido (para que el total guardado sea correcto)
+                cupon_codigo = request.session.get('cupon_codigo')
+                cupon_obj = None
+                descuento_cupon = 0
+
+                if cupon_codigo:
+                    try:
+                        cupon_obj = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
+                        if cupon_obj.es_valido:
+                            descuento_cupon = float(cupon_obj.calcular_descuento(total_final))
+                            total_final = max(round(total_final - descuento_cupon, 2), 0)
+                        else:
+                            cupon_obj = None  # expió entre la sesión y el checkout
+                    except CodigoDescuento.DoesNotExist:
+                        cupon_obj = None
+
                 # Crear cabecera (Pedido)
                 pedido = Pedido.objects.create(
                     usuario=request.user,
@@ -160,6 +222,13 @@ class MetodoPagoView(TemplateView):
                     )
                     # Descontar stock
                     descontar_stock(item.producto, item.cantidad)
+
+                # ── Incrementar usos del cupón (dentro del atomic para rollback si algo falla) ──
+                if cupon_obj:
+                    from django.db.models import F
+                    CodigoDescuento.objects.filter(pk=cupon_obj.pk).update(
+                        usos_actuales=F('usos_actuales') + 1
+                    )
                 
                 # Registrar en historial
                 registrar_historial(pedido, "", "pendiente", request.user)
@@ -225,8 +294,9 @@ class MetodoPagoView(TemplateView):
                 pedido.metodo_pago = "Mercado Pago"
                 pedido.save()
                 
-                # Vaciar carrito
+                # Vaciar carrito y limpiar cupón de la sesión
                 carrito.items.all().delete()
+                request.session.pop('cupon_codigo', None)
                 
                 return redirect(init_point)
             
@@ -260,8 +330,9 @@ class MetodoPagoView(TemplateView):
             
             pedido.save()
             
-            # Vaciar carrito
+            # Vaciar carrito y limpiar cupón de la sesión
             carrito.items.all().delete()
+            request.session.pop('cupon_codigo', None)
             
             # Guardar en sesión para referencia
             request.session["metodo_pago"] = metodo

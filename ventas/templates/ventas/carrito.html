@@ -592,18 +592,24 @@
                 <div class="d-flex justify-content-between align-items-baseline mb-1">
                     <span class="fw-bold fs-5">Total</span>
                     <div class="text-end">
-                        <!-- data-total guarda el valor numérico limpio para que JS no tenga que parsear strings con formato -->
+                        {% if cupon_aplicado %}
+                        <!-- Precio original tachado -->
+                        <span class="text-muted text-decoration-line-through d-block" style="font-size: 0.9rem;">
+                            ${{ carrito.total|floatformat:2 }}
+                        </span>
+                        {% endif %}
+                        <!-- data-total usa total_con_descuento si hay cupón, sino el total normal -->
                         <span class="fw-bold display-6" style="color: var(--brand-primary);"
                               id="total-final"
-                              data-total="{{ carrito.total|floatformat:2 }}">
-                            ${{ carrito.total|floatformat:2 }}
+                              data-total="{% if cupon_aplicado %}{{ total_con_descuento|floatformat:2 }}{% else %}{{ carrito.total|floatformat:2 }}{% endif %}">
+                            ${% if cupon_aplicado %}{{ total_con_descuento|floatformat:2 }}{% else %}{{ carrito.total|floatformat:2 }}{% endif %}
                         </span>
                         <div style="font-size: 0.82rem; color: #16a34a; font-weight: 600; margin-top: 2px;">
                             💳 O <span id="monto-transferencia"></span> con Transferencia
                         </div>
                     </div>
                 </div>
-                <div class="mb-4"></div>
+                <div class="mb-2"></div>
 
                 <!-- Motor de precios de transferencia: lee data-total (valor limpio), nunca parsea el texto visible -->
                 <script>
@@ -648,6 +654,39 @@
                     }
                 </script>
 
+
+                <!-- 🎟️ Cupón de Descuento (Opción A: debajo del Total, antes del CTA) -->
+                {% if cupon_aplicado %}
+                <div class="d-flex justify-content-between align-items-center mb-3 px-3 py-2 rounded-3" style="background-color: #F0FDF4; border: 1px solid #BBF7D0;">
+                    <div>
+                        <span class="fw-bold small" style="color: #15803D;">🎉 {{ cupon_aplicado.codigo }}</span>
+                        <span class="d-block" style="font-size: 0.72rem; color: #6B7280;">Cupón aplicado — ahorrás ${{ descuento_cupon|floatformat:2 }}</span>
+                    </div>
+                    <form method="post" action="{% url 'carrito:carrito_quitar_cupon' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm p-0" style="color: #9CA3AF;" title="Quitar cupón">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="mb-3">
+                    <form method="post" action="{% url 'carrito:carrito_aplicar_cupon' %}" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="text"
+                               name="cupon_codigo"
+                               class="form-control bg-light border-0 rounded-pill px-3"
+                               placeholder="🎟️ ¿Tenés un cupón?"
+                               style="font-size: 0.85rem; flex: 1;"
+                               maxlength="50">
+                        <button type="submit"
+                                class="btn rounded-pill fw-bold px-3"
+                                style="background-color: #F3F4F6; color: var(--text-main); font-size: 0.85rem; white-space: nowrap; border: 1px solid #E5E7EB;">
+                            Aplicar
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
 
                 <!-- Botón Finalizar -->
                 <form id="form-finalizar-compra" method="post" action="{% url 'carrito:carrito_finalize' %}">
@@ -734,7 +773,7 @@
 <!-- JAVASCRIPT: Motor de cotización + Urgencia + Validación  -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
-    const SUBTOTAL_CARRITO = parseFloat("{{ carrito.total|default:'0' }}".replace(",", "."));
+    const SUBTOTAL_CARRITO = parseFloat("{% if cupon_aplicado %}{{ total_con_descuento|floatformat:2|default:'0' }}{% else %}{{ carrito.total|floatformat:2|default:'0' }}{% endif %}".replace(",", "."));
     const ENVIO_GRATIS = {{ eg_activo|yesno:'true,false' }} && {{ eg_alcanzado|yesno:'true,false' }};
     let costoEnvioSeleccionado = 0;
     // Con envío gratis el envío ya está "confirmado" desde el servidor.

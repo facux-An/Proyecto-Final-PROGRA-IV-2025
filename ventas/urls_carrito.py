@@ -6,6 +6,8 @@ from ventas.views.carrito import (
     eliminar_item,
     finalizar_compra,
     carrito_checkout,
+    aplicar_cupon,
+    quitar_cupon,
 )
 
 app_name = "carrito"
@@ -30,4 +32,8 @@ urlpatterns = [
 
     # API AJAX: Cotizar envío por Código Postal
     path('cotizar-envio/', carrito.api_cotizar_envio, name='cotizar_envio'),
+
+    # 🎟️ Motor de Cupones
+    path('cupon/aplicar/', aplicar_cupon, name='carrito_aplicar_cupon'),
+    path('cupon/quitar/', quitar_cupon, name='carrito_quitar_cupon'),
 ]

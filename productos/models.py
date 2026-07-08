@@ -121,9 +121,40 @@ class Producto(models.Model):
 
     @property
     def precio_display(self):
-        """Retorna el precio a mostrar: oferta si está activa, sino el normal."""
+        """
+        Devuelve el precio final a mostrar al cliente, con la siguiente prioridad:
+        1. Campaña de descuento activa (CampaniaDescuento) → descuento masivo automático.
+        2. Oferta manual del producto (precio_oferta + en_oferta activo).
+        3. Precio base normal.
+        """
+        from django.apps import apps
+        CampaniaDescuento = apps.get_model('productos', 'CampaniaDescuento')
+        from django.utils import timezone
+        now = timezone.now()
+
+        # --- Prioridad 1: Campaña activa ---
+        campania = (
+            CampaniaDescuento.objects
+            .filter(
+                activa=True,
+                productos=self,
+                fecha_inicio__lte=now,
+                fecha_fin__gte=now,
+            )
+            .first()
+        )
+        if campania:
+            if campania.tipo_descuento == 'porcentaje':
+                descuento = self.precio * (campania.valor / 100)
+                return round(self.precio - descuento, 2)
+            else:  # monto_fijo
+                return max(round(self.precio - campania.valor, 2), 0)
+
+        # --- Prioridad 2: Oferta manual ---
         if self.oferta_activa and self.precio_oferta:
             return self.precio_oferta
+
+        # --- Prioridad 3: Precio base ---
         return self.precio
 
     def get_absolute_url(self):
@@ -189,3 +220,134 @@ class PortadaProducto(models.Model):
             )
         return "Sin imagen"
     imagen_preview.short_description = "Imagen"
+
+
+# ──────────────────────────────────────────────
+# 🔥 Motor de Ofertas: Campaña Automática Global
+# ──────────────────────────────────────────────
+class CampaniaDescuento(models.Model):
+    """
+    Ofertas masivas automáticas (Ej: Black Friday, Liquidación).
+    El descuento se refleja directamente en la vidriera, tachando el precio original.
+    La prioridad es superior a cualquier oferta manual del producto.
+    """
+    TIPO_CHOICES = [
+        ('porcentaje', 'Porcentaje (%)'),
+        ('monto_fijo', 'Monto Fijo ($)'),
+    ]
+
+    nombre = models.CharField(
+        "Nombre de la campaña", max_length=100,
+        help_text="Ej: Black Friday, Liquidación de Invierno, Promo Día del Gato"
+    )
+    tipo_descuento = models.CharField(
+        "Tipo de descuento", max_length=20,
+        choices=TIPO_CHOICES, default='porcentaje'
+    )
+    valor = models.DecimalField(
+        "Valor del descuento", max_digits=10, decimal_places=2,
+        help_text="Si el tipo es Porcentaje, ingresá 20 para un 20% OFF. Si es Monto Fijo, ingresá la cifra en pesos."
+    )
+    fecha_inicio = models.DateTimeField("Inicio de la campaña")
+    fecha_fin = models.DateTimeField("Fin de la campaña")
+    activa = models.BooleanField(
+        "¿Activa?", default=True,
+        help_text="Debe estar activa Y dentro del rango de fechas para aplicarse."
+    )
+    productos = models.ManyToManyField(
+        Producto,
+        related_name="campanias",
+        blank=True,
+        help_text="Seleccioná los productos a los que aplica esta campaña."
+    )
+
+    class Meta:
+        verbose_name = "Campaña de Descuento"
+        verbose_name_plural = "Campañas de Descuento"
+        ordering = ["-fecha_inicio"]
+
+    def __str__(self):
+        return f"{self.nombre} ({self.get_tipo_descuento_display()} - {self.valor})"
+
+    @property
+    def esta_vigente(self):
+        """Retorna True si la campaña está activa Y dentro del rango de fechas actual."""
+        from django.utils import timezone
+        now = timezone.now()
+        return self.activa and self.fecha_inicio <= now <= self.fecha_fin
+
+
+# ──────────────────────────────────────────────
+# 🎟️ Motor de Cupones: Código de Descuento Privado
+# ──────────────────────────────────────────────
+class CodigoDescuento(models.Model):
+    """
+    Cupones privados para influencers, clientes VIP o promociones especiales.
+    NO muestran el precio tachado en la vidriera.
+    Se aplican manualmente en el carrito/checkout por el cliente.
+    """
+    TIPO_CHOICES = [
+        ('porcentaje', 'Porcentaje (%)'),
+        ('monto_fijo', 'Monto Fijo ($)'),
+    ]
+
+    codigo = models.CharField(
+        "Código", max_length=50, unique=True,
+        help_text="Ej: FELIPE20, INFLUENCER10. Sin espacios, preferí mayúsculas."
+    )
+    tipo_descuento = models.CharField(
+        "Tipo de descuento", max_length=20,
+        choices=TIPO_CHOICES, default='porcentaje'
+    )
+    valor = models.DecimalField(
+        "Valor del descuento", max_digits=10, decimal_places=2,
+        help_text="Si el tipo es Porcentaje, ingresá 15 para un 15% OFF. Si es Monto Fijo, ingresá la cifra en pesos."
+    )
+    fecha_inicio = models.DateTimeField("Válido desde")
+    fecha_fin = models.DateTimeField("Válido hasta")
+    uso_maximo = models.PositiveIntegerField(
+        "Usos máximos", default=100,
+        help_text="Cantidad máxima de veces que este código puede ser usado. 0 = sin límite."
+    )
+    usos_actuales = models.PositiveIntegerField(
+        "Usos actuales", default=0, editable=False
+    )
+    activo = models.BooleanField(
+        "¿Activo?", default=True,
+        help_text="Apagá el toggle para desactivar el cupón sin borrarlo."
+    )
+
+    class Meta:
+        verbose_name = "Código de Descuento"
+        verbose_name_plural = "Códigos de Descuento"
+        ordering = ["-fecha_inicio"]
+
+    def __str__(self):
+        return f"{self.codigo} ({self.get_tipo_descuento_display()} - {self.valor})"
+
+    @property
+    def es_valido(self):
+        """Verifica todas las condiciones de validez del cupón."""
+        from django.utils import timezone
+        now = timezone.now()
+        if not self.activo:
+            return False
+        if not (self.fecha_inicio <= now <= self.fecha_fin):
+            return False
+        if self.uso_maximo > 0 and self.usos_actuales >= self.uso_maximo:
+            return False
+        return True
+
+    def calcular_descuento(self, total):
+        """Calcula el monto de descuento a aplicar sobre un total dado.
+        
+        Nota: casteamos valor a float para evitar TypeError al operar
+        con float (total del carrito) y Decimal (valor del campo DB).
+        """
+        total = float(total)
+        valor = float(self.valor)
+        if self.tipo_descuento == 'porcentaje':
+            return round(total * (valor / 100), 2)
+        else:  # monto_fijo
+            return min(valor, total)  # No puede descontar más que el total
+
