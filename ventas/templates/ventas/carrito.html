@@ -489,9 +489,9 @@
                 <!-- Urgencia: Reserva temporal -->
                 <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3" style="background: linear-gradient(135deg, #FFF7ED, #FFF1E6); border: 1px solid rgba(255,102,0,0.15);">
                     <i class="bi bi-clock-history" style="color: var(--brand-primary); font-size: 1.1rem;"></i>
-                    <span class="small fw-semibold" style="color: #92400E;">
-                        Tu carrito se reserva por <span id="timer-reserva" class="fw-bold" style="color: var(--brand-primary);">30:00</span>
-                    </span>
+                    <p class="mb-0 text-muted" style="font-size: 0.85rem;">
+                        Tu carrito se reserva por <span id="timer-reserva" class="fw-bold" style="color: var(--brand-primary);">--:--</span>
+                    </p>
                 </div>
 
                 <!-- Subtotal -->
@@ -780,9 +780,9 @@
     // Sin envío gratis necesitamos que el cliente cotice antes de avanzar.
     let envioSeleccionado = ENVIO_GRATIS;
 
-    // ===== TIMER DE RESERVA (30 min) =====
+    // ===== TIMER DE RESERVA DESDE BACKEND =====
     (function() {
-        let segsRestantes = 30 * 60; // 30 minutos
+        let segsRestantes = parseInt("{{ segundos_restantes|default:'900' }}", 10);
         const timerEl = document.getElementById('timer-reserva');
         if (!timerEl) return;
 

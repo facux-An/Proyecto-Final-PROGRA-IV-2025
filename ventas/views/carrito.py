@@ -13,8 +13,7 @@ def _invalidar_cache_carrito(user_id):
     """Borra el caché del contador del carrito para forzar una recarga inmediata."""
     cache.delete(f"carrito_count_user_{user_id}")
 
-
-@login_required
+@login_required
 def ver_carrito(request):
     """
     Vista principal del carrito.
@@ -22,109 +21,37 @@ def ver_carrito(request):
     Inyecta datos de la barra de envío gratis desde ConfiguracionTienda.
     """
     from ventas.models import ConfiguracionTienda
+    import time
 
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+
+    # ⏱️ Temporizador Backend Real (15 min)
+    ahora_ts = time.time()
+    cart_expiry = request.session.get('cart_expiry')
+    segundos_restantes = 15 * 60
+    
+    if carrito.items.exists():
+        if not cart_expiry:
+            cart_expiry = ahora_ts + (15 * 60)
+            request.session['cart_expiry'] = cart_expiry
+        elif ahora_ts > cart_expiry:
+            # Expiró: vaciar carrito y limpiar cupón
+            carrito.items.all().delete()
+            request.session.pop('cupon_codigo', None)
+            request.session.pop('cart_expiry', None)
+            messages.warning(request, "⏱️ Tu carrito expiró por inactividad. Volvé a agregar los productos.")
+            return redirect("carrito:carrito_detail")
+        segundos_restantes = max(0, int(cart_expiry - ahora_ts))
+    else:
+        # Si está vacío, limpiamos el timer
+        request.session.pop('cart_expiry', None)
 
     # Datos de envío gratis (singleton del staff)
     config = ConfiguracionTienda.get()
     total_carrito = float(carrito.total)
-    umbral = float(config.envio_gratis_umbral)
 
-    if umbral > 0:
-        porcentaje = min(round((total_carrito / umbral) * 100, 1), 100)
-        falta = max(umbral - total_carrito, 0)
-    else:
-        porcentaje = 100
-        falta = 0
-
-    alcanzado = total_carrito >= umbral
-
-    # ════════════════════════════════════════════════════════════════
-    # MOTOR DE RECOMENDACIONES V2 — Psicología de Bajo Roce
-    #
-    # Principio: en el carrito el usuario ya decidió comprar.
-    # Toda fricción cognitiva (pensar, comparar, dudar) aumenta
-    # el abandono. El motor trabaja con DOS slots independientes:
-    #
-    # SLOT 1 — "El Cierre" (matemático)
-    #   Busca el producto individual MÁS BARATO que supere el gap
-    #   al umbral de envío gratis. Si faltan $6.600, recomendamos
-    #   algo de $7.000 o $8.000, NUNCA el kit de $23.000.
-    #   Mensaje: "Agregá solo este y tu envío es GRATIS".
-    #
-    # SLOT 2 — "El Impulso" (anclaje de precio bajo)
-    #   Ignora el gap. Muestra el producto MÁS BARATO del catálogo
-    #   que no esté ya en el carrito ni en el Slot 1.
-    #   Psicología: "Ya que estoy pagando tanto... ¿qué son $X más?".
-    #   Aumenta el ticket promedio sin generar dudas.
-    #
-    # Reglas de exclusión globales:
-    #   - Nunca recomendar productos ya en el carrito.
-    #   - Si hay un kit en el carrito, no recomendar otro kit.
-    #   - Los dos slots siempre muestran productos DISTINTOS.
-    # ════════════════════════════════════════════════════════════════
-    rec_cierre = None    # Slot 1: cierra el gap al envío gratis
-    rec_impulso = None   # Slot 2: compra por impulso, lo más barato
-
-    if not alcanzado and config.envio_gratis_activo:
-        ids_en_carrito = set(
-            carrito.items.values_list("producto_id", flat=True)
-        )
-
-        # Regla de oro: si ya hay un kit, excluir kits de candidatos
-        hay_kit_en_carrito = carrito.items.filter(producto__es_combo=True).exists()
-
-        # Pool de candidatos: siempre preferir productos individuales
-        # Los kits generan fricción cognitiva (¿qué incluye?, ¿lo necesito todo?)
-        candidatos = list(
-            Producto.objects
-            .filter(stock__gt=0)
-            .exclude(id__in=ids_en_carrito)
-            .exclude(es_combo=True)  # preferir individuales en ambos slots
-            .select_related("categoria")
-            .prefetch_related("portadas")
-            .order_by("precio")  # ascendente: el más barato primero
-        )
-
-        # Fallback: si no hay individuales y no hay kit en carrito, incluir kits
-        if not candidatos and not hay_kit_en_carrito:
-            candidatos = list(
-                Producto.objects
-                .filter(stock__gt=0, es_combo=True)
-                .exclude(id__in=ids_en_carrito)
-                .select_related("categoria")
-                .prefetch_related("portadas")
-                .order_by("precio")
-            )
-
-        # ── SLOT 1 — El Cierre ─────────────────────────────────────────────
-        # El producto más barato cuyo precio_display >= falta.
-        # Ordenado por precio ASC, el primero = menor costo extra para el cliente.
-        cierre_pool = [
-            p for p in candidatos
-            if float(p.precio_display) >= falta
-        ]
-        if cierre_pool:
-            rec_cierre = cierre_pool[0]
-
-        # ── SLOT 2 — El Impulso ────────────────────────────────────────────
-        # El producto más barato disponible, excluyendo el ya asignado al Slot 1.
-        # Si no hay Slot 1, también puede ser el más barato del pool.
-        id_cierre = rec_cierre.id if rec_cierre else None
-        impulso_pool = [p for p in candidatos if p.id != id_cierre]
-        if impulso_pool:
-            rec_impulso = impulso_pool[0]
-
-    # ── Cuánto pasa del umbral si agrega el producto de cierre ─────────────
-    # Mensaje positivo: "Con este producto ya cubrís el envío y te sobran $X".
-    overshoot_cierre = 0
-    if rec_cierre:
-        overshoot_cierre = max(0, float(rec_cierre.precio_display) - falta)
-
-    alcanzado = total_carrito >= umbral
-
-    # ── Cupón de descuento (guardado en sesión) ─────────────────────────────
-    # Leer el código guardado en sesión (si el usuario ya lo aplicó antes)
+    # ── PASO B: Cupón de descuento (guardado en sesión) ─────────────
+    # Calculamos el descuento PRIMERO para ver si afecta al envío gratis
     cupon_codigo = request.session.get('cupon_codigo')
     cupon_aplicado = None
     descuento_cupon = 0
@@ -136,7 +63,6 @@ def ver_carrito(request):
                 cupon_aplicado = cupon
                 descuento_cupon = float(cupon.calcular_descuento(total_carrito))
             else:
-                # El cupón expió o se agotó desde que lo guardó: limpiar sesión
                 del request.session['cupon_codigo']
                 messages.warning(request, "🎟️ El cupón ya no es válido y fue eliminado.")
         except CodigoDescuento.DoesNotExist:
@@ -144,8 +70,74 @@ def ver_carrito(request):
 
     total_con_descuento = max(total_carrito - descuento_cupon, 0)
 
+    # ── PASO C: Envío Gratis ─────────────────────────────────────────
+    # Evaluamos el umbral sobre el total_con_descuento
+    umbral = float(config.envio_gratis_umbral)
+
+    if umbral > 0:
+        porcentaje = min(round((total_con_descuento / umbral) * 100, 1), 100)
+        falta = max(umbral - total_con_descuento, 0)
+    else:
+        porcentaje = 100
+        falta = 0
+
+    alcanzado = total_con_descuento >= umbral
+
+    # ════════════════════════════════════════════════════════════════
+    # MOTOR DE RECOMENDACIONES V2 — Psicología de Bajo Roce
+    # ════════════════════════════════════════════════════════════════
+    rec_cierre = None    # Slot 1: cierra el gap al envío gratis
+    rec_impulso = None   # Slot 2: compra por impulso, lo más barato
+
+    if not alcanzado and config.envio_gratis_activo:
+        ids_en_carrito = set(
+            carrito.items.values_list("producto_id", flat=True)
+        )
+
+        hay_kit_en_carrito = carrito.items.filter(producto__es_combo=True).exists()
+
+        candidatos = list(
+            Producto.objects
+            .filter(stock__gt=0)
+            .exclude(id__in=ids_en_carrito)
+            .exclude(es_combo=True)
+            .select_related("categoria")
+            .prefetch_related("portadas")
+            .order_by("precio")
+        )
+
+        if not candidatos and not hay_kit_en_carrito:
+            candidatos = list(
+                Producto.objects
+                .filter(stock__gt=0, es_combo=True)
+                .exclude(id__in=ids_en_carrito)
+                .select_related("categoria")
+                .prefetch_related("portadas")
+                .order_by("precio")
+            )
+
+        # ── SLOT 1 — El Cierre ─────────────────────────────────────────────
+        cierre_pool = [
+            p for p in candidatos
+            if float(p.precio_display) >= falta
+        ]
+        if cierre_pool:
+            rec_cierre = cierre_pool[0]
+
+        # ── SLOT 2 — El Impulso ────────────────────────────────────────────
+        id_cierre = rec_cierre.id if rec_cierre else None
+        impulso_pool = [p for p in candidatos if p.id != id_cierre]
+        if impulso_pool:
+            rec_impulso = impulso_pool[0]
+
+    # ── Cuánto pasa del umbral si agrega el producto de cierre ─────────────
+    overshoot_cierre = 0
+    if rec_cierre:
+        overshoot_cierre = max(0, float(rec_cierre.precio_display) - falta)
+
     context = {
         "carrito": carrito,
+        "segundos_restantes": segundos_restantes,
         # Barra de envío gratis
         "eg_activo": config.envio_gratis_activo,
         "eg_umbral": umbral,
@@ -154,7 +146,7 @@ def ver_carrito(request):
         "eg_alcanzado": alcanzado,
         "eg_mensaje": config.envio_gratis_mensaje.replace("{umbral}", f"{umbral:,.0f}"),
         "eg_mensaje_logrado": config.envio_gratis_mensaje_logrado,
-        # Recomendaciones V2 — dos slots independientes
+        # Recomendaciones V2
         "rec_cierre": rec_cierre,
         "rec_impulso": rec_impulso,
         "rec_overshoot": int(overshoot_cierre),
@@ -164,7 +156,6 @@ def ver_carrito(request):
         "descuento_cupon": descuento_cupon,
         "total_con_descuento": total_con_descuento,
     }
-
     return render(request, "ventas/carrito.html", context)
 
 
@@ -246,12 +237,26 @@ def finalizar_compra(request):
             messages.error(request, f"❌ Stock insuficiente para {item.producto.nombre}.")
             return redirect("carrito:carrito_detail")
 
-    # ✅ Verificar si aplica envío gratis
-    config = ConfiguracionTienda.get()
+    # ── Cupones (Cascada Estricta) ──
+    cupon_codigo = request.session.get('cupon_codigo')
+    descuento_cupon = 0
     total_carrito = float(carrito.total)
+
+    if cupon_codigo:
+        try:
+            cupon = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
+            if cupon.es_valido:
+                descuento_cupon = float(cupon.calcular_descuento(total_carrito))
+        except CodigoDescuento.DoesNotExist:
+            pass
+
+    total_con_descuento = max(total_carrito - descuento_cupon, 0)
+
+    # ✅ Verificar si aplica envío gratis (SOBRE EL TOTAL DESCONTADO)
+    config = ConfiguracionTienda.get()
     tiene_envio_gratis = (
         config.envio_gratis_activo
-        and total_carrito >= float(config.envio_gratis_umbral)
+        and total_con_descuento >= float(config.envio_gratis_umbral)
     )
 
     if tiene_envio_gratis:

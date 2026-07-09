@@ -22,11 +22,27 @@ from productos.models import CodigoDescuento
 logger = logging.getLogger(__name__)
 
 
+class CheckCartExpiryMixin:
+    def dispatch(self, request, *args, **kwargs):
+        import time
+        ahora_ts = time.time()
+        cart_expiry = request.session.get('cart_expiry')
+        if cart_expiry and ahora_ts > cart_expiry:
+            carrito = Carrito.objects.filter(usuario=request.user).first()
+            if carrito:
+                carrito.items.all().delete()
+            request.session.pop('cupon_codigo', None)
+            request.session.pop('cart_expiry', None)
+            messages.warning(request, "⏱️ Tu carrito expiró por inactividad. Volvé a agregar los productos.")
+            return redirect("carrito:carrito_detail")
+        return super().dispatch(request, *args, **kwargs)
+
+
 # =============================================================
 # PASO 1 DEL CHECKOUT: Datos de Envío
 # =============================================================
 @method_decorator(login_required, name='dispatch')
-class DatosEnvioView(TemplateView):
+class DatosEnvioView(CheckCartExpiryMixin, TemplateView):
     template_name = "pagos/envio.html"
 
     def get_context_data(self, **kwargs):
@@ -99,7 +115,7 @@ class DatosEnvioView(TemplateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class MetodoPagoView(TemplateView):
+class MetodoPagoView(CheckCartExpiryMixin, TemplateView):
     template_name = "pagos/metodo.html"
 
     def get_context_data(self, **kwargs):
@@ -156,26 +172,10 @@ class MetodoPagoView(TemplateView):
 
         try:
             with transaction.atomic():
-                # Calcular total del carrito
-                subtotal = sum(item.subtotal for item in carrito.items.all())
+                # ── PASO A: Subtotal ────────────────────────────────
+                subtotal = float(sum(item.subtotal for item in carrito.items.all()))
                 
-                # Datos de envío
-                datos_envio = request.session.get('datos_envio', {})
-                envio_cotizado = request.session.get("envio_cotizado", {})
-                costo_envio = envio_cotizado.get("precio", 0.0)
-                metodo_envio = envio_cotizado.get("nombre", "")
-                
-                total_base = float(subtotal) + float(costo_envio)
-
-                # Aplicar descuento del 10% si el cliente eligió transferencia bancaria
-                if metodo.lower() == "transferencia":
-                    total_final = round(total_base * 0.90, 2)
-                else:
-                    total_final = total_base
-                
-                # ── Cupón de descuento ────────────────────────────────
-                # Leer el cupón de la sesión y aplicar el descuento antes
-                # de crear el Pedido (para que el total guardado sea correcto)
+                # ── PASO B: Cupón de descuento ──────────────────────
                 cupon_codigo = request.session.get('cupon_codigo')
                 cupon_obj = None
                 descuento_cupon = 0
@@ -184,12 +184,27 @@ class MetodoPagoView(TemplateView):
                     try:
                         cupon_obj = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
                         if cupon_obj.es_valido:
-                            descuento_cupon = float(cupon_obj.calcular_descuento(total_final))
-                            total_final = max(round(total_final - descuento_cupon, 2), 0)
+                            descuento_cupon = float(cupon_obj.calcular_descuento(subtotal))
                         else:
-                            cupon_obj = None  # expió entre la sesión y el checkout
+                            cupon_obj = None
                     except CodigoDescuento.DoesNotExist:
                         cupon_obj = None
+
+                total_con_descuento = max(subtotal - descuento_cupon, 0)
+                
+                # ── PASO C: Envío ───────────────────────────────────
+                datos_envio = request.session.get('datos_envio', {})
+                envio_cotizado = request.session.get("envio_cotizado", {})
+                costo_envio = float(envio_cotizado.get("precio", 0.0))
+                metodo_envio = envio_cotizado.get("nombre", "")
+                
+                total_base = total_con_descuento + costo_envio
+
+                # ── PASO D: Transferencia ───────────────────────────
+                if metodo.lower() == "transferencia":
+                    total_final = round(total_base * 0.90, 2)
+                else:
+                    total_final = total_base
 
                 # Crear cabecera (Pedido)
                 pedido = Pedido.objects.create(
