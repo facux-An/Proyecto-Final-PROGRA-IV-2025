@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #ffffff; padding: 30px 20px 10px; text-align: center; border-bottom: 3px solid #ff6600; }
+        .header img { max-width: 150px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px 40px; color: #374151; line-height: 1.6; font-size: 15px; }
+        .box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .row.total { border-top: 2px solid #e5e7eb; padding-top: 10px; font-weight: bold; font-size: 16px; margin-top: 10px; color: #111827; }
+        .row.discount { color: #10b981; }
+        .row.shipping { color: #3b82f6; }
+        .product-list { list-style: none; padding: 0; margin: 0; }
+        .product-list li { border-bottom: 1px solid #f3f4f6; padding: 8px 0; font-size: 14px; }
+        .product-list li:last-child { border-bottom: none; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ site_url }}/static/img/logo_tienda.png" alt="Logo Tienda Plus">
+        </div>
+        <div class="content">
+            <p><strong>¡Hola, {{ pedido.nombre_envio|default:"amigo/a" }}! 👋</strong></p>
+            <p>Soy Facu de Tienda Plus. Quería escribirte personalmente para avisarte que tu compra fue confirmada y ya la estamos preparando.</p>
+            <p>Mis gatos y yo estamos metiendo todo en la caja con mucho cuidado ahora mismo. 📦🐈</p>
+            
+            <div class="box">
+                <h3 style="margin-top: 0; color: #111827;">🛍️ Tu Pedido (#{{ pedido.id }})</h3>
+                <ul class="product-list">
+                    {% for detalle in pedido.detalles.all %}
+                    <li><strong>{{ detalle.cantidad }}x</strong> {{ detalle.producto.nombre }} - ${{ detalle.precio_unitario }}</li>
+                    {% endfor %}
+                </ul>
+                
+                <div style="margin-top: 20px;">
+                    <div class="row">
+                        <span>Subtotal:</span>
+                        <span>${{ subtotal }}</span>
+                    </div>
+                    
+                    <div class="row shipping">
+                        <span>Envío ({% if pedido.metodo_envio %}{{ pedido.metodo_envio }}{% else %}A acordar{% endif %}):</span>
+                        <span>{% if pedido.costo_envio == 0 %}¡GRATIS! 🎉{% else %}${{ pedido.costo_envio }}{% endif %}</span>
+                    </div>
+                    
+                    {% if descuento_total > 0 %}
+                    <div class="row discount">
+                        <span>Descuentos aplicados (Ofertas / Transferencia):</span>
+                        <span>-${{ descuento_total }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row total">
+                        <span>Total Abonado:</span>
+                        <span>${{ pedido.total }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="box">
+                <h3 style="margin-top: 0; color: #111827;">📍 Datos de Envío</h3>
+                <p style="margin: 5px 0;"><strong>Recibe:</strong> {{ pedido.nombre_envio }}</p>
+                <p style="margin: 5px 0;"><strong>Dirección:</strong> {{ pedido.direccion_envio }} {{ pedido.numero_envio }} {% if pedido.piso_envio %}Piso {{ pedido.piso_envio }}{% endif %} {% if pedido.depto_envio %}Dpto {{ pedido.depto_envio }}{% endif %}</p>
+                <p style="margin: 5px 0;"><strong>Ciudad:</strong> {{ pedido.ciudad_envio }}, {{ pedido.provincia_envio }} (CP: {{ pedido.codigo_postal_envio }})</p>
+                <p style="margin: 5px 0;"><strong>Teléfono:</strong> {{ pedido.telefono_envio }}</p>
+            </div>
+            
+            <p>En cuanto el transporte retire el paquete, te vamos a mandar otro aviso con tu código de seguimiento para que veas por dónde va viajando.</p>
+            <p>Si ves algún error en tu dirección o querés agregar algo antes de que cerremos la caja, respondé este mail urgente y lo arreglamos.</p>
+            
+            <p>¡Gracias por confiar en nosotros!<br>
+            <strong>Facu de Tienda Plus</strong></p>
+        </div>
+        <div class="footer">
+            <p>Este es un correo automático (excepto la parte donde armamos tu caja, esa es manual). 😉</p>
+            <p>&copy; {% now "Y" %} Tienda Plus. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

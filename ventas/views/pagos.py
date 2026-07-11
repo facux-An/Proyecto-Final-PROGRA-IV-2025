@@ -21,20 +21,122 @@ from productos.models import CodigoDescuento
 
 logger = logging.getLogger(__name__)
 
+def enviar_correo_compra_exitosa(pedido):
+    """
+    Construye y envía el correo HTML de compra exitosa.
+    Se ejecuta de forma asíncrona usando hilos.
+    """
+    try:
+        from django.template.loader import render_to_string
+        from django.utils.html import strip_tags
+        from django.core.mail import EmailMultiAlternatives
+        import threading
+        
+        # Calcular subtotal
+        subtotal = sum(d.cantidad * d.precio_unitario for d in pedido.detalles.all())
+        costo_envio = pedido.costo_envio or 0
+        suma_teorica = subtotal + costo_envio
+        descuento_total = max(suma_teorica - pedido.total, 0)
+        
+        context = {
+            'pedido': pedido,
+            'subtotal': subtotal,
+            'descuento_total': descuento_total,
+            'site_url': getattr(settings, 'SITE_URL', 'https://proyecto-final-progra-iv-2025.onrender.com')
+        }
+        
+        html_content = render_to_string('ventas/emails/compra_exitosa.html', context)
+        text_content = strip_tags(html_content)
+        
+        asunto = f"¡Tu pedido en Tienda Plus está confirmado! 🎉 (Orden #{pedido.id})"
+        remitente = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@tiendaplus.com.ar')
+        
+        # Determinar destinatario
+        destinatario = pedido.email_envio
+        if not destinatario and pedido.usuario:
+            destinatario = pedido.usuario.email
+            
+        if not destinatario:
+            return  # No hay email a donde mandar
+            
+        msg = EmailMultiAlternatives(asunto, text_content, remitente, [destinatario])
+        msg.attach_alternative(html_content, "text/html")
+        
+        def enviar():
+            try:
+                msg.send(fail_silently=False)
+            except Exception as e:
+                logger.error(f"Error enviando correo de compra: {e}")
+                
+        threading.Thread(target=enviar).start()
+    except Exception as e:
+        logger.error(f"Error preparando correo de compra: {e}")
+
+def enviar_correo_pago_pendiente(pedido):
+    """
+    Envía un correo cuando el cliente es redirigido a Mercado Pago,
+    por si cierra la pestaña y abandona el pago a medias.
+    """
+    try:
+        from django.template.loader import render_to_string
+        from django.utils.html import strip_tags
+        from django.core.mail import EmailMultiAlternatives
+        import threading
+        
+        context = {
+            'pedido': pedido,
+            'site_url': getattr(settings, 'SITE_URL', 'https://proyecto-final-progra-iv-2025.onrender.com')
+        }
+        
+        html_content = render_to_string('ventas/emails/pago_pendiente.html', context)
+        text_content = strip_tags(html_content)
+        
+        asunto = f"¡Tu pedido #{pedido.id} está reservado! Termina el pago 🛒"
+        remitente = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@tiendaplus.com.ar')
+        
+        destinatario = pedido.email_envio
+        if not destinatario and pedido.usuario:
+            destinatario = pedido.usuario.email
+            
+        if not destinatario:
+            return
+            
+        msg = EmailMultiAlternatives(asunto, text_content, remitente, [destinatario])
+        msg.attach_alternative(html_content, "text/html")
+        
+        def enviar():
+            try:
+                msg.send(fail_silently=False)
+            except Exception as e:
+                logger.error(f"Error enviando correo de pago pendiente: {e}")
+                
+        threading.Thread(target=enviar).start()
+    except Exception as e:
+        logger.error(f"Error preparando correo de pago pendiente: {e}")
+
+
 
 class CheckCartExpiryMixin:
     def dispatch(self, request, *args, **kwargs):
         import time
         ahora_ts = time.time()
         cart_expiry = request.session.get('cart_expiry')
+        carrito = Carrito.objects.filter(usuario=request.user).first()
+        
         if cart_expiry and ahora_ts > cart_expiry:
-            carrito = Carrito.objects.filter(usuario=request.user).first()
             if carrito:
                 carrito.items.all().delete()
             request.session.pop('cupon_codigo', None)
             request.session.pop('cart_expiry', None)
             messages.warning(request, "⏱️ Tu carrito expiró por inactividad. Volvé a agregar los productos.")
             return redirect("carrito:carrito_detail")
+            
+        # NUEVO BLOQUEO (Vulnerabilidad del botón atrás)
+        # Si entra a las páginas de pago pero el carrito ya se vació (por ej, porque ya completó el pedido)
+        if not carrito or not carrito.items.exists():
+            messages.warning(request, "⚠️ Tu carrito está vacío o tu pedido ya fue procesado.")
+            return redirect("carrito:carrito_detail")
+            
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -313,6 +415,9 @@ class MetodoPagoView(CheckCartExpiryMixin, TemplateView):
                 carrito.items.all().delete()
                 request.session.pop('cupon_codigo', None)
                 
+                # Enviar correo de rescate (Pago Pendiente)
+                enviar_correo_pago_pendiente(pedido)
+                
                 return redirect(init_point)
             
             messages.error(request, "❌ No se pudo conectar con Mercado Pago.")
@@ -348,6 +453,9 @@ class MetodoPagoView(CheckCartExpiryMixin, TemplateView):
             # Vaciar carrito y limpiar cupón de la sesión
             carrito.items.all().delete()
             request.session.pop('cupon_codigo', None)
+            
+            # Enviar correo de confirmación de compra
+            enviar_correo_compra_exitosa(pedido)
             
             # Guardar en sesión para referencia
             request.session["metodo_pago"] = metodo
@@ -531,6 +639,10 @@ def mercado_pago_webhook(request):
                         # Registrar cambio
                         registrar_historial(pedido, estado_anterior, estado_nuevo, None)
                         registrar_log(pedido, None, f"Webhook MP: {status} → {estado_nuevo}")
+                        
+                        # Si acaba de ser pagado y antes no lo estaba, mandar correo
+                        if estado_nuevo == "pagado" and estado_anterior != "pagado":
+                            enviar_correo_compra_exitosa(pedido)
                     
                     except Pedido.DoesNotExist:
                         pass
