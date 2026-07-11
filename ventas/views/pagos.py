@@ -34,9 +34,9 @@ def enviar_correo_compra_exitosa(pedido):
         
         # Calcular subtotal
         subtotal = sum(d.cantidad * d.precio_unitario for d in pedido.detalles.all())
-        costo_envio = pedido.costo_envio or 0
-        suma_teorica = subtotal + costo_envio
-        descuento_total = max(suma_teorica - pedido.total, 0)
+        costo_envio = float(pedido.costo_envio or 0)
+        suma_teorica = float(subtotal) + costo_envio
+        descuento_total = max(suma_teorica - float(pedido.total), 0)
         
         context = {
             'pedido': pedido,
