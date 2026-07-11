@@ -3,108 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f3f4f6;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        .header {
-            background-color: #ff6600;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            color: #ffffff;
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 30px 40px;
-            color: #374151;
-            line-height: 1.6;
-        }
-        .content h2 {
-            color: #ff6600;
-            font-size: 22px;
-            margin-top: 0;
-        }
-        .data-box {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .data-row {
-            margin-bottom: 5px;
-        }
-        .data-label {
-            font-weight: bold;
-            color: #6b7280;
-            font-size: 13px;
-            display: inline-block;
-            width: 100px;
-        }
-        .data-value {
-            color: #111827;
-            font-size: 13px;
-        }
-        .footer {
-            background-color: #f9fafb;
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-        }
-        .warning-text {
-            font-size: 13px;
-            color: #ef4444;
-            margin-top: 15px;
-        }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .header { background-color: #ffffff; padding: 30px 20px 10px; text-align: center; border-bottom: 3px solid #ff6600; }
+        .header img { max-width: 150px; height: auto; margin-bottom: 15px; }
+        .content { padding: 30px 40px; color: #374151; line-height: 1.6; font-size: 16px; }
+        .data-box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin: 20px 0; }
+        .data-row { margin-bottom: 5px; }
+        .data-label { font-weight: bold; color: #6b7280; font-size: 13px; display: inline-block; width: 100px; }
+        .data-value { color: #111827; font-size: 13px; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; }
+        .warning-text { font-size: 13px; color: #ef4444; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>¡Qué bueno verte por aquí! 🐾</h1>
+            <img src="{{ site_url }}/static/img/logo_tienda.png" alt="Logo Tienda Plus">
         </div>
         <div class="content">
-            <h2>¡Hola, {{ usuario.first_name|default:usuario.username }}! 👋</h2>
-            <p>Nos pone muy felices que hayas vuelto a entrar a tu cuenta en <strong>Tienda Plus</strong>. Estamos trabajando todos los días para traer las mejores ofertas y productos para tus mascotas.</p>
-            <p>Aprovechá tu sesión para revisar nuestro catálogo renovado o ver si hay alguna nueva oferta flash esperándote.</p>
+            <p><strong>¡Qué bueno verte por acá, {{ usuario.first_name|default:usuario.username }}! 👋</strong></p>
+            <p>Soy Facu, el creador de Tienda Plus. Pasaba a saludarte personalmente porque vi que volviste a iniciar sesión hoy.</p>
+            <p>Detrás de esta tienda no hay un robot aburrido, somos un equipo súper enfocado (bueno, yo y mis gatos 🐈) trabajando a full todos los días para conseguir las mejores ofertas para tus mascotas.</p>
+            <p>Si necesitás ayuda buscando algo o tenés alguna duda, respondé a este correo y te doy una mano. ¡Pegate una vuelta por la tienda que seguro encontrás algo lindo!</p>
+            
+            <p>Un abrazo,<br>
+            <strong>Facu de Tienda Plus</strong></p>
             
             <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;">
             
-            <p style="font-size: 14px; color: #6b7280; margin-bottom: 10px;"><em>Por motivos de seguridad, te dejamos el registro de esta sesión:</em></p>
+            <p style="font-size: 14px; color: #6b7280; margin-bottom: 10px;"><em>PD: Como nos tomamos la seguridad en serio, te dejo los datos técnicos de tu inicio de sesión:</em></p>
             <div class="data-box">
-                <div class="data-row">
-                    <span class="data-label">Fecha:</span>
-                    <span class="data-value">{{ fecha }}</span>
-                </div>
-                <div class="data-row">
-                    <span class="data-label">IP:</span>
-                    <span class="data-value">{{ ip }}</span>
-                </div>
-                <div class="data-row">
-                    <span class="data-label">Equipo:</span>
-                    <span class="data-value">{{ user_agent }}</span>
-                </div>
+                <div class="data-row"><span class="data-label">Fecha:</span><span class="data-value">{{ fecha }}</span></div>
+                <div class="data-row"><span class="data-label">IP:</span><span class="data-value">{{ ip }}</span></div>
+                <div class="data-row"><span class="data-label">Equipo:</span><span class="data-value">{{ user_agent }}</span></div>
             </div>
             
-            <p class="warning-text"><strong>¿No fuiste vos?</strong> Si no reconocés esta actividad, te sugerimos ir a la web y cambiar tu contraseña haciendo clic en "¿Olvidaste tu contraseña?".</p>
+            <p class="warning-text"><strong>¿No fuiste vos?</strong> Si no reconocés este acceso, cambialo urgente desde la web usando "¿Olvidaste tu contraseña?".</p>
         </div>
         <div class="footer">
-            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+            <p>Este es un correo automático (excepto por la bienvenida, esa es posta). 😉</p>
             <p>&copy; {% now "Y" %} Tienda Plus. Todos los derechos reservados.</p>
         </div>
     </div>

@@ -41,6 +41,7 @@ def enviar_alerta_login(sender, request, user, **kwargs):
             'ip': ip,
             'fecha': datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
             'user_agent': request.META.get('HTTP_USER_AGENT', 'Desconocido'),
+            'site_url': getattr(settings, 'SITE_URL', 'https://proyecto-final-progra-iv-2025.onrender.com'),
         }
 
         html_content = render_to_string('usuarios/emails/alerta_login.html', context)
