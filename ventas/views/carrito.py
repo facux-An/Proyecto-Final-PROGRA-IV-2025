@@ -243,12 +243,14 @@ def finalizar_compra(request):
     # ── Cupones (Cascada Estricta) ──
     cupon_codigo = request.session.get('cupon_codigo')
     descuento_cupon = 0
+    cupon_aplicado = None
     total_carrito = float(carrito.total)
 
     if cupon_codigo:
         try:
             cupon = CodigoDescuento.objects.get(codigo__iexact=cupon_codigo)
             if cupon.es_valido:
+                cupon_aplicado = cupon
                 descuento_cupon = float(cupon.calcular_descuento(total_carrito))
         except CodigoDescuento.DoesNotExist:
             pass
@@ -261,7 +263,7 @@ def finalizar_compra(request):
         (config.envio_gratis_activo and total_con_descuento >= float(config.envio_gratis_umbral))
     )
     
-    if cupon_obj and getattr(cupon_obj, 'envio_gratis', False):
+    if cupon_aplicado and getattr(cupon_aplicado, 'envio_gratis', False):
         tiene_envio_gratis = True
 
     if tiene_envio_gratis:
