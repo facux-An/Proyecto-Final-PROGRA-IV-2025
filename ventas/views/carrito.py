@@ -142,7 +142,7 @@ def ver_carrito(request):
         "carrito": carrito,
         "segundos_restantes": segundos_restantes,
         # Barra de envío gratis
-        "eg_activo": config.envio_gratis_activo,
+        "eg_activo": config.envio_gratis_activo or (cupon_obj and getattr(cupon_obj, 'envio_gratis', False)),
         "eg_umbral": umbral,
         "eg_porcentaje": porcentaje,
         "eg_falta": falta,
@@ -258,8 +258,7 @@ def finalizar_compra(request):
     # ✅ Verificar si aplica envío gratis (SOBRE EL TOTAL DESCONTADO)
     config = ConfiguracionTienda.get()
     tiene_envio_gratis = (
-        config.envio_gratis_activo
-        and total_con_descuento >= float(config.envio_gratis_umbral)
+        (config.envio_gratis_activo and total_con_descuento >= float(config.envio_gratis_umbral))
     )
     
     if cupon_obj and getattr(cupon_obj, 'envio_gratis', False):
