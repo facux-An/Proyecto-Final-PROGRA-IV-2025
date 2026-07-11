@@ -82,6 +82,9 @@ def ver_carrito(request):
         falta = 0
 
     alcanzado = total_con_descuento >= umbral
+    
+    if cupon_obj and getattr(cupon_obj, 'envio_gratis', False):
+        alcanzado = True
 
     # ════════════════════════════════════════════════════════════════
     # MOTOR DE RECOMENDACIONES V2 — Psicología de Bajo Roce
@@ -258,6 +261,9 @@ def finalizar_compra(request):
         config.envio_gratis_activo
         and total_con_descuento >= float(config.envio_gratis_umbral)
     )
+    
+    if cupon_obj and getattr(cupon_obj, 'envio_gratis', False):
+        tiene_envio_gratis = True
 
     if tiene_envio_gratis:
         # Envío gratis → forzar precio $0

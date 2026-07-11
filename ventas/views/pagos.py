@@ -643,6 +643,15 @@ def mercado_pago_webhook(request):
                         # Si acaba de ser pagado y antes no lo estaba, mandar correo
                         if estado_nuevo == "pagado" and estado_anterior != "pagado":
                             enviar_correo_compra_exitosa(pedido)
+                            
+                        # Si fue cancelado/rechazado y antes no lo estaba, reponer stock
+                        if estado_nuevo == "cancelado" and estado_anterior != "cancelado":
+                            from django.db import transaction
+                            with transaction.atomic():
+                                for detalle in pedido.detalles.select_related("producto"):
+                                    producto = detalle.producto
+                                    producto.stock += detalle.cantidad
+                                    producto.save()
                     
                     except Pedido.DoesNotExist:
                         pass

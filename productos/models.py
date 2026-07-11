@@ -303,6 +303,10 @@ class CodigoDescuento(models.Model):
         "Valor del descuento", max_digits=10, decimal_places=2,
         help_text="Si el tipo es Porcentaje, ingresá 15 para un 15% OFF. Si es Monto Fijo, ingresá la cifra en pesos."
     )
+    envio_gratis = models.BooleanField(
+        "¿Incluye Envío Gratis?", default=False,
+        help_text="Si marcás esta opción, el cliente no pagará envío, sin importar el monto de su carrito."
+    )
     fecha_inicio = models.DateTimeField("Válido desde")
     fecha_fin = models.DateTimeField("Válido hasta")
     uso_maximo = models.PositiveIntegerField(
