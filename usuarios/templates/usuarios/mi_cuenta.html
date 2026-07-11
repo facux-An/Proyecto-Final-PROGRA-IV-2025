@@ -93,19 +93,23 @@
                         <span class="fw-bold text-dark">${{ pedido.total }}</span>
                         {% if pedido.estado == 'pendiente' %} 
                             <span class="badge bg-warning text-dark status-badge">Pendiente</span>
-                            {% if pedido.metodo_pago == 'Mercado Pago' %}
-                            <a href="{% url 'pagos:reintentar_mp' pedido.id %}" class="btn btn-sm btn-success ms-2 rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
-                                💳 Pagar Ahora
-                            </a>
-                            {% endif %}
                         {% elif pedido.estado == 'pagado' %} <span class="badge bg-success status-badge">Pagado</span>
                         {% elif pedido.estado == 'enviado' %} <span class="badge bg-info text-dark status-badge">Enviado</span>
                         {% elif pedido.estado == 'entregado' %} <span class="badge bg-secondary status-badge">Entregado</span>
                         {% else %} <span class="badge bg-danger status-badge">{{ pedido.get_estado_display }}</span>
                         {% endif %}
-                        <i class="bi bi-chevron-down text-muted"></i>
+                        <i class="bi bi-chevron-down text-muted ms-2"></i>
                     </div>
                 </div>
+                
+                {% if pedido.estado == 'pendiente' and pedido.metodo_pago == 'Mercado Pago' %}
+                <div class="px-3 pb-3 pt-2 bg-white" style="border-radius: 0 0 0.5rem 0.5rem;">
+                    <a href="{% url 'pagos:reintentar_mp' pedido.id %}" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm py-2" style="background-color: #198754; border: none; font-size: 0.95rem;">
+                        💳 Pagar Ahora
+                    </a>
+                </div>
+                {% endif %}
+
                 <div id="pedido{{ pedido.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPedidos">
                     <div class="order-details">
                         <h6 class="fw-bold mb-2" style="font-size: 0.85rem;">Detalle de la compra:</h6>
