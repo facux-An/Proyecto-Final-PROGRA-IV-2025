@@ -33,30 +33,30 @@
             line-height: 1.6;
         }
         .content h2 {
-            color: #111827;
-            font-size: 20px;
+            color: #ff6600;
+            font-size: 22px;
             margin-top: 0;
         }
         .data-box {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             margin: 20px 0;
         }
         .data-row {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .data-label {
             font-weight: bold;
             color: #6b7280;
-            font-size: 14px;
+            font-size: 13px;
             display: inline-block;
-            width: 120px;
+            width: 100px;
         }
         .data-value {
             color: #111827;
-            font-size: 14px;
+            font-size: 13px;
         }
         .footer {
             background-color: #f9fafb;
@@ -67,38 +67,41 @@
             border-top: 1px solid #e5e7eb;
         }
         .warning-text {
-            font-size: 14px;
+            font-size: 13px;
             color: #ef4444;
-            margin-top: 20px;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Alerta de Seguridad</h1>
+            <h1>¡Qué bueno verte por aquí! 🐾</h1>
         </div>
         <div class="content">
-            <h2>¡Hola, {{ usuario.first_name|default:usuario.username }}!</h2>
-            <p>Hemos detectado un nuevo inicio de sesión exitoso en tu cuenta de <strong>Tienda Plus</strong>.</p>
+            <h2>¡Hola, {{ usuario.first_name|default:usuario.username }}! 👋</h2>
+            <p>Nos pone muy felices que hayas vuelto a entrar a tu cuenta en <strong>Tienda Plus</strong>. Estamos trabajando todos los días para traer las mejores ofertas y productos para tus mascotas.</p>
+            <p>Aprovechá tu sesión para revisar nuestro catálogo renovado o ver si hay alguna nueva oferta flash esperándote.</p>
             
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+            
+            <p style="font-size: 14px; color: #6b7280; margin-bottom: 10px;"><em>Por motivos de seguridad, te dejamos el registro de esta sesión:</em></p>
             <div class="data-box">
                 <div class="data-row">
-                    <span class="data-label">Fecha y hora:</span>
+                    <span class="data-label">Fecha:</span>
                     <span class="data-value">{{ fecha }}</span>
                 </div>
                 <div class="data-row">
-                    <span class="data-label">Dirección IP:</span>
+                    <span class="data-label">IP:</span>
                     <span class="data-value">{{ ip }}</span>
                 </div>
                 <div class="data-row">
-                    <span class="data-label">Dispositivo:</span>
+                    <span class="data-label">Equipo:</span>
                     <span class="data-value">{{ user_agent }}</span>
                 </div>
             </div>
             
-            <p>Si fuiste vos, podés ignorar este mensaje de forma segura. Nos alegra verte de nuevo.</p>
-            <p class="warning-text"><strong>¿No reconocés esta actividad?</strong><br>Te recomendamos cambiar tu contraseña inmediatamente desde la pantalla de login usando la opción "¿Olvidaste tu contraseña?".</p>
+            <p class="warning-text"><strong>¿No fuiste vos?</strong> Si no reconocés esta actividad, te sugerimos ir a la web y cambiar tu contraseña haciendo clic en "¿Olvidaste tu contraseña?".</p>
         </div>
         <div class="footer">
             <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
