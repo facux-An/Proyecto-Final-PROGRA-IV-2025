@@ -84,6 +84,16 @@ class Pedido(models.Model):
     # CACHÉ DEL TOTAL: Para no saturar la DB sumando los detalles todo el tiempo
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    # ----- TRAZABILIDAD DE MARKETING -----
+    cupon_aplicado = models.ForeignKey(
+        'productos.CodigoDescuento', on_delete=models.SET_NULL, 
+        null=True, blank=True, related_name='pedidos'
+    )
+    descuento_aplicado = models.DecimalField(
+        "Monto descontado", max_digits=10, decimal_places=2, default=0,
+        help_text="El monto en pesos que se restó del subtotal gracias al cupón."
+    )
+
     # ----- DATOS DE ENVÍO -----
     nombre_envio = models.CharField("Nombre completo", max_length=120, blank=True, null=True)
     email_envio = models.EmailField("Email de contacto", blank=True, null=True)

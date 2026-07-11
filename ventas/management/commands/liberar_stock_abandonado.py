@@ -37,6 +37,12 @@ class Command(BaseCommand):
                     producto.stock += detalle.cantidad
                     producto.save()
                     self.stdout.write(f"Stock recuperado: +{detalle.cantidad} de '{producto.nombre}'")
+                    
+                # Devolver uso del cupón si lo hubiera
+                if pedido.cupon_aplicado:
+                    from django.db.models import F
+                    pedido.cupon_aplicado.__class__.objects.filter(pk=pedido.cupon_aplicado.pk).update(usos_actuales=F('usos_actuales') - 1)
+                    self.stdout.write(f"Uso de cupón devuelto: '{pedido.cupon_aplicado.codigo}'")
 
                 # Registrar Logs
                 registrar_historial(pedido, estado_anterior, 'cancelado', None)

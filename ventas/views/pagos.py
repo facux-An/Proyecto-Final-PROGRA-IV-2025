@@ -314,6 +314,8 @@ class MetodoPagoView(CheckCartExpiryMixin, TemplateView):
                     estado="pendiente",
                     metodo_pago=None,
                     total=total_final,
+                    cupon_aplicado=cupon_obj,
+                    descuento_aplicado=descuento_cupon,
                     costo_envio=costo_envio,
                     metodo_envio=metodo_envio,
                     nombre_envio=datos_envio.get('nombre_envio', ''),
@@ -652,6 +654,11 @@ def mercado_pago_webhook(request):
                                     producto = detalle.producto
                                     producto.stock += detalle.cantidad
                                     producto.save()
+                                
+                                # Devolver el uso del cupón
+                                if pedido.cupon_aplicado:
+                                    from django.db.models import F
+                                    pedido.cupon_aplicado.__class__.objects.filter(pk=pedido.cupon_aplicado.pk).update(usos_actuales=F('usos_actuales') - 1)
                     
                     except Pedido.DoesNotExist:
                         pass

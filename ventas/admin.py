@@ -57,6 +57,8 @@ class PedidoAdmin(admin.ModelAdmin):
         "id",
         "usuario",
         "total",
+        "cupon_aplicado",
+        "descuento_aplicado",
         "metodo_pago",
         "estado",
         "fecha_pedido",
@@ -65,6 +67,7 @@ class PedidoAdmin(admin.ModelAdmin):
     list_filter = ("estado", "metodo_pago", "fecha_pedido", "fecha_entrega")
     search_fields = ("usuario__username", "metodo_pago") 
     autocomplete_fields = ["usuario"]
+    readonly_fields = ("cupon_aplicado", "descuento_aplicado")
     
     # ¡Acá conectamos la cabecera con el detalle!
     inlines = [DetallePedidoInline]
