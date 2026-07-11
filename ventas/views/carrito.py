@@ -83,7 +83,7 @@ def ver_carrito(request):
 
     alcanzado = total_con_descuento >= umbral
     
-    if cupon_obj and getattr(cupon_obj, 'envio_gratis', False):
+    if cupon_aplicado and getattr(cupon_aplicado, 'envio_gratis', False):
         alcanzado = True
 
     # ════════════════════════════════════════════════════════════════
@@ -142,7 +142,7 @@ def ver_carrito(request):
         "carrito": carrito,
         "segundos_restantes": segundos_restantes,
         # Barra de envío gratis
-        "eg_activo": config.envio_gratis_activo or (cupon_obj and getattr(cupon_obj, 'envio_gratis', False)),
+        "eg_activo": config.envio_gratis_activo or (cupon_aplicado and getattr(cupon_aplicado, 'envio_gratis', False)),
         "eg_umbral": umbral,
         "eg_porcentaje": porcentaje,
         "eg_falta": falta,
