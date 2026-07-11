@@ -112,6 +112,7 @@ class CodigoDescuentoAdmin(admin.ModelAdmin):
         'codigo',
         'tipo_descuento',
         'valor',
+        'envio_gratis',
         'fecha_inicio',
         'fecha_fin',
         'uso_maximo',
@@ -120,7 +121,7 @@ class CodigoDescuentoAdmin(admin.ModelAdmin):
         'activo',
         'estado_validez',
     )
-    list_filter = ('activo', 'tipo_descuento')
+    list_filter = ('activo', 'tipo_descuento', 'envio_gratis')
     search_fields = ('codigo',)
     list_editable = ('activo',)
     # usos_actuales nunca se edita a mano; se incrementa automáticamente al confirmar compra
@@ -128,7 +129,7 @@ class CodigoDescuentoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('🎟️ Configuración del Cupón', {
-            'fields': ('codigo', 'tipo_descuento', 'valor', 'activo'),
+            'fields': ('codigo', 'tipo_descuento', 'valor', 'envio_gratis', 'activo'),
             'description': (
                 'El <b>código</b> es lo que el cliente escribe en el carrito. '
                 'Usá mayúsculas y sin espacios. Ej: FELIPE20'
