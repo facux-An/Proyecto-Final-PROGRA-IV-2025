@@ -250,12 +250,11 @@
 (function () {
     'use strict';
     const snd = document.getElementById('snd-gatito-bebe-pago');
-    // Capturar el submit del formulario de pago (cubre tanto MP como Transferencia)
-    const formPago = document.querySelector('form');
+    // Usar el ID exacto del form — no querySelector('form') que agarra el primero del DOM
+    const formPago = document.getElementById('form-pago');
     if (formPago && snd) {
         formPago.addEventListener('submit', function () {
             try { snd.currentTime = 0; snd.play(); } catch (e) {}
-            // No se cancela el evento — el submit continúa
         });
     }
 })();

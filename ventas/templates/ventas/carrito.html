@@ -1093,4 +1093,33 @@
         return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
     }
 </script>
+
+{# ══ GAMIFICACIÓN AUDITIVA: Carrito ════════════════════════════════ #}
+<audio id="snd-gatito-carrito" src="{% static 'img/Sonido_Gatito.mp3' %}" preload="auto"></audio>
+<audio id="snd-bebe-carrito"   src="{% static 'img/Sonido_Gatito_Bebe.mp3' %}" preload="auto"></audio>
+
+<script>
+(function () {
+    'use strict';
+    const sndAgregar   = document.getElementById('snd-gatito-carrito');
+    const sndFinalizar = document.getElementById('snd-bebe-carrito');
+
+    // ── Recomendaciones: botones "Agregar" dentro del carrito ──────
+    // La URL renderizada por Django es /ventas/carrito/agregar/N/
+    document.querySelectorAll('form[action*="/agregar/"] button[type="submit"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            try { sndAgregar.currentTime = 0; sndAgregar.play(); } catch (e) {}
+        });
+    });
+
+    // ── Botón FINALIZAR COMPRA ─────────────────────────────────────
+    const formFinalizar = document.getElementById('form-finalizar-compra');
+    if (formFinalizar && sndFinalizar) {
+        formFinalizar.addEventListener('submit', function () {
+            try { sndFinalizar.currentTime = 0; sndFinalizar.play(); } catch (e) {}
+        });
+    }
+})();
+</script>
+
 {% endblock %}

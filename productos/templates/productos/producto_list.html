@@ -290,7 +290,7 @@
 </nav>
 {% endif %}
 
-{# ══ GAMIFICACIÓN AUDITIVA: Catálogo ═══════════════════════════════ #}
+{# ══ GAMIFICACIÓN AUDITIVA: Catálogo ════════════════════════════════ #}
 <audio id="snd-gatito" src="{% static 'img/Sonido_Gatito.mp3' %}" preload="auto"></audio>
 
 <script>
@@ -298,10 +298,10 @@
     'use strict';
     const snd = document.getElementById('snd-gatito');
 
-    // Identificar todos los formularios de "Agregar rápido" del catálogo
-    document.querySelectorAll('form[action*="carrito_add"] button[type="submit"]').forEach(function (btn) {
+    // La URL renderizada tiene la forma /ventas/carrito/agregar/N/
+    // No usar 'carrito_add' (es el nombre Django, no la URL final)
+    document.querySelectorAll('form[action*="/agregar/"] button[type="submit"]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            // Reiniciar y reproducir sin bloquear el submit
             try { snd.currentTime = 0; snd.play(); } catch (e) {}
         });
     });
