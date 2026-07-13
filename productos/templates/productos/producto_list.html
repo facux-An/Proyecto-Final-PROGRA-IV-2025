@@ -298,11 +298,12 @@
     'use strict';
     const snd = document.getElementById('snd-gatito');
 
-    // La URL renderizada tiene la forma /ventas/carrito/agregar/N/
-    // No usar 'carrito_add' (es el nombre Django, no la URL final)
-    document.querySelectorAll('form[action*="/agregar/"] button[type="submit"]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            try { snd.currentTime = 0; snd.play(); } catch (e) {}
+    document.querySelectorAll('form[action*="/agregar/"]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();                        // pausa el submit
+            try { snd.currentTime = 0; snd.play(); } catch (err) {}
+            var f = this;
+            setTimeout(function () { f.submit(); }, 600); // espera 600ms y envia
         });
     });
 })();

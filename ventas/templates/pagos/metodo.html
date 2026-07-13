@@ -253,8 +253,11 @@
     // Usar el ID exacto del form — no querySelector('form') que agarra el primero del DOM
     const formPago = document.getElementById('form-pago');
     if (formPago && snd) {
-        formPago.addEventListener('submit', function () {
-            try { snd.currentTime = 0; snd.play(); } catch (e) {}
+        formPago.addEventListener('submit', function (e) {
+            e.preventDefault(); // pausa el submit
+            try { snd.currentTime = 0; snd.play(); } catch (err) {}
+            var f = this;
+            setTimeout(function () { f.submit(); }, 750); // espera 750ms
         });
     }
 })();

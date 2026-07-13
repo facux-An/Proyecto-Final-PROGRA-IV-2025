@@ -223,10 +223,10 @@
                     document.getElementById('btn-add-detail').addEventListener('click', function () {
                         const snd = document.getElementById('snd-gatito-detail');
                         try { snd.currentTime = 0; snd.play(); } catch (e) {}
-                        // Pequeño delay para que el sonido arranque antes del redirect
+                        // Espera 600ms para que el sonido termine antes del redirect
                         setTimeout(function () {
                             document.getElementById('add-to-cart-form').submit();
-                        }, 120);
+                        }, 600);
                     });
                     </script>
 

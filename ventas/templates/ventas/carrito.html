@@ -1106,17 +1106,23 @@
 
     // ── Recomendaciones: botones "Agregar" dentro del carrito ──────
     // La URL renderizada por Django es /ventas/carrito/agregar/N/
-    document.querySelectorAll('form[action*="/agregar/"] button[type="submit"]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            try { sndAgregar.currentTime = 0; sndAgregar.play(); } catch (e) {}
+    document.querySelectorAll('form[action*="/agregar/"]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // pausa el submit
+            try { sndAgregar.currentTime = 0; sndAgregar.play(); } catch (err) {}
+            var f = this;
+            setTimeout(function () { f.submit(); }, 600); // espera 600ms
         });
     });
 
     // ── Botón FINALIZAR COMPRA ─────────────────────────────────────
     const formFinalizar = document.getElementById('form-finalizar-compra');
     if (formFinalizar && sndFinalizar) {
-        formFinalizar.addEventListener('submit', function () {
-            try { sndFinalizar.currentTime = 0; sndFinalizar.play(); } catch (e) {}
+        formFinalizar.addEventListener('submit', function (e) {
+            e.preventDefault(); // pausa el submit
+            try { sndFinalizar.currentTime = 0; sndFinalizar.play(); } catch (err) {}
+            var f = this;
+            setTimeout(function () { f.submit(); }, 750); // espera 750ms (gato bebé es más largo)
         });
     }
 })();
