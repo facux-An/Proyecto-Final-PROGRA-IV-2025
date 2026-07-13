@@ -242,4 +242,23 @@
         }
     }
 </script>
+
+{# ══ GAMIFICACIÓN AUDITIVA: Pago ════════════════════════════════════ #}
+<audio id="snd-gatito-bebe-pago" src="{% static 'img/Sonido_Gatito_Bebe.mp3' %}" preload="auto"></audio>
+
+<script>
+(function () {
+    'use strict';
+    const snd = document.getElementById('snd-gatito-bebe-pago');
+    // Capturar el submit del formulario de pago (cubre tanto MP como Transferencia)
+    const formPago = document.querySelector('form');
+    if (formPago && snd) {
+        formPago.addEventListener('submit', function () {
+            try { snd.currentTime = 0; snd.play(); } catch (e) {}
+            // No se cancela el evento — el submit continúa
+        });
+    }
+})();
+</script>
+
 {% endblock %}

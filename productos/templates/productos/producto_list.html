@@ -290,4 +290,22 @@
 </nav>
 {% endif %}
 
+{# ══ GAMIFICACIÓN AUDITIVA: Catálogo ═══════════════════════════════ #}
+<audio id="snd-gatito" src="{% static 'img/Sonido_Gatito.mp3' %}" preload="auto"></audio>
+
+<script>
+(function () {
+    'use strict';
+    const snd = document.getElementById('snd-gatito');
+
+    // Identificar todos los formularios de "Agregar rápido" del catálogo
+    document.querySelectorAll('form[action*="carrito_add"] button[type="submit"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            // Reiniciar y reproducir sin bloquear el submit
+            try { snd.currentTime = 0; snd.play(); } catch (e) {}
+        });
+    });
+})();
+</script>
+
 {% endblock %}

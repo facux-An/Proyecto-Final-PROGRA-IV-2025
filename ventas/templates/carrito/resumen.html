@@ -196,12 +196,17 @@
   </div>
 </div>
 
-<!-- Script simulado de temporizador FOMO -->
+{# ══ GAMIFICACIÓN AUDITIVA: Carrito ════════════════════════════════ #}
+<audio id="snd-gatito-bebe" src="{% static 'img/Sonido_Gatito_Bebe.mp3' %}" preload="auto"></audio>
+
+<!-- Script temporizador FOMO + Sonido Pago -->
 <script>
   document.addEventListener("DOMContentLoaded", function() {
+
+    // ── Temporizador FOMO ──────────────────────────────────────────
     const timerElement = document.getElementById("fomo-timer");
     if (timerElement) {
-      let time = 15 * 60; // 15 minutos en segundos
+      let time = 15 * 60;
       setInterval(function() {
         if (time <= 0) return;
         time--;
@@ -210,6 +215,17 @@
         timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
       }, 1000);
     }
+
+    // ── Sonido Gatito Bebé al Finalizar Compra ─────────────────────
+    const formFinalizar = document.getElementById('form-finalizar-compra');
+    const sndBebe = document.getElementById('snd-gatito-bebe');
+    if (formFinalizar && sndBebe) {
+      formFinalizar.addEventListener('submit', function () {
+        try { sndBebe.currentTime = 0; sndBebe.play(); } catch (e) {}
+        // El submit continúa normalmente, el sonido se lanza en paralelo
+      });
+    }
+
   });
 </script>
 {% endblock %}
