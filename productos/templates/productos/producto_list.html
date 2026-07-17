@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-    /* Estilos Premium Catálogo */
+    /* Estilos Premium Catálogo (Boutique Indie) */
     .catalog-header {
         background: linear-gradient(135deg, #ffffff 0%, #FFF8F3 100%);
         border: 1px solid rgba(255, 102, 0, 0.1);
@@ -16,43 +16,64 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         border: 1px solid rgba(0,0,0,0.05);
     }
-    .product-img {
-        height: 250px;
+    
+    /* Nuevo Layout Boutique (Mobile First) */
+    .boutique-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem; /* Espacio reducido en móvil */
+    }
+    @media (min-width: 768px) {
+        .boutique-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+    }
+    @media (min-width: 1024px) {
+        .boutique-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* Efecto Polaroid Flotante */
+    .product-card {
+        padding: 0.5rem; /* Marco blanco */
+        background-color: #ffffff;
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.06); /* Sombra difuminada cálida */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .product-card * {
+        color: #333333; /* Texto gris carbón más amigable */
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+
+    /* Imagen Cuadrada Perfecta (1:1) */
+    .product-img-wrapper {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        background-color: #f8f9fa; /* Por si carga lento */
+    }
+    .product-img-wrapper img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         transition: transform 0.4s ease;
     }
-    .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 1.25rem;
-        overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.04);
-        background-color: #ffffff;
+    .product-card:hover .product-img-wrapper img {
+        transform: scale(1.05);
     }
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
-    }
-    .product-card:hover .product-img {
-        transform: scale(1.08);
-    }
-    /* Botón agregar rápido corregido */
-    .btn-quick-add {
-        width: 42px; 
-        height: 42px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        transition: all 0.2s;
-        border: 1px solid #e9ecef;
-    }
-    .btn-quick-add:hover {
-        background-color: var(--brand-primary) !important;
-        border-color: var(--brand-primary) !important;
-        transform: scale(1.1);
-    }
-    .btn-quick-add:hover i { 
-        color: white !important; 
-    }
+
     /* Enlace estirado para que toda la tarjeta sea clickeable (menos los botones de acción) */
     .card-title a::before {
         content: '';
@@ -60,9 +81,48 @@
         top: 0; right: 0; bottom: 0; left: 0;
         z-index: 1;
     }
-    .btn-quick-add, .card-footer a {
+
+    /* Botón 100% de ancho (Respeta la lógica del form) */
+    .btn-boutique-add {
+        width: 100%;
+        background-color: var(--brand-primary);
+        color: #ffffff !important;
+        border: none;
+        border-radius: 12px;
+        padding: 0.65rem 0;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s, transform 0.1s;
         position: relative;
-        z-index: 2;
+        z-index: 2; /* Por encima del link estirado */
+    }
+    .btn-boutique-add:hover {
+        background-color: #e65c00;
+    }
+    .btn-boutique-add:active {
+        transform: scale(0.97);
+    }
+
+    /* Banner UX Trick */
+    .banner-envio-full {
+        grid-column: 1 / -1; /* Rompe la grilla y ocupa todo el ancho */
+        background: linear-gradient(135deg, var(--brand-primary) 0%, #ff9a5a 100%);
+        border-radius: 16px;
+        text-align: center;
+        padding: 1.5rem 1rem;
+        box-shadow: 0 8px 20px rgba(255, 102, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .banner-envio-full h5 {
+        color: #ffffff !important; /* Forzar blanco */
+        font-weight: 800;
+        margin: 0;
     }
 </style>
 
@@ -131,131 +191,110 @@
     </form>
 </div>
 
-<!-- Grilla de Productos -->
-<div class="row g-4">
+<!-- Grilla de Productos Boutique -->
+<div class="boutique-grid">
     {% for producto in productos %}
-    <div class="col-sm-6 col-lg-4 col-xl-3">
-        <div class="card h-100 product-card position-relative">
-            
-            <div class="position-relative overflow-hidden rounded-top-4 bg-light">
-                <!-- Imagen -->
-                {% if producto.imagen_principal_url %}
-                    <img src="{{ producto.imagen_principal_url }}" class="card-img-top product-img" alt="{{ producto.nombre }}">
-                {% else %}
-                    <div class="d-flex align-items-center justify-content-center product-img">
-                        <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                    </div>
+    
+    {% if forloop.counter == 5 %}
+    <!-- BANNER INTERCALADO (Rompe la grilla) -->
+    <div class="banner-envio-full my-1">
+        <h5 class="mb-0" style="font-size: 1.1rem; letter-spacing: 0.5px;">
+            🚀 ¡ENVÍO GRATIS en compras superiores a $27.000!
+        </h5>
+    </div>
+    {% endif %}
+
+    <div class="product-card position-relative">
+        <div class="product-img-wrapper">
+            <!-- Imagen -->
+            {% if producto.imagen_principal_url %}
+                <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <i class="bi bi-image opacity-25" style="font-size: 3rem; color: #ccc !important;"></i>
+                </div>
+            {% endif %}
+
+            <!-- Badges / Etiquetas -->
+            <div class="position-absolute top-0 start-0 m-2 d-flex flex-column gap-1 z-2">
+                {% if producto.en_oferta %}
+                    <span class="badge bg-danger shadow-sm px-2 py-1 rounded-pill fw-bold" style="font-size: 0.65rem; color: white !important;">
+                        <i class="bi bi-tag-fill me-1" style="color: white !important;"></i>OFERTA
+                    </span>
                 {% endif %}
-
-                <!-- Badges / Etiquetas -->
-                <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2 z-2">
-                    {% if producto.en_oferta %}
-                        <span class="badge bg-danger shadow-sm px-3 py-2 rounded-pill fw-bold">
-                            <i class="bi bi-tag-fill me-1"></i> OFERTA
-                            {% if producto.precio_oferta and producto.precio > producto.precio_oferta %}
-                                -{{ producto.porcentaje_descuento|floatformat:0 }}%
-                            {% endif %}
-                        </span>
-                    {% endif %}
-                    {% if producto.stock == 0 %}
-                        <span class="badge bg-dark shadow-sm px-3 py-2 rounded-pill fw-bold">Agotado</span>
-                    {% elif producto.stock < 5 %}
-                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">¡Últimos {{ producto.stock }}!</span>
-                    {% endif %}
-                </div>
+                {% if producto.stock == 0 %}
+                    <span class="badge bg-dark shadow-sm px-2 py-1 rounded-pill fw-bold" style="font-size: 0.65rem; color: white !important;">AGOTADO</span>
+                {% elif producto.stock < 5 %}
+                    <span class="badge bg-warning shadow-sm px-2 py-1 rounded-pill fw-bold" style="font-size: 0.65rem; color: #333 !important;">¡Últimos {{ producto.stock }}!</span>
+                {% endif %}
             </div>
+        </div>
 
-            <div class="card-body d-flex flex-column p-3">
-                <!-- Categoría -->
-                <small class="text-uppercase fw-bold mb-2" style="font-size: 0.75rem; color: #6B7280; letter-spacing: 0.5px;">
-                    {{ producto.categoria.nombre|default:"General" }}
-                </small>
-                
-                <!-- Título -->
-                <h5 class="card-title fw-bold mb-3" style="line-height: 1.3;">
-                    <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none text-dark hover-brand">
-                        {{ producto.nombre }}
-                    </a>
-                </h5>
-                
-                <!-- Precio y Acción -->
-                <div class="mt-auto">
-                    <div class="mb-2">
-                        {% if producto.en_oferta and producto.precio_oferta %}
-                            <div class="text-muted text-decoration-line-through mb-1" style="font-size: 0.85rem;">
-                                ${{ producto.precio|floatformat:0 }}
-                            </div>
-                            <span class="fw-bold fs-4" style="color: #DC2626;">${{ producto.precio_oferta|floatformat:0 }}</span>
-                            <!-- Precio con transferencia sobre precio de oferta -->
-                            <div class="mt-1" style="font-size: 0.78rem; color: #16a34a; font-weight: 600; line-height: 1.3;">
-                                💳 ${% widthratio producto.precio_oferta 10 9 %} con Transferencia
-                            </div>
-                        {% else %}
-                            <span class="fw-bold fs-4" style="color: var(--brand-primary);">${{ producto.precio|floatformat:0 }}</span>
-                            <!-- Precio con transferencia sobre precio normal -->
-                            <div class="mt-1" style="font-size: 0.78rem; color: #16a34a; font-weight: 600; line-height: 1.3;">
-                                💳 ${% widthratio producto.precio 10 9 %} con Transferencia
-                            </div>
-                        {% endif %}
+        <div class="d-flex flex-column flex-grow-1 pt-3 pb-1 px-1">
+            <!-- Categoría -->
+            <small class="text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #888888 !important; letter-spacing: 0.5px;">
+                {{ producto.categoria.nombre|default:"General" }}
+            </small>
+            
+            <!-- Título -->
+            <h5 class="card-title fw-bold mb-2" style="font-size: 0.95rem; line-height: 1.2;">
+                <a href="{% url 'productos:producto_detail' producto.id %}" class="text-decoration-none hover-brand" style="color: #333333 !important;">
+                    {{ producto.nombre|truncatechars:40 }}
+                </a>
+            </h5>
+            
+            <!-- Precio -->
+            <div class="mt-auto mb-3">
+                {% if producto.en_oferta and producto.precio_oferta %}
+                    <div class="text-decoration-line-through mb-0" style="font-size: 0.75rem; color: #999999 !important;">
+                        ${{ producto.precio|floatformat:0 }}
                     </div>
-                    
-                    <div class="d-flex justify-content-end">
-                    {% if producto.stock > 0 %}
-                        <form method="post" action="{% url 'carrito:carrito_add' producto.id %}" class="mb-0 z-2 position-relative">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-quick-add bg-white rounded-circle shadow-sm" title="Agregar al carrito">
-                                <i class="bi bi-cart-plus-fill fs-5" style="color: var(--brand-primary);"></i>
-                            </button>
-                        </form>
-                    {% else %}
-                        <div class="btn-quick-add bg-light rounded-circle shadow-sm opacity-50">
-                            <i class="bi bi-x-lg text-muted"></i>
-                        </div>
-                    {% endif %}
-                    </div>
-                </div>
+                    <span class="fw-bold" style="color: #DC2626 !important; font-size: 1.15rem;">${{ producto.precio_oferta|floatformat:0 }}</span>
+                {% else %}
+                    <span class="fw-bold" style="font-size: 1.15rem; color: var(--brand-primary) !important;">${{ producto.precio|floatformat:0 }}</span>
+                {% endif %}
             </div>
-
-            <!-- Controles de Administrador -->
-            {% if user.is_staff %}
-            <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-4 z-2 position-relative">
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- Botón Estrella (Destacar) -->
-                    <form method="post" action="{% url 'productos:toggle_destacado' producto.id %}" class="mb-0">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm border-0 bg-transparent" title="{% if producto.destacado %}Quitar del Home{% else %}Destacar en el Home{% endif %}" style="padding: 0;">
-                            <i class="bi {% if producto.destacado %}bi-star-fill text-warning fs-4{% else %}bi-star text-muted fs-4 opacity-50 hover-warning{% endif %}" style="transition: color 0.2s;"></i>
-                        </button>
-                    </form>
-                    
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'productos:producto_update' producto.id %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Editar">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="{% url 'productos:producto_delete' producto.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Eliminar">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            
+            <!-- Botón Agregar 🛒 (Respeta Formulario HTML y lógica JS) -->
+            {% if producto.stock > 0 %}
+                <form method="post" action="{% url 'carrito:carrito_add' producto.id %}" class="mb-0 z-2 position-relative w-100">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-boutique-add shadow-sm">
+                        Agregar 🛒
+                    </button>
+                </form>
+            {% else %}
+                <button disabled class="btn-boutique-add shadow-sm opacity-50" style="background-color: #999999 !important; cursor: not-allowed; z-index: 2; position: relative;">
+                    Sin Stock
+                </button>
             {% endif %}
         </div>
+
+        <!-- Controles de Administrador -->
+        {% if user.is_staff %}
+        <div class="rounded-3 p-2 mt-2 z-2 position-relative" style="background-color: #f8f9fa;">
+            <div class="d-flex justify-content-between align-items-center">
+                <form method="post" action="{% url 'productos:toggle_destacado' producto.id %}" class="mb-0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm border-0 bg-transparent p-0" title="Destacar">
+                        <i class="bi {% if producto.destacado %}bi-star-fill text-warning{% else %}bi-star text-muted{% endif %} fs-5"></i>
+                    </button>
+                </form>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'productos:producto_update' producto.id %}" class="btn btn-sm btn-outline-warning rounded-circle" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"><i class="bi bi-pencil" style="font-size: 0.8rem;"></i></a>
+                    <a href="{% url 'productos:producto_delete' producto.id %}" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"><i class="bi bi-trash" style="font-size: 0.8rem;"></i></a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    
     {% empty %}
     <!-- Estado Vacío -->
-    <div class="col-12 text-center py-5">
-        <div class="bg-white p-5 rounded-4 shadow-sm d-inline-block border" style="max-width: 500px;">
-            <div class="mb-4 d-inline-block p-4 rounded-circle bg-light text-muted opacity-75">
-                <i class="bi bi-search fs-1"></i>
-            </div>
-            <h3 class="fw-bold text-dark mb-3">No encontramos resultados</h3>
-            <p class="text-muted mb-4 fs-5">No hay productos que coincidan con tu búsqueda actual. Intentá con otros filtros.</p>
-            {% if user.is_staff %}
-                <a href="{% url 'productos:producto_create' %}" class="btn fw-bold px-4 py-2 rounded-pill text-white" style="background-color: var(--brand-primary);">
-                    <i class="bi bi-plus-lg me-1"></i> Crear primer producto
-                </a>
-            {% endif %}
+    <div class="banner-envio-full my-4" style="background: white !important; border: 1px dashed #ccc; box-shadow: none;">
+        <div class="text-center w-100">
+            <i class="bi bi-search fs-1 mb-3" style="color: #ccc !important;"></i>
+            <h3 class="fw-bold mb-2" style="color: #333 !important;">No encontramos resultados</h3>
+            <p style="color: #888 !important; margin-bottom: 0;">Intentá con otros filtros o categorías.</p>
         </div>
     </div>
     {% endfor %}
