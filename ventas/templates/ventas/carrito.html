@@ -795,6 +795,12 @@
             if (segsRestantes <= 0) {
                 timerEl.textContent = '¡Expirado!';
                 timerEl.style.color = '#EF4444';
+                
+                // DOM INJECTION: Hide cart badge visually (State Desync Fix)
+                document.querySelectorAll('.cart-badge').forEach(function(badge) {
+                    badge.style.display = 'none';
+                });
+                
                 return;
             }
             const mins = Math.floor(segsRestantes / 60);

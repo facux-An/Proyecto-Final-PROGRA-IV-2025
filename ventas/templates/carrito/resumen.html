@@ -208,7 +208,12 @@
     if (timerElement) {
       let time = 15 * 60;
       setInterval(function() {
-        if (time <= 0) return;
+        if (time <= 0) {
+          document.querySelectorAll('.cart-badge').forEach(function(badge) {
+              badge.style.display = 'none';
+          });
+          return;
+        }
         time--;
         let minutes = Math.floor(time / 60);
         let seconds = time % 60;
