@@ -8,6 +8,7 @@ from biblioteca_plus import views
 from ventas.views.pagos import ConfirmacionPagoView
 # pyrefly: ignore [missing-import]
 from django.views.static import serve
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # Health Check (para UptimeRobot)
@@ -18,6 +19,10 @@ urlpatterns = [
 
     # Home
     path('', views.home, name='home'),
+
+    # Políticas (Páginas estáticas sin BDD)
+    path('envios/', TemplateView.as_view(template_name='politicas/envios.html'), name='politicas_envios'),
+    path('devoluciones/', TemplateView.as_view(template_name='politicas/devoluciones.html'), name='politicas_devoluciones'),
 
     # Admin
     path('admin/', admin.site.urls),

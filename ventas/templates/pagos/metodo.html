@@ -127,6 +127,13 @@
                     </div>
 
 
+                    <div class="form-check mb-3 mt-3">
+                        <input class="form-check-input" type="checkbox" id="aceptoPoliticas" required>
+                        <label class="form-check-label small text-muted" for="aceptoPoliticas">
+                            He leído y acepto las <a href="{% url 'politicas_envios' %}" target="_blank" class="text-decoration-none fw-bold" style="color: var(--brand-primary);">Políticas de Envío</a> y <a href="{% url 'politicas_devoluciones' %}" target="_blank" class="text-decoration-none fw-bold" style="color: var(--brand-primary);">Devoluciones</a>
+                        </label>
+                    </div>
+
                     <button type="submit" id="btn-finalizar" class="btn btn-secondary btn-lg w-100 py-3 fw-bold shadow-sm rounded-pill" style="border: none;" disabled>
                         Elegí un método
                     </button>

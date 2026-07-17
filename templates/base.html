@@ -691,6 +691,8 @@
               {% if user.is_authenticated %}
               <li><a href="{% url 'pedidos:list' %}">Mis Pedidos</a></li>
               {% endif %}
+              <li><a href="{% url 'politicas_envios' %}">Política de Envíos</a></li>
+              <li><a href="{% url 'politicas_devoluciones' %}">Devoluciones</a></li>
             </ul>
           </div>
 
